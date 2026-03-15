@@ -107,14 +107,14 @@ export const ForestLayout = {
     { key: 'cover_stump', x: 2600, y: G - 58 },
     { key: 'cover_stump', x: 4200, y: G - 58 },
   ],
-  // Ammo crate spots (used on medium/hard — up to 6)
+  // Ammo crate spots on platforms — clearly visible, up to 6
   ammoPickups: [
-    { x: 450,  y: G - 60 },
-    { x: 1100, y: G - 60 },
-    { x: 2000, y: G - 60 },
-    { x: 2900, y: G - 60 },
-    { x: 3800, y: G - 60 },
-    { x: 4900, y: G - 60 },
+    { x: 380,  y: G - 248 },  // on platform [380, G-220]
+    { x: 1060, y: G - 288 },  // on platform [1060, G-260]
+    { x: 2480, y: G - 228 },  // on platform [2480, G-200]
+    { x: 3500, y: G - 278 },  // on platform [3500, G-250]
+    { x: 4400, y: G - 308 },  // on platform [4400, G-280]
+    { x: 5000, y: G - 228 },  // on platform [5000, G-200]
   ],
   bossZoneTriggerX: BOSS_ZONE_X,
   bossSpawnX: BOSS_ZONE_X + 450,

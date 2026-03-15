@@ -95,6 +95,37 @@ export function generateUITextures(scene) {
   pixCtx.fillStyle = '#fff';
   pixCtx.fillRect(0, 0, 2, 2);
   scene.textures.addCanvas('pixel', pixCanvas);
+
+  // Shadow warning - red ellipse on floor (boss attack incoming)
+  const shadowCanvas = document.createElement('canvas');
+  shadowCanvas.width = 80; shadowCanvas.height = 20;
+  const sCtx = shadowCanvas.getContext('2d');
+  sCtx.fillStyle = 'rgba(200, 0, 0, 0.5)';
+  sCtx.beginPath();
+  sCtx.ellipse(40, 10, 38, 9, 0, 0, Math.PI * 2);
+  sCtx.fill();
+  sCtx.strokeStyle = '#ff2200';
+  sCtx.lineWidth = 1.5;
+  sCtx.beginPath();
+  sCtx.ellipse(40, 10, 38, 9, 0, 0, Math.PI * 2);
+  sCtx.stroke();
+  scene.textures.addCanvas('shadow_warning', shadowCanvas);
+
+  // Web hazard - sticky green web patch
+  const webCanvas = document.createElement('canvas');
+  webCanvas.width = 80; webCanvas.height = 20;
+  const webCtx = webCanvas.getContext('2d');
+  webCtx.fillStyle = 'rgba(100, 220, 100, 0.55)';
+  webCtx.fillRect(0, 0, 80, 20);
+  webCtx.strokeStyle = '#44aa44';
+  webCtx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    webCtx.beginPath(); webCtx.moveTo(i * 20, 0); webCtx.lineTo(i * 20, 20); webCtx.stroke();
+  }
+  for (let i = 0; i <= 2; i++) {
+    webCtx.beginPath(); webCtx.moveTo(0, i * 10); webCtx.lineTo(80, i * 10); webCtx.stroke();
+  }
+  scene.textures.addCanvas('web_hazard', webCanvas);
 }
 
 function drawHeart(ctx, cx, cy, size, color) {

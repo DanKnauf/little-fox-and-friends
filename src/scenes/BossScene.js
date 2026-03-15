@@ -45,20 +45,19 @@ export class BossScene extends Phaser.Scene {
     this._player = gameScene?._littleFox;
     this._companions = Object.values(gameScene?._companions || {});
 
-    // Spawn boss in center of view
+    // Sync this scene's camera + physics world to match GameScene's camera offset,
+    // so world coordinates are shared between GameScene and BossScene.
     const cam = gameScene?.cameras.main;
-    const bossX = cam ? cam.scrollX + GAME_WIDTH / 2 : GAME_WIDTH / 2;
+    const scrollX = cam ? cam.scrollX : 0;
+    this.cameras.main.setScroll(scrollX, 0);
+    this.physics.world.setBounds(scrollX - 500, 0, GAME_WIDTH + 1000, GAME_HEIGHT);
+
+    const bossX = scrollX + GAME_WIDTH / 2;
     const bossY = GAME_HEIGHT - 140;
 
     this._boss = new BossClass(this, bossX, bossY);
     if (this._boss.setPlayer) {
       this._boss.setPlayer(this._player, this._companions);
-    }
-
-    // Transfer boss sprite to the correct world position for camera
-    if (cam) {
-      this._boss.sprite.x = bossX + cam.scrollX;
-      this._boss.sprite.y = bossY;
     }
 
     // Health bar

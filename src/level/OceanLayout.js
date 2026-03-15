@@ -100,12 +100,12 @@ export const OceanLayout = {
     { key: 'cover_coral', x: 5100, y: G - 50 },
   ],
   ammoPickups: [
-    { x: 500,  y: G - 60 },
-    { x: 1300, y: G - 60 },
-    { x: 2200, y: G - 60 },
-    { x: 3100, y: G - 60 },
-    { x: 4100, y: G - 60 },
-    { x: 5100, y: G - 60 },
+    { x: 300,  y: G - 268 },  // on platform [300, G-240]
+    { x: 880,  y: G - 308 },  // on platform [880, G-280]
+    { x: 2400, y: G - 328 },  // on platform [2400, G-300]
+    { x: 3000, y: G - 308 },  // on platform [3000, G-280]
+    { x: 4280, y: G - 308 },  // on platform [4280, G-280]
+    { x: 5000, y: G - 268 },  // on platform in area
   ],
   bossZoneTriggerX: BOSS_ZONE_X,
   bossSpawnX: BOSS_ZONE_X + 500,

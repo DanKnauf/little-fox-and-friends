@@ -93,12 +93,12 @@ export const DesertLayout = {
     { key: 'cover_rock', x: 4500, y: G - 60 },
   ],
   ammoPickups: [
-    { x: 480,  y: G - 60 },
-    { x: 1200, y: G - 60 },
-    { x: 2100, y: G - 60 },
-    { x: 3000, y: G - 60 },
-    { x: 4000, y: G - 60 },
-    { x: 5000, y: G - 60 },
+    { x: 360,  y: G - 228 },  // on platform [360, G-200]
+    { x: 940,  y: G - 288 },  // on platform [940, G-260]
+    { x: 2500, y: G - 278 },  // on platform [2500, G-250]
+    { x: 3380, y: G - 288 },  // on platform [3380, G-260]
+    { x: 4120, y: G - 288 },  // on platform [4120, G-260]
+    { x: 5000, y: G - 248 },  // on platform in area
   ],
   bossZoneTriggerX: BOSS_ZONE_X,
   bossSpawnX: BOSS_ZONE_X + 430,

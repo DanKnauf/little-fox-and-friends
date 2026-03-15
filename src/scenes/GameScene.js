@@ -204,6 +204,12 @@ export class GameScene extends Phaser.Scene {
   update(time, delta) {
     if (!this._littleFox || !this._littleFox.isAlive()) return;
 
+    // Parallax scroll
+    const camX = this.cameras.main.scrollX;
+    for (const layer of (this._parallaxLayers || [])) {
+      layer.sprite.tilePositionX = camX * layer.factor;
+    }
+
     this._littleFox.update(time, delta);
 
     for (const comp of this._companionList) {
@@ -218,22 +224,19 @@ export class GameScene extends Phaser.Scene {
   }
 
   _buildParallax(bgKey) {
-    const layers = [
+    this._parallaxLayers = [];
+    const layerDefs = [
       { suffix: 'sky',  factor: 0.05, depth: DEPTH.BG_FAR  },
       { suffix: 'far',  factor: 0.10, depth: DEPTH.BG_MID  },
       { suffix: 'mid',  factor: 0.20, depth: DEPTH.BG_MID + 0.5 },
       { suffix: 'near', factor: 0.40, depth: DEPTH.BG_NEAR },
     ];
 
-    for (const layer of layers) {
+    for (const layer of layerDefs) {
       const key = `bg_${bgKey}_${layer.suffix}`;
-      const sprite = this.add.tileSprite(
-        GAME_WIDTH / 2, GAME_HEIGHT / 2,
-        GAME_WIDTH, GAME_HEIGHT,
-        key
-      );
-      sprite.setScrollFactor(layer.factor, 0);
-      sprite.setDepth(layer.depth);
+      const sprite = this.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, key)
+        .setScrollFactor(0).setOrigin(0, 0).setDepth(layer.depth);
+      this._parallaxLayers.push({ sprite, factor: layer.factor });
     }
   }
 
@@ -260,5 +263,23 @@ export class GameScene extends Phaser.Scene {
     AudioManager.stopMusic();
     this.scene.launch('BossScene', { level: this._level });
     this.scene.pause();
+  }
+
+  shutdown() {
+    // Cancel all pending timers so stale callbacks don't fire on stale sprites
+    this.time.removeAllEvents();
+    this.tweens.killAll();
+
+    // Destroy projectile pools (clears kill timers + WebGL refs)
+    try {
+      this._littleFox?.getProjectileGroup()?.destroy();
+      for (const comp of (this._companionList || [])) {
+        comp.getProjectileGroup?.()?.destroy();
+      }
+    } catch (_) {}
+
+    this._enemies = [];
+    this._companionList = [];
+    this._parallaxLayers = [];
   }
 }

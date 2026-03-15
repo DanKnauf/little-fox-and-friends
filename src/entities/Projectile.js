@@ -44,8 +44,16 @@ export class ProjectileGroup {
 
   hit(proj) {
     if (!proj || !proj.active) return;
+    if (proj._killTimer) { proj._killTimer.remove(); proj._killTimer = null; }
     proj.setActive(false).setVisible(false);
     if (proj.body) proj.body.setVelocity(0, 0);
+  }
+
+  destroy() {
+    for (const proj of this.group.getChildren()) {
+      if (proj._killTimer) { proj._killTimer.remove(); proj._killTimer = null; }
+    }
+    this.group.clear(true, true);
   }
 
   getGroup() {

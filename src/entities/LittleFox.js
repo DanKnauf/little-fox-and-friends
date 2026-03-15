@@ -17,7 +17,7 @@ export class LittleFox extends Entity {
       down:  Phaser.Input.Keyboard.KeyCodes.S,
       left:  Phaser.Input.Keyboard.KeyCodes.A,
       right: Phaser.Input.Keyboard.KeyCodes.D,
-      jump:  Phaser.Input.Keyboard.KeyCodes.SPACE
+      shoot: Phaser.Input.Keyboard.KeyCodes.SPACE
     });
 
     this._facingRight = true;
@@ -28,9 +28,9 @@ export class LittleFox extends Entity {
     this._shootCooldown = 0;
     this._moveSpeed = 220;
 
-    // Mouse click to shoot
+    // Mouse click to shoot toward cursor
     scene.input.on('pointerdown', (pointer) => {
-      if (pointer.leftButtonDown()) this._shoot(pointer);
+      if (pointer.leftButtonDown()) this._shootAt(pointer.worldX, pointer.worldY);
     });
   }
 
@@ -75,11 +75,16 @@ export class LittleFox extends Entity {
       }
     }
 
-    // Jump
-    if ((keys.jump.isDown || keys.up.isDown) && onGround) {
+    // Jump (W key only)
+    if (keys.up.isDown && onGround) {
       body.setVelocityY(-520);
       this.sprite.play('fox_jump', true);
       AudioManager.play('jump');
+    }
+
+    // Spacebar = shoot forward
+    if (Phaser.Input.Keyboard.JustDown(keys.shoot)) {
+      this._shootForward();
     }
 
     // Crouch
@@ -109,31 +114,43 @@ export class LittleFox extends Entity {
     }
   }
 
-  _shoot(pointer) {
-    if (this._shootCooldown > 0 || !this._alive) return;
-
-    // Check ammo (Infinity = easy mode unlimited)
+  _canShoot() {
+    if (this._shootCooldown > 0 || !this._alive) return false;
     const ammo = GameState.state.ammo;
-    if (ammo !== Infinity && ammo <= 0) return;
+    if (ammo !== Infinity && ammo <= 0) return false;
+    return true;
+  }
 
+  _fireProjectile(targetX, targetY) {
     this._shootCooldown = 300;
-
-    const cam = this.scene.cameras.main;
-    const worldX = pointer.x + cam.scrollX;
-    const worldY = pointer.y + cam.scrollY;
-
-    this._projectiles.fire(this.sprite.x, this.sprite.y - 8, worldX, worldY, 600);
+    this._projectiles.fire(this.sprite.x, this.sprite.y - 8, targetX, targetY, 600);
     this.sprite.play('fox_shoot', true);
     this.scene.time.delayedCall(200, () => {
-      if (this.sprite.active) this.sprite.play('fox_idle', true);
+      if (this.sprite?.active) this.sprite.play('fox_idle', true);
     });
     AudioManager.play('shoot');
-
-    // Decrement ammo
+    const ammo = GameState.state.ammo;
     if (ammo !== Infinity) {
       GameState.state.ammo -= 1;
       this.scene.events.emit('ammoChanged');
     }
+  }
+
+  _shootForward() {
+    if (!this._canShoot()) return;
+    const targetX = this.sprite.x + (this._facingRight ? 600 : -600);
+    const targetY = this.sprite.y - 8;
+    this._fireProjectile(targetX, targetY);
+  }
+
+  _shootAt(worldX, worldY) {
+    if (!this._canShoot()) return;
+    // If clicking in same direction as facing, shoot toward cursor.
+    // Otherwise flip facing and shoot forward (avoids awkward backwards shots).
+    const dx = worldX - this.sprite.x;
+    if (dx > 0) { this._facingRight = true; this.sprite.setFlipX(false); }
+    else if (dx < 0) { this._facingRight = false; this.sprite.setFlipX(true); }
+    this._fireProjectile(worldX, worldY);
   }
 
   activateSizeUp() {

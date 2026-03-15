@@ -42,15 +42,13 @@ export class HUD {
       this._playerHeartImages.push(img);
     }
 
-    // Ammo counter (bottom-right, hidden on easy/unlimited)
-    if (GameState.state.ammo !== Infinity) {
-      this._ammoText = scene.add.text(
-        scene.cameras.main.width - 12,
-        scene.cameras.main.height - 12,
-        this._ammoLabel(),
-        { fontSize: '16px', color: '#ffe066', fontFamily: 'Arial Bold', stroke: '#4a3000', strokeThickness: 3 }
-      ).setScrollFactor(0).setDepth(DEPTH.HUD).setOrigin(1, 1);
-    }
+    // Ammo counter (bottom-right, always visible; shows ∞ on easy)
+    this._ammoText = scene.add.text(
+      scene.cameras.main.width - 12,
+      scene.cameras.main.height - 12,
+      this._ammoLabel(),
+      { fontSize: '16px', color: '#ffe066', fontFamily: 'Arial Bold', stroke: '#4a3000', strokeThickness: 3 }
+    ).setScrollFactor(0).setDepth(DEPTH.HUD).setOrigin(1, 1);
 
     // Companion rows
     let rowY = HUD_Y + HEART_SIZE + 10;
@@ -109,7 +107,7 @@ export class HUD {
 
   _ammoLabel() {
     const ammo = GameState.state.ammo;
-    return `★ ${ammo}`;
+    return `★ ${ammo === Infinity ? '∞' : ammo}`;
   }
 
   _refreshAmmo() {

@@ -30,74 +30,111 @@ function drawFox(ctx, cx, cy, legOff, isJump, isHurt) {
   ctx.save();
   if (isHurt) ctx.globalAlpha = 0.7;
 
-  const bodyColor = isHurt ? '#ff6644' : '#E8722A';
-  const earColor  = '#E8722A';
-  const bellyColor = '#f5c89a';
+  const bodyColor  = isHurt ? '#ff7744' : '#D4621A'; // rust-orange
+  const bellyColor = '#f0c080';  // warm cream belly
+  const earInner   = '#ffaaaa';  // pink inner ear
+  const muzzleColor = '#f0c080'; // cream muzzle
 
-  // tail
-  ctx.strokeStyle = bodyColor; ctx.lineWidth = 4;
+  // ── TAIL (behind body, drawn first) ─────────────────────────────────────────
+  ctx.strokeStyle = bodyColor; ctx.lineWidth = 7; ctx.lineCap = 'round';
   ctx.beginPath();
-  ctx.moveTo(cx - 10, cy + 4);
-  ctx.quadraticCurveTo(cx - 18, cy - 4, cx - 14, cy - 10);
+  ctx.moveTo(cx - 6, cy + 5);
+  ctx.quadraticCurveTo(cx - 22, cy + 2, cx - 20, cy - 10);
   ctx.stroke();
+  // white fluffy tip
+  ctx.fillStyle = '#ffffff';
   ctx.beginPath();
-  ctx.arc(cx - 14, cy - 10, 4, 0, Math.PI * 2);
-  ctx.fillStyle = '#fff'; ctx.fill();
+  ctx.arc(cx - 20, cy - 10, 6, 0, Math.PI * 2);
+  ctx.fill();
+  // light grey outline on tip
+  ctx.strokeStyle = '#dddddd'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(cx - 20, cy - 10, 6, 0, Math.PI * 2);
+  ctx.stroke();
 
-  // body
+  // ── BODY ────────────────────────────────────────────────────────────────────
   ctx.fillStyle = bodyColor;
   ctx.beginPath();
-  ctx.ellipse(cx, cy + 2, 10, 12, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx, cy + 3, 9, 11, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // belly
+  // belly / chest patch
   ctx.fillStyle = bellyColor;
   ctx.beginPath();
   ctx.ellipse(cx + 1, cy + 5, 5, 7, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // head
+  // ── HEAD ────────────────────────────────────────────────────────────────────
   ctx.fillStyle = bodyColor;
   ctx.beginPath();
-  ctx.ellipse(cx + 2, cy - 8, 9, 8, 0.2, 0, Math.PI * 2);
+  ctx.ellipse(cx + 2, cy - 8, 8, 7, 0.1, 0, Math.PI * 2);
   ctx.fill();
 
-  // ears
-  ctx.fillStyle = earColor;
+  // white face mask (forehead + eye area)
+  ctx.fillStyle = bellyColor;
   ctx.beginPath();
-  ctx.moveTo(cx - 2, cy - 14);
+  ctx.ellipse(cx + 2, cy - 10, 5, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ── EARS (large pointed triangles) ──────────────────────────────────────────
+  // left ear
+  ctx.fillStyle = bodyColor;
+  ctx.beginPath();
+  ctx.moveTo(cx - 3, cy - 13);
+  ctx.lineTo(cx - 9, cy - 24);
+  ctx.lineTo(cx + 2, cy - 14);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = earInner;
+  ctx.beginPath();
+  ctx.moveTo(cx - 3, cy - 14);
   ctx.lineTo(cx - 7, cy - 22);
-  ctx.lineTo(cx + 2, cy - 15);
-  ctx.fill();
+  ctx.lineTo(cx + 1, cy - 15);
+  ctx.closePath(); ctx.fill();
+
+  // right ear
+  ctx.fillStyle = bodyColor;
   ctx.beginPath();
-  ctx.moveTo(cx + 4, cy - 14);
-  ctx.lineTo(cx + 9, cy - 21);
+  ctx.moveTo(cx + 5, cy - 13);
+  ctx.lineTo(cx + 12, cy - 23);
+  ctx.lineTo(cx + 11, cy - 13);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = earInner;
+  ctx.beginPath();
+  ctx.moveTo(cx + 6, cy - 14);
+  ctx.lineTo(cx + 11, cy - 21);
   ctx.lineTo(cx + 10, cy - 14);
+  ctx.closePath(); ctx.fill();
+
+  // ── SNOUT / MUZZLE (elongated, pointed) ─────────────────────────────────────
+  ctx.fillStyle = muzzleColor;
+  ctx.beginPath();
+  ctx.ellipse(cx + 9, cy - 7, 5, 3, 0.25, 0, Math.PI * 2);
   ctx.fill();
 
-  // eyes
+  // black nose tip
+  ctx.fillStyle = '#111';
+  ctx.beginPath();
+  ctx.ellipse(cx + 13, cy - 7, 2, 1.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ── EYES ────────────────────────────────────────────────────────────────────
   ctx.fillStyle = '#222';
   ctx.beginPath();
-  ctx.arc(cx + 1, cy - 9, 2, 0, Math.PI * 2);
+  ctx.arc(cx + 1, cy - 11, 2, 0, Math.PI * 2);
   ctx.fill();
   ctx.beginPath();
-  ctx.arc(cx + 7, cy - 9, 2, 0, Math.PI * 2);
+  ctx.arc(cx + 6, cy - 11, 2, 0, Math.PI * 2);
   ctx.fill();
+  // eye shine
   ctx.fillStyle = '#fff';
   ctx.beginPath();
-  ctx.arc(cx + 2, cy - 10, 0.8, 0, Math.PI * 2);
+  ctx.arc(cx + 2, cy - 12, 0.8, 0, Math.PI * 2);
   ctx.fill();
   ctx.beginPath();
-  ctx.arc(cx + 8, cy - 10, 0.8, 0, Math.PI * 2);
+  ctx.arc(cx + 7, cy - 12, 0.8, 0, Math.PI * 2);
   ctx.fill();
 
-  // nose
-  ctx.fillStyle = '#c0501a';
-  ctx.beginPath();
-  ctx.ellipse(cx + 9, cy - 7, 2, 1.5, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // legs
+  // ── LEGS ────────────────────────────────────────────────────────────────────
   const jumpY = isJump ? -3 : 0;
   ctx.fillStyle = bodyColor;
   ctx.beginPath();
@@ -453,39 +490,50 @@ function drawMamaSloth(ctx, cx, cy, celebrate, armRaise) {
 
 // ─── Ammo Pickup ─────────────────────────────────────────────────────────────
 function generateAmmoPickup(scene) {
-  const W = 20, H = 16;
+  const W = 28, H = 28;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
 
-  // box body
-  ctx.fillStyle = '#e8c840';
+  // outer glowing ring
+  ctx.strokeStyle = '#ffe066';
+  ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.roundRect(1, 2, 18, 12, 2);
-  ctx.fill();
-
-  // dark border
-  ctx.strokeStyle = '#a08000';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.roundRect(1, 2, 18, 12, 2);
+  ctx.arc(14, 14, 13, 0, Math.PI * 2);
   ctx.stroke();
 
-  // "x" label
-  ctx.fillStyle = '#6a4400';
-  ctx.font = 'bold 7px sans-serif';
+  // crate body — gold
+  ctx.fillStyle = '#c89000';
+  ctx.fillRect(4, 6, 20, 16);
+  ctx.fillStyle = '#f0c020';
+  ctx.fillRect(5, 7, 18, 14);
+
+  // border
+  ctx.strokeStyle = '#8a6000';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(4, 6, 20, 16);
+
+  // cross braces
+  ctx.strokeStyle = '#c89000';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(14, 6); ctx.lineTo(14, 22);
+  ctx.moveTo(4, 14); ctx.lineTo(24, 14);
+  ctx.stroke();
+
+  // star icon in center
+  ctx.fillStyle = '#5a3500';
+  ctx.font = 'bold 10px sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('★', 10, 8);
+  ctx.fillText('★', 14, 14);
 
-  // small bullet silhouettes on sides
-  ctx.fillStyle = '#a08000';
-  ctx.beginPath();
-  ctx.ellipse(4, 8, 1.5, 3, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(16, 8, 1.5, 3, 0, 0, Math.PI * 2);
-  ctx.fill();
+  // "+10" label above
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 6px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText('+10', 14, 6);
 
   scene.textures.addImage('ammo_pickup', canvas);
 }
