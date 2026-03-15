@@ -103,6 +103,8 @@ export const DesertLayout = {
     { x: 5400, y: G - 208 },  // on platform [5400, G-180]
     { x: 5600, y: G - 278 },  // on platform [5600, G-250]
     { x: 5800, y: G - 228 },  // on platform [5800, G-200]
+    // secret boss-arena ammo box — far right wall
+    { x: 6960, y: G - 28 },
   ],
   bossZoneTriggerX: BOSS_ZONE_X,
   bossSpawnX: BOSS_ZONE_X + 430,

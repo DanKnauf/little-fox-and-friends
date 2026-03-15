@@ -4,8 +4,8 @@ export const LEVEL_WIDTH = 7200;
 
 export const DIFFICULTY = {
   easy:   { hearts: 5, enemySpeed: 0.7, bossSpeed: 0.9, telegraphMs: 900,  density: 'low',    potions: 4, ammo: Infinity, ammoPickups: 0, scoreMultiplier: 1.5 },
-  medium: { hearts: 4, enemySpeed: 1.0, bossSpeed: 1.0, telegraphMs: 1000, density: 'medium', potions: 3, ammo: 40,       ammoPickups: 9, scoreMultiplier: 3.0 },
-  hard:   { hearts: 3, enemySpeed: 1.3, bossSpeed: 1.4, telegraphMs:  600, density: 'high',   potions: 2, ammo: 20,       ammoPickups: 9, scoreMultiplier: 4.5 }
+  medium: { hearts: 4, enemySpeed: 1.0, bossSpeed: 1.0, telegraphMs: 1000, density: 'medium', potions: 3, ammo: 40,       ammoPickups: 10, scoreMultiplier: 3.0 },
+  hard:   { hearts: 3, enemySpeed: 1.3, bossSpeed: 1.4, telegraphMs:  600, density: 'high',   potions: 2, ammo: 20,       ammoPickups: 10, scoreMultiplier: 4.5 }
 };
 
 export const SCORE = {

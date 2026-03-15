@@ -110,6 +110,8 @@ export const OceanLayout = {
     { x: 5800, y: G - 228 },  // on platform [5800, G-200]
     { x: 5980, y: G - 298 },  // on platform [5980, G-270]
     { x: 6100, y: G - 228 },  // on platform [6100, G-200]
+    // secret boss-arena ammo box — far right wall
+    { x: 6970, y: G - 28 },
   ],
   bossZoneTriggerX: BOSS_ZONE_X,
   bossSpawnX: BOSS_ZONE_X + 500,

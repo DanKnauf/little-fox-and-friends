@@ -119,6 +119,8 @@ export const ForestLayout = {
     { x: 5600, y: G - 228 },  // on platform [5600, G-200]
     { x: 5800, y: G - 308 },  // on platform [5800, G-280]
     { x: 5980, y: G - 228 },  // on platform [5980, G-200]
+    // secret boss-arena ammo box — far right wall
+    { x: 6980, y: G - 28 },
   ],
   bossZoneTriggerX: BOSS_ZONE_X,
   bossSpawnX: BOSS_ZONE_X + 450,
