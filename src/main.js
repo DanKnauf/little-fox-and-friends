@@ -44,7 +44,8 @@ const config = {
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
   render: {
-    antialias: true
+    antialias: true,
+    resolution: window.devicePixelRatio || 1
   },
   input: {
     gamepad: true

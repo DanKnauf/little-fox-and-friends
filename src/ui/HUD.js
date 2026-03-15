@@ -62,9 +62,12 @@ export class HUD {
     // Companion rows
     let rowY = HUD_Y + HEART_SIZE + 10;
     for (const [key, cfg] of Object.entries(this._companionConfig)) {
-      const label = scene.add.text(HUD_X, rowY, cfg.emoji || '●', {
-        fontSize: '14px', color: cfg.color
-      }).setScrollFactor(0).setDepth(DEPTH.HUD);
+      const label = cfg.iconKey
+        ? scene.add.image(HUD_X + 10, rowY + 7, cfg.iconKey)
+            .setScrollFactor(0).setDepth(DEPTH.HUD).setScale(0.85)
+        : scene.add.text(HUD_X, rowY, cfg.emoji || '●', {
+            fontSize: '14px', color: cfg.color
+          }).setScrollFactor(0).setDepth(DEPTH.HUD);
 
       const hearts = [];
       for (let i = 0; i < cfg.maxHearts; i++) {

@@ -190,7 +190,7 @@ export class GameScene extends Phaser.Scene {
     // HUD
     const companionHUDConfig = {
       babybear: { emoji: '🐻', color: '#c8a060', maxHearts: GameState.state.companions.babybear.maxHearts },
-      steggie:  { emoji: '🦕', color: '#4A8C5C', maxHearts: GameState.state.companions.steggie.maxHearts }
+      steggie:  { emoji: '🦕', iconKey: 'steggie_icon', color: '#4A8C5C', maxHearts: GameState.state.companions.steggie.maxHearts }
     };
     this._hud = new HUD(this, this._littleFox.maxHearts, companionHUDConfig);
     this._hud.refresh();

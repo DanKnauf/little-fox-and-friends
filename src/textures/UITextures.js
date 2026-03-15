@@ -126,6 +126,81 @@ export function generateUITextures(scene) {
     webCtx.beginPath(); webCtx.moveTo(0, i * 10); webCtx.lineTo(80, i * 10); webCtx.stroke();
   }
   scene.textures.addCanvas('web_hazard', webCanvas);
+
+  // Stegosaurus HUD icon — 30x18 mini silhouette for the companion health row
+  const stegIconCanvas = document.createElement('canvas');
+  stegIconCanvas.width = 30; stegIconCanvas.height = 18;
+  const siCtx = stegIconCanvas.getContext('2d');
+  drawSteggieIcon(siCtx);
+  scene.textures.addCanvas('steggie_icon', stegIconCanvas);
+}
+
+// Mini stegosaurus icon — arched back, dorsal plates, low beak head, 4 legs
+function drawSteggieIcon(ctx) {
+  const green = '#4A8C5C';
+  const dark  = '#2d5c3a';
+  const plateC = '#5ab87a';
+  const tipC   = '#d06020';
+
+  // Tail
+  ctx.strokeStyle = green; ctx.lineWidth = 3; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(4, 13);
+  ctx.quadraticCurveTo(1, 13, 2, 9);
+  ctx.stroke();
+  // Thagomizer spikes (2 short ones)
+  ctx.fillStyle = dark;
+  ctx.beginPath(); ctx.moveTo(2, 9); ctx.lineTo(0, 6); ctx.lineTo(4, 9); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(2, 9); ctx.lineTo(4, 6); ctx.lineTo(5, 10); ctx.fill();
+
+  // Body (arched)
+  ctx.fillStyle = green;
+  ctx.beginPath();
+  ctx.moveTo(3, 13);
+  ctx.bezierCurveTo(3, 5, 10, 3, 15, 4);
+  ctx.bezierCurveTo(20, 5, 24, 7, 24, 11);
+  ctx.quadraticCurveTo(20, 14, 3, 13);
+  ctx.closePath(); ctx.fill();
+
+  // Dorsal plates — 4 diamonds along the spine
+  const plates = [{ x: 7, h: 6 }, { x: 11, h: 7 }, { x: 15, h: 6 }, { x: 19, h: 4 }];
+  for (const p of plates) {
+    const py = p.x < 14 ? 4 : 5; // approximate spine y
+    ctx.fillStyle = plateC;
+    ctx.beginPath();
+    ctx.moveTo(p.x, py - p.h);
+    ctx.lineTo(p.x + 2.5, py - p.h * 0.4);
+    ctx.lineTo(p.x, py);
+    ctx.lineTo(p.x - 2.5, py - p.h * 0.4);
+    ctx.closePath(); ctx.fill();
+    // Orange tip
+    ctx.fillStyle = tipC;
+    ctx.beginPath();
+    ctx.moveTo(p.x, py - p.h);
+    ctx.lineTo(p.x + 1.5, py - p.h * 0.62);
+    ctx.lineTo(p.x - 1.5, py - p.h * 0.62);
+    ctx.closePath(); ctx.fill();
+  }
+
+  // Head (small, low, beak-like)
+  ctx.fillStyle = green;
+  ctx.beginPath();
+  ctx.ellipse(26, 10, 4, 3.5, -0.1, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(23, 9); ctx.lineTo(30, 10); ctx.lineTo(28, 13); ctx.lineTo(22, 12);
+  ctx.closePath(); ctx.fill();
+  // Eye
+  ctx.fillStyle = '#111';
+  ctx.beginPath(); ctx.arc(27, 9, 1.2, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(27.4, 8.6, 0.5, 0, Math.PI * 2); ctx.fill();
+
+  // 4 legs
+  ctx.fillStyle = dark;
+  for (const lx of [7, 11, 16, 20]) {
+    ctx.beginPath(); ctx.ellipse(lx, 15.5, 2, 2.5, 0, 0, Math.PI * 2); ctx.fill();
+  }
 }
 
 function drawHeart(ctx, cx, cy, size, color) {
