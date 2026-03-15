@@ -1,7 +1,16 @@
 import Phaser from 'phaser';
+import { BootScene } from './scenes/BootScene.js';
+import { StartScene } from './scenes/StartScene.js';
+import { LevelIntroScene } from './scenes/LevelIntroScene.js';
+import { GameScene } from './scenes/GameScene.js';
+import { BossScene } from './scenes/BossScene.js';
+import { LevelCompleteScene } from './scenes/LevelCompleteScene.js';
+import { GameOverScene } from './scenes/GameOverScene.js';
+import { VictoryScene } from './scenes/VictoryScene.js';
+import { GAME_WIDTH, GAME_HEIGHT } from './constants.js';
 
-// Polyfill CanvasRenderingContext2D.roundRect for browsers that don't support it
-// (Firefox < 112, Safari < 15.4, and any other older browser)
+// Polyfill CanvasRenderingContext2D.roundRect for older browsers
+// (Firefox < 112, Safari < 15.4). Must run before BootScene generates textures.
 if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
   CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
     const R = Math.min(Array.isArray(r) ? r[0] : (r || 0), w / 2, h / 2);
@@ -17,21 +26,21 @@ if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D
     this.closePath();
   };
 }
-import { BootScene } from './scenes/BootScene.js';
-import { StartScene } from './scenes/StartScene.js';
-import { LevelIntroScene } from './scenes/LevelIntroScene.js';
-import { GameScene } from './scenes/GameScene.js';
-import { BossScene } from './scenes/BossScene.js';
-import { LevelCompleteScene } from './scenes/LevelCompleteScene.js';
-import { GameOverScene } from './scenes/GameOverScene.js';
-import { VictoryScene } from './scenes/VictoryScene.js';
-import { GAME_WIDTH, GAME_HEIGHT } from './constants.js';
+
+function removeLoadingScreen() {
+  const el = document.getElementById('loading-screen');
+  if (el) el.remove();
+}
 
 const config = {
   type: Phaser.AUTO,
+  parent: 'game',
   width: GAME_WIDTH,
   height: GAME_HEIGHT,
   backgroundColor: '#1a0a2e',
+  callbacks: {
+    postBoot: removeLoadingScreen
+  },
   physics: {
     default: 'arcade',
     arcade: {
