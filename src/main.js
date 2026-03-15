@@ -33,41 +33,11 @@ function removeLoadingScreen() {
   if (el) el.remove();
 }
 
-// Make the canvas physical pixels match the screen's actual pixel density.
-// Phaser's Scale.FIT sets canvas CSS size but not physical pixel count.
-// Calling renderer.resize() with the DPR-multiplied size keeps the WebGL
-// projection (resolution: 3) working while eliminating blur from upscaling.
-function sharpCanvas(game) {
-  const canvas = game.canvas;
-  const apply = () => {
-    const dpr  = window.devicePixelRatio || 1;
-    const cssW = Math.round(parseFloat(canvas.style.width)  || canvas.clientWidth  || GAME_WIDTH);
-    const cssH = Math.round(parseFloat(canvas.style.height) || canvas.clientHeight || GAME_HEIGHT);
-    if (!cssW || !cssH) return;
-    const pw = Math.round(cssW * dpr);
-    const ph = Math.round(cssH * dpr);
-    if (canvas.width !== pw || canvas.height !== ph) {
-      canvas.width  = pw;
-      canvas.height = ph;
-      game.renderer.resize(pw, ph);
-    }
-  };
-  game.scale.on('resize', apply);
-  setTimeout(apply, 50);
-}
-
-// Render the internal canvas buffer at 3× the logical game size.
-// With a 800×480 game this produces a 2400×1440 canvas buffer, which on a 2K
-// monitor (2560×1440) maps almost 1:1 — no CSS upscaling, no blur.
-// On FHD (1920×1080) or smaller the buffer is downscaled, which is also sharp.
-const RESOLUTION = 3;
-
 const config = {
   type: Phaser.AUTO,
   parent: 'game',
   width: GAME_WIDTH,
   height: GAME_HEIGHT,
-  resolution: RESOLUTION,
   backgroundColor: '#1a0a2e',
   scale: {
     mode: Phaser.Scale.FIT,
@@ -80,7 +50,7 @@ const config = {
     gamepad: true
   },
   callbacks: {
-    postBoot: (game) => { removeLoadingScreen(); sharpCanvas(game); }
+    postBoot: (game) => { removeLoadingScreen(); }
   },
   physics: {
     default: 'arcade',
