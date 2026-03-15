@@ -122,21 +122,18 @@ export class TRex extends BaseBoss {
       this.sprite.body.setVelocityX(0);
       // Chomp reached — big bite damage if player near
       if (this._player && this._player.isAlive()) {
-        const dist = Phaser.Math.Distance.Between(
-          this.sprite.x, this.sprite.y,
-          this._player.sprite.x, this._player.sprite.y
-        );
-        if (dist < 90) {
+        const dx = Math.abs(this._player.sprite.x - this.sprite.x);
+        const dy = Math.abs(this._player.sprite.y - this.sprite.y);
+        if (dx < 110 && dy < 130) {
           this._player.takeDamage(2);   // chomp hurts more than normal contact
           this.scene.cameras.main.shake(200, 0.012);
         }
       }
       for (const comp of this._companions) {
         if (!comp.isAlive()) continue;
-        const dist = Phaser.Math.Distance.Between(
-          this.sprite.x, this.sprite.y, comp.sprite.x, comp.sprite.y
-        );
-        if (dist < 90) comp.takeDamage(2);
+        const dx = Math.abs(comp.sprite.x - this.sprite.x);
+        const dy = Math.abs(comp.sprite.y - this.sprite.y);
+        if (dx < 110 && dy < 130) comp.takeDamage(2);
       }
       this._phase = ATTACK.STOMP;
       this.transitionTo(BOSS_STATE.RECOVERING);
@@ -218,24 +215,25 @@ export class TRex extends BaseBoss {
     }
   }
 
-  // Passive contact damage (being too close to T-Rex) — rate limited
+  // Passive contact damage (being too close to T-Rex) — rate limited.
+  // Uses separate x/y thresholds because the boss origin sits ~80px above the
+  // player origin (y=340 vs y≈420), so a single radius check always fails.
   _checkContactDamage(time) {
     if (time - this._lastContactDmg < 900) return;
     if (!this._player || !this._player.isAlive()) return;
-    const dist = Phaser.Math.Distance.Between(
-      this.sprite.x, this.sprite.y,
-      this._player.sprite.x, this._player.sprite.y
-    );
-    if (dist < 65) {
+    const bx = this.sprite.x;
+    const by = this.sprite.y;
+    const px = this._player.sprite.x;
+    const py = this._player.sprite.y;
+    if (Math.abs(px - bx) < 90 && Math.abs(py - by) < 120) {
       this._player.takeDamage(1);
       this._lastContactDmg = time;
     }
     for (const comp of this._companions) {
       if (!comp.isAlive()) continue;
-      const d = Phaser.Math.Distance.Between(
-        this.sprite.x, this.sprite.y, comp.sprite.x, comp.sprite.y
-      );
-      if (d < 65) {
+      const cx = comp.sprite.x;
+      const cy = comp.sprite.y;
+      if (Math.abs(cx - bx) < 90 && Math.abs(cy - by) < 120) {
         comp.takeDamage(1);
         this._lastContactDmg = time;
       }
