@@ -1,4 +1,22 @@
 import Phaser from 'phaser';
+
+// Polyfill CanvasRenderingContext2D.roundRect for browsers that don't support it
+// (Firefox < 112, Safari < 15.4, and any other older browser)
+if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    const R = Math.min(Array.isArray(r) ? r[0] : (r || 0), w / 2, h / 2);
+    this.moveTo(x + R, y);
+    this.lineTo(x + w - R, y);
+    this.arcTo(x + w, y,     x + w, y + R,     R);
+    this.lineTo(x + w, y + h - R);
+    this.arcTo(x + w, y + h, x + w - R, y + h, R);
+    this.lineTo(x + R, y + h);
+    this.arcTo(x,     y + h, x,     y + h - R, R);
+    this.lineTo(x, y + R);
+    this.arcTo(x,     y,     x + R, y,         R);
+    this.closePath();
+  };
+}
 import { BootScene } from './scenes/BootScene.js';
 import { StartScene } from './scenes/StartScene.js';
 import { LevelIntroScene } from './scenes/LevelIntroScene.js';

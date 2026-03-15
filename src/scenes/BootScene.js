@@ -12,27 +12,31 @@ export class BootScene extends Phaser.Scene {
   }
 
   create() {
-    // Loading text
-    const loadText = this.add.text(
-      this.cameras.main.width / 2,
-      this.cameras.main.height / 2,
-      'Loading...',
-      { fontSize: '28px', color: '#ffffff', fontFamily: 'Arial' }
-    ).setOrigin(0.5);
+    const cx = this.cameras.main.width / 2;
+    const cy = this.cameras.main.height / 2;
 
-    // Generate all textures synchronously
-    generateUITextures(this);
-    generateCharacterTextures(this);
-    generateEnemyTextures(this);
-    generateBossTextures(this);
-    generateEnvironmentTextures(this);
-    generateBackgroundTextures(this);
+    const loadText = this.add.text(cx, cy, 'Loading...', {
+      fontSize: '28px', color: '#ffffff', fontFamily: 'Arial'
+    }).setOrigin(0.5);
 
-    // Register animations
-    this._createAnimations();
-
-    // Register audio buffers (Web Audio API, no playback yet)
-    SoundGenerator.registerAll(this);
+    try {
+      generateUITextures(this);
+      generateCharacterTextures(this);
+      generateEnemyTextures(this);
+      generateBossTextures(this);
+      generateEnvironmentTextures(this);
+      generateBackgroundTextures(this);
+      this._createAnimations();
+      SoundGenerator.registerAll(this);
+    } catch (err) {
+      console.error('BootScene error:', err);
+      loadText.setText('Load error: ' + err.message);
+      // Show error on screen so it's diagnosable
+      this.add.text(cx, cy + 40, 'Check the browser console for details.', {
+        fontSize: '14px', color: '#ff8888', fontFamily: 'Arial'
+      }).setOrigin(0.5);
+      return; // don't proceed — game is broken
+    }
 
     loadText.destroy();
     this.scene.start('StartScene');
