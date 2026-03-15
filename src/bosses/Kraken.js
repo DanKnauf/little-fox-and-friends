@@ -13,6 +13,10 @@ export class Kraken extends BaseBoss {
     this._companions = [];
     this._tentacleObj = null;
     this._inkProjectiles = new ProjectileGroup(scene, 'projectile_boss', 8);
+    this._tentacleTargetX  = null;
+    this._tentacleTarget2X = null;
+    this._tentacleWarnG    = null;
+    this._tentacleWarnG2   = null;
 
     this.transitionTo(BOSS_STATE.IDLE);
   }
@@ -42,6 +46,20 @@ export class Kraken extends BaseBoss {
           if (currentAttack === 'tentacle') {
             this.sprite.play('boss_ocean_tentacle', true);
             this.sprite.setTint(0x44ffcc);
+
+            // Snapshot landing positions now so player can dodge before the slam arrives
+            const offset1 = Phaser.Math.Between(-90, 90);
+            this._tentacleTargetX  = this._player ? this._player.sprite.x + offset1 : this.sprite.x;
+            this._tentacleTarget2X = this._tentacleTargetX + Phaser.Math.Between(-130, 130);
+
+            // Ground-level warning glows — bright primary, fainter secondary
+            this._tentacleWarnG = this.scene.add.graphics().setDepth(DEPTH.BOSS);
+            this._tentacleWarnG.fillStyle(0x00ffdd, 0.55);
+            this._tentacleWarnG.fillEllipse(this._tentacleTargetX, GAME_HEIGHT - 72, 72, 20);
+
+            this._tentacleWarnG2 = this.scene.add.graphics().setDepth(DEPTH.BOSS);
+            this._tentacleWarnG2.fillStyle(0x00ffdd, 0.28);
+            this._tentacleWarnG2.fillEllipse(this._tentacleTarget2X, GAME_HEIGHT - 72, 56, 14);
           } else if (currentAttack === 'ink') {
             this.sprite.play('boss_ocean_ink', true);
             this.sprite.setTint(0x440066);
@@ -76,7 +94,9 @@ export class Kraken extends BaseBoss {
       case BOSS_STATE.RECOVERING:
         this.sprite.play('boss_ocean_idle', true);
         this.sprite.clearTint();
-        if (this._tentacleObj?.active) { this._tentacleObj.destroy(); this._tentacleObj = null; }
+        if (this._tentacleObj?.active)  { this._tentacleObj.destroy();  this._tentacleObj  = null; }
+        if (this._tentacleWarnG?.active) { this._tentacleWarnG.destroy(); this._tentacleWarnG = null; }
+        if (this._tentacleWarnG2?.active){ this._tentacleWarnG2.destroy();this._tentacleWarnG2= null; }
         this._doWander(delta);
         if (this.stateTimer > 400) {
           this._wanderTarget = null;
@@ -88,23 +108,23 @@ export class Kraken extends BaseBoss {
   }
 
   _doTentacleSlam() {
-    const slamX = this._player
-      ? this._player.sprite.x + Phaser.Math.Between(-50, 50)
-      : this.sprite.x;
+    // Use positions snapshotted during telegraph so the warning glows match the actual landing spots
+    const slamX = this._tentacleTargetX ?? (this._player ? this._player.sprite.x : this.sprite.x);
+    const sx2   = this._tentacleTarget2X ?? (slamX + Phaser.Math.Between(-130, 130));
 
-    // Draw a tentacle using Graphics — tapered dark teal bar with a sucker tip
+    // Remove primary warning glow as the tentacle begins its fall
+    if (this._tentacleWarnG?.active) { this._tentacleWarnG.destroy(); this._tentacleWarnG = null; }
+
     const g = this.scene.add.graphics().setDepth(DEPTH.BOSS + 1);
     g.fillStyle(0x0a3344, 1);
     g.fillRect(-18, 0, 36, 110);
     g.fillStyle(0x1a7788, 1);
     g.fillRect(-12, 0, 24, 110);
-    // Sucker rows
     g.fillStyle(0xaaddee, 0.9);
     for (let sy = 15; sy < 110; sy += 22) {
       g.fillCircle(-8, sy, 5);
       g.fillCircle(8, sy, 5);
     }
-    // Tip glow
     g.fillStyle(0x00ffdd, 0.85);
     g.fillCircle(0, 112, 12);
 
@@ -112,22 +132,25 @@ export class Kraken extends BaseBoss {
     g.y = -130;
     this._tentacleObj = g;
 
+    // 320ms fall (was 200ms) — visible warning glow gives player time to dodge
     this.scene.tweens.add({
       targets: g,
       y: GAME_HEIGHT - 80,
-      duration: 200,
+      duration: 320,
       ease: 'Power3',
       onComplete: () => {
         this._checkTentacleDamage(slamX);
         this.scene.cameras.main.shake(200, 0.015);
-        this.scene.time.delayedCall(280, () => {
+        this.scene.time.delayedCall(300, () => {
           if (g.active) { g.destroy(); }
           if (this._tentacleObj === g) this._tentacleObj = null;
         });
-        // Second slam at a nearby offset
-        this.scene.time.delayedCall(180, () => {
+
+        // Second slam — remove its warning glow then drop
+        this.scene.time.delayedCall(200, () => {
           if (!this._alive) return;
-          const sx2 = slamX + Phaser.Math.Between(-120, 120);
+          if (this._tentacleWarnG2?.active) { this._tentacleWarnG2.destroy(); this._tentacleWarnG2 = null; }
+
           const g2 = this.scene.add.graphics().setDepth(DEPTH.BOSS + 1);
           g2.fillStyle(0x0a3344, 1); g2.fillRect(-14, 0, 28, 90);
           g2.fillStyle(0x1a7788, 1); g2.fillRect(-9, 0, 18, 90);
@@ -136,11 +159,11 @@ export class Kraken extends BaseBoss {
           this.scene.tweens.add({
             targets: g2,
             y: GAME_HEIGHT - 80,
-            duration: 200,
+            duration: 300,
             ease: 'Power3',
             onComplete: () => {
               this._checkTentacleDamage(sx2);
-              this.scene.time.delayedCall(250, () => { if (g2.active) g2.destroy(); });
+              this.scene.time.delayedCall(260, () => { if (g2.active) g2.destroy(); });
             }
           });
         });
@@ -205,7 +228,9 @@ export class Kraken extends BaseBoss {
   }
 
   destroy() {
-    if (this._tentacleObj?.active) this._tentacleObj.destroy();
+    if (this._tentacleObj?.active)   this._tentacleObj.destroy();
+    if (this._tentacleWarnG?.active)  this._tentacleWarnG.destroy();
+    if (this._tentacleWarnG2?.active) this._tentacleWarnG2.destroy();
     super.destroy();
   }
 }
