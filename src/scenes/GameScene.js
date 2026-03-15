@@ -150,6 +150,7 @@ export class GameScene extends Phaser.Scene {
       const enemy = this._findEnemyBySprite(enemySprite);
       if (!enemy || !enemy.isAlive()) return;
       if (this._littleFox._invincible) {
+        enemy._iFrames = false; // bypass i-frames so the kill always lands
         enemy.takeDamage(99); // instant kill on contact while invincible
       } else if (enemy.canDamagePlayer()) {
         this._littleFox.takeDamage(1);
