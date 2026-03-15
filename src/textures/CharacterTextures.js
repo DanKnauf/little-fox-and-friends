@@ -249,7 +249,7 @@ function drawBear(ctx, cx, cy, legOff, isAttack, isHurt) {
 
 // ─── Steggie (Stegosaurus) ───────────────────────────────────────────────────
 function generateSteggie(scene) {
-  const W = 44, H = 32, FRAMES = 5;
+  const W = 48, H = 32, FRAMES = 5;
   const canvas = document.createElement('canvas');
   canvas.width = W * FRAMES; canvas.height = H;
   const ctx = canvas.getContext('2d');
@@ -263,7 +263,7 @@ function generateSteggie(scene) {
     ctx.beginPath();
     ctx.rect(ox, 0, W, H);
     ctx.clip();
-    drawSteggie(ctx, ox + 22, 18, legOff, isHurt);
+    drawSteggie(ctx, ox + 24, 18, legOff, isHurt);
     ctx.restore();
   }
 
@@ -305,10 +305,10 @@ function drawSteggie(ctx, cx, cy, legOff, isHurt) {
   ctx.beginPath();
   ctx.moveTo(cx - 17, cy + 8);                                             // tail base
   ctx.bezierCurveTo(cx - 16, cy - 6, cx - 2, cy - 11, cx + 7, cy - 5);   // arched back
-  ctx.bezierCurveTo(cx + 12, cy - 3, cx + 16,  cy - 1, cx + 18, cy + 1); // neck forward
-  ctx.bezierCurveTo(cx + 19, cy + 1, cx + 19,  cy + 3, cx + 18, cy + 4); // rounded snout tip
-  ctx.bezierCurveTo(cx + 17, cy + 6, cx + 15,  cy + 7, cx + 12, cy + 7); // snout underside
-  ctx.bezierCurveTo(cx + 10, cy + 8, cx +  7,  cy + 8, cx +  6, cy + 7); // lower head back
+  ctx.bezierCurveTo(cx + 12, cy - 3, cx + 18,  cy - 1, cx + 21, cy + 1); // neck forward
+  ctx.bezierCurveTo(cx + 23, cy + 1, cx + 23,  cy + 3, cx + 22, cy + 4); // rounded snout tip
+  ctx.bezierCurveTo(cx + 21, cy + 6, cx + 18,  cy + 7, cx + 15, cy + 7); // snout underside
+  ctx.bezierCurveTo(cx + 12, cy + 8, cx +  8,  cy + 8, cx +  7, cy + 7); // lower head back
   ctx.bezierCurveTo(cx + 10, cy + 10, cx - 10, cy + 10, cx - 17, cy + 8); // belly
   ctx.closePath(); ctx.fill();
 
