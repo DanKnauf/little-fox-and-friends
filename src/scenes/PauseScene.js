@@ -14,6 +14,12 @@ export class PauseScene extends Phaser.Scene {
   create() {
     this._padFocus = 0;
 
+    // When woken from sleep (instead of a fresh launch), just reset focus state
+    this.events.on('wake', () => {
+      this._padFocus = 0;
+      this._updateFocus();
+    });
+
     // Dark overlay
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.72)
       .setScrollFactor(0);
@@ -93,13 +99,13 @@ export class PauseScene extends Phaser.Scene {
 
   _resume() {
     AudioManager.play('button_click');
-    this.scene.stop('PauseScene');
+    this.scene.sleep('PauseScene');   // keep objects alive to avoid texture cache issues
     this.scene.resume('GameScene');
   }
 
   _quit() {
     AudioManager.play('button_click');
-    this.scene.stop('PauseScene');
+    this.scene.stop('PauseScene');    // full stop only when actually quitting
     this.scene.stop('BossScene');
     this.scene.stop('GameScene');
     this.scene.start('StartScene');

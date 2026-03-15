@@ -161,7 +161,8 @@ export class GameScene extends Phaser.Scene {
     // Ammo pickups
     if (this._ammoGroup) {
       this.physics.add.overlap(this._littleFox.sprite, this._ammoGroup, (playerSprite, ammoSprite) => {
-        ammoSprite.destroy();
+        if (!ammoSprite.active) return;
+        this._ammoGroup.remove(ammoSprite, true, true); // safe removal during physics callback
         GameState.addAmmo(10);
         this.events.emit('ammoChanged');
         AudioManager.play('potion_collect');
@@ -277,7 +278,15 @@ export class GameScene extends Phaser.Scene {
   _triggerPause() {
     if (this.scene.isActive('PauseScene')) return; // already paused
     this.scene.pause('GameScene');
-    this.scene.launch('PauseScene');
+    // Wake the scene if it was previously put to sleep (resume path),
+    // otherwise launch it for the first time. This avoids repeatedly
+    // creating and destroying PauseScene's Text objects which causes
+    // Phaser's WebGL texture cache to hold stale null-glTexture references.
+    if (this.scene.isSleeping('PauseScene')) {
+      this.scene.wake('PauseScene');
+    } else {
+      this.scene.launch('PauseScene');
+    }
   }
 
   _launchBoss() {
@@ -289,8 +298,8 @@ export class GameScene extends Phaser.Scene {
 
   shutdown() {
     // Stop BossScene so stale boss timers don't fire into the next GameScene run
-    if (this.scene.isActive('BossScene')) this.scene.stop('BossScene');
-    if (this.scene.isActive('PauseScene')) this.scene.stop('PauseScene');
+    if (this.scene.isActive('BossScene') || this.scene.isSleeping('BossScene')) this.scene.stop('BossScene');
+    if (this.scene.isActive('PauseScene') || this.scene.isSleeping('PauseScene')) this.scene.stop('PauseScene');
 
     // Cancel all pending timers so stale callbacks don't fire on stale sprites
     this.time.removeAllEvents();
