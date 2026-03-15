@@ -51,7 +51,7 @@ export class BossScene extends Phaser.Scene {
     const cam = gameScene?.cameras.main;
     const scrollX = cam ? cam.scrollX : 0;
     this.cameras.main.setScroll(scrollX, 0);
-    this.physics.world.setBounds(scrollX - 500, 0, GAME_WIDTH + 1000, GAME_HEIGHT);
+    this.physics.world.setBounds(scrollX - 2000, -300, GAME_WIDTH + 4000, GAME_HEIGHT + 300);
 
     const bossX = scrollX + GAME_WIDTH / 2;
     const bossY = GAME_HEIGHT - 140;
@@ -118,6 +118,22 @@ export class BossScene extends Phaser.Scene {
           if (dist < 30) {
             this._player.takeDamage(1);
             this._boss.getTailProjectileGroup().killAndHide(proj);
+          }
+        }
+      }
+    }
+
+    // Kraken: check if ink projectiles hit player
+    if (this._boss?.getInkProjectileGroup && this._player?.isAlive()) {
+      const inkGroup = this._boss.getInkProjectileGroup();
+      const pSprite = this._player.sprite;
+      if (pSprite.active) {
+        for (const proj of inkGroup.getChildren()) {
+          if (!proj.active) continue;
+          const dist = Phaser.Math.Distance.Between(proj.x, proj.y, pSprite.x, pSprite.y);
+          if (dist < 28) {
+            this._player.takeDamage(1);
+            inkGroup.killAndHide(proj);
           }
         }
       }

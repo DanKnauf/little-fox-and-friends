@@ -23,7 +23,6 @@ export class BaseBoss {
 
     this.sprite = scene.physics.add.sprite(x, y, textureKey, 0);
     this.sprite.setDepth(DEPTH.BOSS);
-    this.sprite.setCollideWorldBounds(true);
     this.sprite.setScale(1.6);
     this.sprite.setGravityY(0);
     this.sprite.body.setAllowGravity(false);
@@ -39,9 +38,9 @@ export class BaseBoss {
     this._arenaLeft  = x - 300;
     this._arenaRight = x + 300;
     this._wanderTimer  = 0;
-    this._wanderDelay  = Phaser.Math.Between(2000, 4000);
+    this._wanderDelay  = Phaser.Math.Between(800, 1800);
     this._wanderTarget = null;
-    this._wanderSpeed  = 90;
+    this._wanderSpeed  = 140;
   }
 
   update(time, delta) {
@@ -65,7 +64,7 @@ export class BaseBoss {
         this._arenaRight - 40
       );
       this._wanderTimer  = 0;
-      this._wanderDelay  = Phaser.Math.Between(2000, 4000);
+      this._wanderDelay  = Phaser.Math.Between(800, 1800);
     }
     if (this._wanderTarget !== null) {
       const dx = this._wanderTarget - this.sprite.x;

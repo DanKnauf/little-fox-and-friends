@@ -3,9 +3,9 @@ import { AudioManager } from '../audio/AudioManager.js';
 
 export class PrayingMantis extends BaseBoss {
   constructor(scene, x, y) {
-    super(scene, x, y, 'boss_mantis', 10, 'Giant Mantis');
+    super(scene, x, y, 'boss_mantis', 15, 'Giant Mantis');
     this.sprite.play('boss_mantis_idle', true);
-    this._attacks = ['strike', 'leap', 'strike', 'strike', 'leap'];
+    this._attacks = ['strike', 'leap', 'strike', 'strike', 'leap', 'strike'];
     this._attackIndex = 0;
     this._player = null;
     this._companions = [];
@@ -29,7 +29,7 @@ export class PrayingMantis extends BaseBoss {
       case BOSS_STATE.IDLE:
         this.sprite.play('boss_mantis_idle', true);
         this._doWander(delta);
-        if (this.stateTimer > 1600) {
+        if (this.stateTimer > 900) {
           this._wanderTarget = null;
           this.sprite.body.setVelocityX(0);
           this.transitionTo(BOSS_STATE.TELEGRAPHING);
@@ -47,7 +47,7 @@ export class PrayingMantis extends BaseBoss {
             this.sprite.play('boss_mantis_leap', true);
           }
         }
-        if (this.stateTimer >= 500) {
+        if (this.stateTimer >= 350) {
           this.transitionTo(BOSS_STATE.ATTACKING);
         }
         break;
@@ -71,7 +71,7 @@ export class PrayingMantis extends BaseBoss {
         this.sprite.play('boss_mantis_idle', true);
         if (this.stateTimer < 50) this.sprite.body.setVelocityX(0);
         this._doWander(delta);
-        if (this.stateTimer > 1200) {
+        if (this.stateTimer > 700) {
           this._wanderTarget = null;
           this.sprite.body.setVelocityX(0);
           this.transitionTo(BOSS_STATE.IDLE);
@@ -85,7 +85,7 @@ export class PrayingMantis extends BaseBoss {
     if (!this._player) return;
     const dir = this._player.sprite.x > this.sprite.x ? 1 : -1;
     this.sprite.setFlipX(dir < 0);
-    this.sprite.body.setVelocityX(dir * 300 * this._speedMult);
+    this.sprite.body.setVelocityX(dir * 420 * this._speedMult);
 
     this.scene.time.delayedCall(250, () => {
       if (!this.sprite?.active) return;

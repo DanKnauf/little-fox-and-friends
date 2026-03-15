@@ -1,18 +1,18 @@
 import { BaseBoss, BOSS_STATE } from './BaseBoss.js';
 import { AudioManager } from '../audio/AudioManager.js';
+import { ProjectileGroup } from '../entities/Projectile.js';
 import { GAME_HEIGHT, GAME_WIDTH, DEPTH } from '../constants.js';
 
 export class Kraken extends BaseBoss {
   constructor(scene, x, y) {
-    super(scene, x, y, 'boss_ocean', 14, 'The Kraken');
+    super(scene, x, y, 'boss_ocean', 21, 'The Kraken');
     this.sprite.play('boss_ocean_idle', true);
-    this._attacks = ['tentacle', 'ink', 'roar', 'tentacle', 'ink'];
+    this._attacks = ['tentacle', 'ink', 'roar', 'tentacle', 'ink', 'tentacle'];
     this._attackIndex = 0;
     this._player = null;
     this._companions = [];
-    this._inkCloud = null;
-    this._tentacleSlam = null;
-    this._tentacleShadow = null;
+    this._tentacleObj = null;
+    this._inkProjectiles = new ProjectileGroup(scene, 'projectile_boss', 8);
 
     this.transitionTo(BOSS_STATE.IDLE);
   }
@@ -30,7 +30,7 @@ export class Kraken extends BaseBoss {
         this.sprite.play('boss_ocean_idle', true);
         this.sprite.clearTint();
         this._doWander(delta);
-        if (this.stateTimer > 1500) {
+        if (this.stateTimer > 900) {
           this._wanderTarget = null;
           this.sprite.body.setVelocityX(0);
           this.transitionTo(BOSS_STATE.TELEGRAPHING);
@@ -41,13 +41,16 @@ export class Kraken extends BaseBoss {
         if (this.stateTimer < 16) {
           if (currentAttack === 'tentacle') {
             this.sprite.play('boss_ocean_tentacle', true);
+            this.sprite.setTint(0x44ffcc);
           } else if (currentAttack === 'ink') {
             this.sprite.play('boss_ocean_ink', true);
+            this.sprite.setTint(0x440066);
           } else {
             this.sprite.play('boss_ocean_idle', true);
+            this.sprite.setTint(0xff8800);
           }
         }
-        if (this.stateTimer >= 400) {
+        if (this.stateTimer >= 300) {
           this.sprite.clearTint();
           this.transitionTo(BOSS_STATE.ATTACKING);
         }
@@ -64,17 +67,7 @@ export class Kraken extends BaseBoss {
           }
         }
 
-        // Ink cloud damage check
-        if (this._inkCloud?.active) {
-          this._inkCloud.x += 120 * this._speedMult * (delta / 1000);
-          this._checkInkDamage();
-          if (this._inkCloud.x > this.scene.cameras.main.scrollX + GAME_WIDTH + 100) {
-            this._inkCloud.destroy();
-            this._inkCloud = null;
-          }
-        }
-
-        if (this.stateTimer > 1500) {
+        if (this.stateTimer > 1400) {
           this._attackIndex++;
           this.transitionTo(BOSS_STATE.RECOVERING);
         }
@@ -83,10 +76,9 @@ export class Kraken extends BaseBoss {
       case BOSS_STATE.RECOVERING:
         this.sprite.play('boss_ocean_idle', true);
         this.sprite.clearTint();
-        if (this._tentacleSlam?.active) { this._tentacleSlam.destroy(); this._tentacleSlam = null; }
-        if (this._inkCloud?.active) { this._inkCloud.destroy(); this._inkCloud = null; }
+        if (this._tentacleObj?.active) { this._tentacleObj.destroy(); this._tentacleObj = null; }
         this._doWander(delta);
-        if (this.stateTimer > 1200) {
+        if (this.stateTimer > 700) {
           this._wanderTarget = null;
           this.sprite.body.setVelocityX(0);
           this.transitionTo(BOSS_STATE.IDLE);
@@ -96,42 +88,81 @@ export class Kraken extends BaseBoss {
   }
 
   _doTentacleSlam() {
-    this.sprite.clearTint();
     const slamX = this._player
-      ? this._player.sprite.x + Phaser.Math.Between(-40, 40)
+      ? this._player.sprite.x + Phaser.Math.Between(-50, 50)
       : this.sprite.x;
 
-    // Tentacle drops from above
-    this._tentacleSlam = this.scene.add.rectangle(slamX, 0, 30, 120, 0x1a5566)
-      .setDepth(DEPTH.BOSS + 1);
+    // Draw a tentacle using Graphics — tapered dark teal bar with a sucker tip
+    const g = this.scene.add.graphics().setDepth(DEPTH.BOSS + 1);
+    g.fillStyle(0x0a3344, 1);
+    g.fillRect(-18, 0, 36, 110);
+    g.fillStyle(0x1a7788, 1);
+    g.fillRect(-12, 0, 24, 110);
+    // Sucker rows
+    g.fillStyle(0xaaddee, 0.9);
+    for (let sy = 15; sy < 110; sy += 22) {
+      g.fillCircle(-8, sy, 5);
+      g.fillCircle(8, sy, 5);
+    }
+    // Tip glow
+    g.fillStyle(0x00ffdd, 0.85);
+    g.fillCircle(0, 112, 12);
+
+    g.x = slamX;
+    g.y = -130;
+    this._tentacleObj = g;
+
     this.scene.tweens.add({
-      targets: this._tentacleSlam,
+      targets: g,
       y: GAME_HEIGHT - 80,
-      duration: 300,
+      duration: 280,
       ease: 'Power3',
       onComplete: () => {
         this._checkTentacleDamage(slamX);
-        this.scene.time.delayedCall(400, () => {
-          if (this._tentacleSlam?.active) { this._tentacleSlam.destroy(); this._tentacleSlam = null; }
+        this.scene.cameras.main.shake(180, 0.012);
+        this.scene.time.delayedCall(350, () => {
+          if (g.active) { g.destroy(); }
+          if (this._tentacleObj === g) this._tentacleObj = null;
         });
       }
     });
   }
 
   _doInkSpray() {
-    const camLeft = this.scene.cameras.main.scrollX;
-    this._inkCloud = this.scene.add.rectangle(camLeft - 20, GAME_HEIGHT / 2, 200, GAME_HEIGHT, 0x000020, 0.65)
-      .setDepth(DEPTH.FOREGROUND - 1);
+    // Fire ink blobs at the player and each companion
+    const targets = [this._player, ...this._companions].filter(c => c?.isAlive?.() || c?.hearts > 0);
+
+    for (const t of targets) {
+      if (!t?.sprite?.active) continue;
+      const p = this._inkProjectiles.fire(
+        this.sprite.x, this.sprite.y - 20,
+        t.sprite.x, t.sprite.y,
+        200 * this._speedMult
+      );
+      if (p) p.setTint(0x220033);
+    }
+
+    // Two follow-up bursts aimed at player
+    for (let i = 1; i <= 2; i++) {
+      this.scene.time.delayedCall(i * 320, () => {
+        if (!this._alive || !this._player?.isAlive()) return;
+        const p = this._inkProjectiles.fire(
+          this.sprite.x, this.sprite.y - 20,
+          this._player.sprite.x, this._player.sprite.y,
+          220 * this._speedMult
+        );
+        if (p) p.setTint(0x220033);
+      });
+    }
   }
 
   _doRoar() {
-    this.scene.cameras.main.shake(500, 0.015);
-    // Push all characters away from boss
+    this.scene.cameras.main.shake(500, 0.018);
     const targets = [this._player, ...this._companions].filter(c => c?.isAlive?.() || c?.hearts > 0);
     for (const t of targets) {
       if (!t?.sprite?.active) continue;
       const dir = t.sprite.x < this.sprite.x ? -1 : 1;
-      t.sprite.body.setVelocityX(dir * 400);
+      t.sprite.body.setVelocityX(dir * 480);
       this.scene.time.delayedCall(400, () => {
         if (t.sprite?.active) t.sprite.body.setVelocityX(0);
       });
@@ -140,30 +171,21 @@ export class Kraken extends BaseBoss {
 
   _checkTentacleDamage(slamX) {
     if (!this._player || !this._player.isAlive()) return;
-    if (Math.abs(this._player.sprite.x - slamX) < 40) {
+    if (Math.abs(this._player.sprite.x - slamX) < 50) {
       this._player.takeDamage(1);
     }
     for (const comp of this._companions) {
       if (!comp.isAlive()) continue;
-      if (Math.abs(comp.sprite.x - slamX) < 40) comp.takeDamage(1);
+      if (Math.abs(comp.sprite.x - slamX) < 50) comp.takeDamage(1);
     }
   }
 
-  _checkInkDamage() {
-    if (!this._inkCloud?.active || !this._player?.isAlive()) return;
-    const inkX = this._inkCloud.x;
-    if (Math.abs(this._player.sprite.x - inkX) < 110) {
-      this._player.takeDamage(1);
-    }
-    for (const comp of this._companions) {
-      if (!comp.isAlive()) continue;
-      if (Math.abs(comp.sprite.x - inkX) < 110) comp.takeDamage(1);
-    }
+  getInkProjectileGroup() {
+    return this._inkProjectiles.getGroup();
   }
 
   destroy() {
-    if (this._inkCloud?.active) this._inkCloud.destroy();
-    if (this._tentacleSlam?.active) this._tentacleSlam.destroy();
+    if (this._tentacleObj?.active) this._tentacleObj.destroy();
     super.destroy();
   }
 }

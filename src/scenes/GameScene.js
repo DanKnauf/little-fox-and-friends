@@ -38,7 +38,7 @@ export class GameScene extends Phaser.Scene {
     const difficulty = GameState.state.difficulty;
 
     // World bounds
-    this.physics.world.setBounds(0, 0, LEVEL_WIDTH, GAME_HEIGHT);
+    this.physics.world.setBounds(0, -300, LEVEL_WIDTH, GAME_HEIGHT + 300);
     this.cameras.main.setBounds(0, 0, LEVEL_WIDTH, GAME_HEIGHT);
 
     // Parallax backgrounds

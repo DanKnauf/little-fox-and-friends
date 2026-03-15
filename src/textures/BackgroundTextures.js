@@ -78,7 +78,7 @@ function generateForestBG(scene) {
 
 // ─── Desert ──────────────────────────────────────────────────────────────────
 function generateDesertBG(scene) {
-  scene.textures.addCanvas('bg_desert_sky', makeBG(512, 480, (ctx, w, h) => {
+  scene.textures.addCanvas('bg_desert_sky', makeBG(800, 480, (ctx, w, h) => {
     const grad = ctx.createLinearGradient(0, 0, 0, h);
     grad.addColorStop(0, '#ff8c00');
     grad.addColorStop(0.3, '#ffbb44');
@@ -86,11 +86,11 @@ function generateDesertBG(scene) {
     grad.addColorStop(1, '#ffd080');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
-    // sun
+    // sun — centered in the 800px canvas so tiling never shows two at once
     ctx.fillStyle = '#ffee00';
-    ctx.beginPath(); ctx.arc(380, 70, 32, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(400, 70, 32, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = 'rgba(255,238,0,0.3)';
-    ctx.beginPath(); ctx.arc(380, 70, 50, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(400, 70, 50, 0, Math.PI * 2); ctx.fill();
   }));
 
   scene.textures.addCanvas('bg_desert_far', makeBG(512, 480, (ctx, w, h) => {
