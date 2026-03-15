@@ -1,6 +1,7 @@
 import { GameState } from '../GameState.js';
 import { AudioManager } from '../audio/AudioManager.js';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
+import { getRawPad, isButtonDown, getAxis } from '../input/GamepadInput.js';
 
 const DIFF_ORDER = ['easy', 'medium', 'hard'];
 
@@ -158,12 +159,12 @@ export class StartScene extends Phaser.Scene {
   }
 
   update() {
-    const pad = this.input.gamepad?.getPad(0) ?? null;
+    const pad = getRawPad();
     if (!pad) return;
 
-    const leftNow  = pad.isButtonDown(14) || (pad.axes[0]?.getValue() ?? 0) < -0.4;
-    const rightNow = pad.isButtonDown(15) || (pad.axes[0]?.getValue() ?? 0) >  0.4;
-    const aNow     = pad.isButtonDown(0);
+    const leftNow  = isButtonDown(pad, 14) || getAxis(pad, 0) < -0.4;
+    const rightNow = isButtonDown(pad, 15) || getAxis(pad, 0) >  0.4;
+    const aNow     = isButtonDown(pad, 0);
 
     if (leftNow && !this._padLeftPrev) {
       const idx = DIFF_ORDER.indexOf(this._selectedDifficulty);

@@ -1,5 +1,6 @@
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { AudioManager } from '../audio/AudioManager.js';
+import { getRawPad, isButtonDown, getAxis } from '../input/GamepadInput.js';
 
 export class PauseScene extends Phaser.Scene {
   constructor() {
@@ -80,12 +81,12 @@ export class PauseScene extends Phaser.Scene {
       return;
     }
 
-    const pad = this.input.gamepad?.getPad(0) ?? null;
+    const pad = getRawPad();
     if (pad) {
-      const aNow     = pad.isButtonDown(0);
-      const startNow = pad.isButtonDown(9);
-      const leftNow  = pad.isButtonDown(14) || (pad.axes[0]?.getValue() ?? 0) < -0.4;
-      const rightNow = pad.isButtonDown(15) || (pad.axes[0]?.getValue() ?? 0) >  0.4;
+      const aNow     = isButtonDown(pad, 0);
+      const startNow = isButtonDown(pad, 9);
+      const leftNow  = isButtonDown(pad, 14) || getAxis(pad, 0) < -0.4;
+      const rightNow = isButtonDown(pad, 15) || getAxis(pad, 0) >  0.4;
 
       if (startNow && !this._padStartPrev) { this._resume(); return; }
 

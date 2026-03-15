@@ -11,6 +11,7 @@ import { LittleFox } from '../entities/LittleFox.js';
 import { BabyBear } from '../entities/BabyBear.js';
 import { Steggie } from '../entities/Steggie.js';
 import { HUD } from '../ui/HUD.js';
+import { getRawPad, isButtonDown } from '../input/GamepadInput.js';
 
 const LAYOUTS = { 1: ForestLayout, 2: DesertLayout, 3: OceanLayout };
 
@@ -221,8 +222,8 @@ export class GameScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this._escKey)) {
       this._triggerPause(); return;
     }
-    const pad = this.input.gamepad?.getPad(0) ?? null;
-    const startNow = !!(pad?.isButtonDown(9));
+    const pad = getRawPad();
+    const startNow = isButtonDown(pad, 9);
     if (startNow && !this._padStartPrev) {
       // Mark as "held" before pausing so GameScene doesn't re-trigger
       // pause on its very first update after resuming while Start is

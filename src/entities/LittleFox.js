@@ -3,6 +3,7 @@ import { ProjectileGroup } from './Projectile.js';
 import { AudioManager } from '../audio/AudioManager.js';
 import { DEPTH, GAME_HEIGHT } from '../constants.js';
 import { GameState } from '../GameState.js';
+import { getRawPad, isButtonDown, getAxis } from '../input/GamepadInput.js';
 
 export class LittleFox extends Entity {
   constructor(scene, x, y, maxHearts) {
@@ -45,22 +46,18 @@ export class LittleFox extends Entity {
     const keys    = this._keys;
     const onGround = body.blocked.down;
 
-    // ── Gamepad ──────────────────────────────────────────────────────────────
-    // Xbox button indices (standard Gamepad API):
-    //   0=A  1=B  2=X  3=Y  4=LB  5=RB  6=LT  7=RT
-    //   12=D↑  13=D↓  14=D←  15=D→
-    // Axes: 0=Left-X  1=Left-Y
-    const pad   = this.scene.input.gamepad?.getPad(0) ?? null;
-    const axisX = pad?.axes[0]?.getValue() ?? 0;
-    const axisY = pad?.axes[1]?.getValue() ?? 0;
+    // ── Gamepad — read directly from browser API to bypass Phaser timestamp bug
+    const pad   = getRawPad();
+    const axisX = getAxis(pad, 0);
+    const axisY = getAxis(pad, 1);
 
-    const padLeft   = pad && (pad.isButtonDown(14) || axisX < -0.25);
-    const padRight  = pad && (pad.isButtonDown(15) || axisX >  0.25);
-    const padCrouch = pad && (pad.isButtonDown(13) || axisY >  0.5);
-    const padJumpNow  = !!(pad && (pad.isButtonDown(0) || pad.isButtonDown(12)));
+    const padLeft   = pad && (isButtonDown(pad, 14) || axisX < -0.25);
+    const padRight  = pad && (isButtonDown(pad, 15) || axisX >  0.25);
+    const padCrouch = pad && (isButtonDown(pad, 13) || axisY >  0.5);
+    const padJumpNow  = !!(pad && (isButtonDown(pad, 0) || isButtonDown(pad, 12)));
     const padShootNow = !!(pad && (
-      pad.isButtonDown(2) ||                           // X
-      pad.isButtonDown(5) ||                           // RB
+      isButtonDown(pad, 2) ||                          // X
+      isButtonDown(pad, 5) ||                          // RB
       (pad.buttons[7]?.value ?? 0) > 0.3              // RT (analog trigger)
     ));
 
