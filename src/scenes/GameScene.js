@@ -25,6 +25,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
+    // Clear stale WebGL texture bindings left over from the previous scene run.
+    // Without this, Phaser's pipeline cache can hold null-glTexture references
+    // from destroyed Text/Shape objects, causing a crash on the first render frame.
+    this.game.renderer.resetTextures?.();
+
     AudioManager.init(this);
 
     const layout = LAYOUTS[this._level];

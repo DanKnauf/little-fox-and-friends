@@ -64,6 +64,14 @@ export class BaseBoss {
     this.hp = Math.max(0, this.hp - amount);
     AudioManager.play('boss_damage');
 
+    // Red flash so the player can see shots are landing
+    if (this.sprite?.active) {
+      this.sprite.setTint(0xff2200);
+      this.scene.time.delayedCall(120, () => {
+        if (this.sprite?.active) this.sprite.clearTint();
+      });
+    }
+
     this.scene.events.emit('bossHpChanged', this.hp, this.maxHp);
 
     if (this.hp <= 0) {

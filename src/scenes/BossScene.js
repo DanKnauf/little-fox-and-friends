@@ -92,6 +92,14 @@ export class BossScene extends Phaser.Scene {
   }
 
   update(time, delta) {
+    // Keep BossScene camera in sync with GameScene's camera every frame.
+    // Without this, pointer.worldX in GameScene drifts from the boss's world
+    // position as the player moves, causing mouse-aimed shots to miss.
+    const gs = this._gameScene || this.scene.get('GameScene');
+    if (gs?.cameras?.main) {
+      this.cameras.main.setScroll(gs.cameras.main.scrollX, gs.cameras.main.scrollY);
+    }
+
     if (this._boss && this._boss.isAlive()) {
       this._boss.update(time, delta);
     }

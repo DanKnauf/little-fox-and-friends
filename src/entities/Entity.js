@@ -22,9 +22,8 @@ export class Entity {
     if (this.hearts <= 0) {
       this._alive = false;
       this.onDefeated();
-      return true;
     }
-    return false;
+    return true; // damage was dealt (regardless of whether it killed)
   }
 
   heal(amount) {
