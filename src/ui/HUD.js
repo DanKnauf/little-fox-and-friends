@@ -19,9 +19,18 @@ export class HUD {
 
     this._build();
 
-    scene.events.on('heartsChanged', () => this.refresh());
-    scene.events.on('ammoChanged', () => this._refreshAmmo());
-    scene.events.on('shutdown', () => this._cleanup());
+    // Store references so we can remove them on shutdown.
+    // Phaser does NOT reset scene.events between restarts, so stale
+    // listeners from a previous run would fire on destroyed objects.
+    this._onHeartsChanged = () => this.refresh();
+    this._onAmmoChanged   = () => this._refreshAmmo();
+
+    scene.events.on('heartsChanged', this._onHeartsChanged);
+    scene.events.on('ammoChanged',   this._onAmmoChanged);
+    scene.events.once('shutdown', () => {
+      scene.events.off('heartsChanged', this._onHeartsChanged);
+      scene.events.off('ammoChanged',   this._onAmmoChanged);
+    });
   }
 
   _build() {

@@ -199,7 +199,7 @@ export class GameScene extends Phaser.Scene {
     this._padStartPrev = false;
 
     // Events
-    this.events.on('playerDefeated', () => {
+    this.events.once('playerDefeated', () => {
       this.time.delayedCall(800, () => {
         this.scene.stop('BossScene');
         this.scene.start('GameOverScene');

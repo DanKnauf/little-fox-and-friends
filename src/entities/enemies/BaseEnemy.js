@@ -24,11 +24,8 @@ export class BaseEnemy extends Entity {
   }
 
   takeDamage(amount = 1) {
-    if (!super.takeDamage(amount)) {
-      AudioManager.play('enemy_hit');
-      return false;
-    }
-    AudioManager.play('enemy_defeat');
+    if (!super.takeDamage(amount)) return false;
+    AudioManager.play(this._alive ? 'enemy_hit' : 'enemy_defeat');
     return true;
   }
 
