@@ -47,10 +47,11 @@ export class VictoryScene extends Phaser.Scene {
     }).setOrigin(0.5).setAlpha(0);
     this.tweens.add({ targets: titleText, alpha: 1, duration: 800 });
 
-    // Characters
-    const foxSprite      = this.add.sprite(100,             GAME_HEIGHT - 80, 'fox').setScale(2.2);
-    const bearSprite     = this.add.sprite(200,             GAME_HEIGHT - 80, 'bear').setScale(2.2);
-    const steggieSprite  = this.add.sprite(320,             GAME_HEIGHT - 80, 'steggie').setScale(2.2);
+    // Characters — arranged right-to-left in hug order so Mama walks left to each one:
+    // Mama enters from right → Fox (closest) → Bear → Steggie (far left)
+    const steggieSprite  = this.add.sprite(100,             GAME_HEIGHT - 80, 'steggie').setScale(2.2);
+    const bearSprite     = this.add.sprite(270,             GAME_HEIGHT - 80, 'bear').setScale(2.2);
+    const foxSprite      = this.add.sprite(450,             GAME_HEIGHT - 80, 'fox').setScale(2.2);
     const mamaSlothSprite= this.add.sprite(GAME_WIDTH + 60, GAME_HEIGHT - 80, 'mamasloth').setScale(2.0);
 
     foxSprite.play('fox_idle');
@@ -67,7 +68,7 @@ export class VictoryScene extends Phaser.Scene {
 
       this.tweens.add({
         targets: mamaSlothSprite,
-        x: GAME_WIDTH / 2 + 120,
+        x: foxSprite.x + 160,   // lands just right of Fox
         duration: 900,
         ease: 'Power2',
         onComplete: () => {
@@ -78,7 +79,7 @@ export class VictoryScene extends Phaser.Scene {
             this.tweens.add({
               targets: mamaSlothSprite,
               x: foxSprite.x + 10,
-              duration: 600,
+              duration: 900,
               ease: 'Power2',
               onComplete: () => {
                 this._doHug(mamaSlothSprite, foxSprite, true, () => {
