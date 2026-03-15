@@ -191,9 +191,6 @@ export class GameScene extends Phaser.Scene {
       });
     });
 
-    // Pause/resume for boss scene
-    this.events.on('pause', () => { this.tweens.pauseAll(); });
-    this.events.on('resume', () => { this.tweens.resumeAll(); });
 
     // Music
     AudioManager.playMusic(this._level);
@@ -262,7 +259,8 @@ export class GameScene extends Phaser.Scene {
   _launchBoss() {
     AudioManager.stopMusic();
     this.scene.launch('BossScene', { level: this._level });
-    this.scene.pause();
+    // Do NOT pause — player must be able to move and shoot during the boss fight.
+    // BossScene runs additively on top; both scenes update simultaneously.
   }
 
   shutdown() {

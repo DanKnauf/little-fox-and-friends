@@ -32,6 +32,11 @@ function removeLoadingScreen() {
   if (el) el.remove();
 }
 
+// Use device pixel ratio (capped at 2) so the internal canvas buffer is rendered
+// at native screen density — this eliminates the bilinear blur caused by CSS
+// upscaling a low-resolution canvas to fill large monitors.
+const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
 const config = {
   type: Phaser.AUTO,
   parent: 'game',
@@ -41,6 +46,10 @@ const config = {
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
+  },
+  render: {
+    antialias: true,
+    resolution: dpr
   },
   callbacks: {
     postBoot: removeLoadingScreen
