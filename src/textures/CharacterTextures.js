@@ -21,6 +21,8 @@ function generateLittleFox(scene) {
     const isJump = f === 4;
     const isHurt = f === 5;
     drawFox(ctx, ox + 16, 16, legOffset, isJump, isHurt);
+    // Erase top 4 rows to eliminate any anti-aliasing bleed from ear tips
+    ctx.clearRect(ox, 0, W, 4);
   }
 
   scene.textures.addSpriteSheet('fox', canvas, { frameWidth: W, frameHeight: H });
