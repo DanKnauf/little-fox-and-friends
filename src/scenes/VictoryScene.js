@@ -6,12 +6,24 @@ export class VictoryScene extends Phaser.Scene {
   constructor() {
     super('VictoryScene');
     this._fireworkTimer = null;
+    this._btn0 = null;
+    this._btn1 = null;
+    this._padFocus     = 0;
+    this._padLeftPrev  = false;
+    this._padRightPrev = false;
+    this._padAPrev     = false;
   }
 
   create() {
     AudioManager.init(this);
     AudioManager.stopMusic();
     AudioManager.stopAllLoops();
+
+    // Reset button / gamepad state for this run
+    this._btn0 = null;
+    this._btn1 = null;
+    this._padFocus     = 0;
+    this._padLeftPrev  = this._padRightPrev = this._padAPrev = false;
 
     // Sky background
     const bg = this.add.graphics();
@@ -75,15 +87,15 @@ export class VictoryScene extends Phaser.Scene {
                   onComplete: () => {
                     this._doHug(mamaSlothSprite, bearSprite, false, () => {
 
-                      // Hug Steggie
+                      // Kiss Steggie — they're married!
                       this.time.delayedCall(300, () => {
                         this.tweens.add({
                           targets: mamaSlothSprite,
-                          x: steggieSprite.x,
+                          x: steggieSprite.x + 10,
                           duration: 500,
                           ease: 'Power2',
                           onComplete: () => {
-                            this._doHug(mamaSlothSprite, steggieSprite, false, () => {
+                            this._doKiss(mamaSlothSprite, steggieSprite, () => {
 
                               // All celebrate
                               this.time.delayedCall(400, () => {
@@ -105,14 +117,58 @@ export class VictoryScene extends Phaser.Scene {
     });
   }
 
+  update() {
+    if (!this._btn0) return; // end-screen not visible yet
+
+    const pad = this.input.gamepad?.getPad(0) ?? null;
+    if (!pad) return;
+
+    const leftNow  = pad.isButtonDown(14) || (pad.axes[0]?.getValue() ?? 0) < -0.4;
+    const rightNow = pad.isButtonDown(15) || (pad.axes[0]?.getValue() ?? 0) >  0.4;
+    const aNow     = pad.isButtonDown(0);
+
+    if ((leftNow && !this._padLeftPrev) || (rightNow && !this._padRightPrev)) {
+      this._padFocus = this._padFocus === 0 ? 1 : 0;
+      this._updateFocusVisual();
+      AudioManager.play('button_click');
+    }
+
+    if (aNow && !this._padAPrev) {
+      if (this._padFocus === 0) {
+        this._playAgain();
+      } else {
+        this._mainMenu();
+      }
+    }
+
+    this._padLeftPrev  = leftNow;
+    this._padRightPrev = rightNow;
+    this._padAPrev     = aNow;
+  }
+
+  _playAgain() {
+    AudioManager.play('button_click');
+    GameState.reset(); // keeps difficulty, resets level to 1 + clears companions
+    this.scene.start('LevelIntroScene', { level: 1 });
+  }
+
+  _mainMenu() {
+    AudioManager.play('button_click');
+    GameState.reset();
+    this.scene.start('StartScene');
+  }
+
+  _updateFocusVisual() {
+    if (this._btn0) this._btn0.setStrokeStyle(this._padFocus === 0 ? 3 : 2, this._padFocus === 0 ? 0xffff00 : 0xffffff);
+    if (this._btn1) this._btn1.setStrokeStyle(this._padFocus === 1 ? 3 : 2, this._padFocus === 1 ? 0xffff00 : 0xffffff);
+  }
+
   // Draws a heart shape using fillCircle + fillTriangle (Phaser 3 compatible)
   _drawHeart(graphics, cx, cy, size, color) {
     graphics.fillStyle(color, 1);
     const r = size * 0.34;
-    // Two circles for the top lobes
     graphics.fillCircle(cx - r, cy - r * 0.2, r);
     graphics.fillCircle(cx + r, cy - r * 0.2, r);
-    // Triangle for the bottom point
     graphics.fillTriangle(
       cx - r * 1.8, cy - r * 0.2,
       cx + r * 1.8, cy - r * 0.2,
@@ -132,7 +188,6 @@ export class VictoryScene extends Phaser.Scene {
       const size = Phaser.Math.Between(6, 14);
       const color = colors[i % colors.length];
 
-      // Use a graphics object for each heart particle
       const g = this.add.graphics();
       g.setDepth(50);
       this._drawHeart(g, x, y, size, color);
@@ -148,7 +203,7 @@ export class VictoryScene extends Phaser.Scene {
           const progress = tween.progress;
           g.clear();
           const px = x + vx * progress;
-          const py = y + vy * progress - 60 * progress * progress; // arc upward
+          const py = y + vy * progress - 60 * progress * progress;
           this._drawHeart(g, px, py, size * (1 - progress * 0.5), color);
         },
         onComplete: () => g.destroy()
@@ -170,15 +225,12 @@ export class VictoryScene extends Phaser.Scene {
   }
 
   _doHug(mamaSloth, target, triggerFireworks, onComplete) {
-    // Emoji hearts burst around target
-    const hearts = [];
     for (let i = 0; i < 6; i++) {
       const h = this.add.text(
         target.x + Phaser.Math.Between(-30, 30),
         target.y + Phaser.Math.Between(-20, 20),
         '❤️', { fontSize: '22px' }
       ).setDepth(30);
-      hearts.push(h);
       this.tweens.add({
         targets: h,
         y: h.y - 70,
@@ -189,7 +241,6 @@ export class VictoryScene extends Phaser.Scene {
       });
     }
 
-    // Scale pulse for hug
     this.tweens.add({
       targets: [mamaSloth, target],
       scaleX: { from: 2.2, to: 2.9 },
@@ -198,9 +249,60 @@ export class VictoryScene extends Phaser.Scene {
       yoyo: true,
       repeat: 1,
       onComplete: () => {
-        if (triggerFireworks) {
-          this._startHeartFireworksLoop();
-        }
+        if (triggerFireworks) this._startHeartFireworksLoop();
+        if (onComplete) onComplete();
+      }
+    });
+  }
+
+  // Mama Sloth gives Steggie a big kiss — they're married!
+  _doKiss(mamaSloth, target, onComplete) {
+    // Lipstick kiss emojis burst outward
+    const kissEmojis = ['💋', '💋', '💋', '😘', '💋', '💕'];
+    for (let i = 0; i < kissEmojis.length; i++) {
+      const h = this.add.text(
+        target.x + Phaser.Math.Between(-35, 35),
+        target.y + Phaser.Math.Between(-30, 10),
+        kissEmojis[i], { fontSize: '24px' }
+      ).setDepth(30);
+      this.tweens.add({
+        targets: h,
+        y: h.y - 90,
+        x: h.x + Phaser.Math.Between(-20, 20),
+        alpha: 0,
+        duration: 1000,
+        delay: i * 100,
+        ease: 'Power2',
+        onComplete: () => h.destroy()
+      });
+    }
+
+    // "MWAH!" popup text
+    const mwah = this.add.text(
+      target.x, target.y - 65, 'MWAH! 💋', {
+        fontSize: '28px', color: '#ff3366', fontFamily: 'Arial Black, Arial',
+        stroke: '#880022', strokeThickness: 3
+      }
+    ).setDepth(35).setOrigin(0.5).setAlpha(0);
+    this.tweens.add({
+      targets: mwah, alpha: 1, y: mwah.y - 15,
+      duration: 280,
+      onComplete: () => {
+        this.time.delayedCall(700, () => {
+          this.tweens.add({ targets: mwah, alpha: 0, duration: 400, onComplete: () => mwah.destroy() });
+        });
+      }
+    });
+
+    // Big dramatic lean-in kiss pulse — more pulses than a hug
+    this.tweens.add({
+      targets: [mamaSloth, target],
+      scaleX: { from: 2.2, to: 3.1 },
+      scaleY: { from: 2.2, to: 3.1 },
+      duration: 180,
+      yoyo: true,
+      repeat: 2,
+      onComplete: () => {
         if (onComplete) onComplete();
       }
     });
@@ -259,14 +361,16 @@ export class VictoryScene extends Phaser.Scene {
           fontSize: '20px', color: '#ffffff', fontFamily: 'Arial'
         }).setOrigin(0.5).setDepth(11);
 
-        this._makeButton(GAME_WIDTH / 2 - 90, GAME_HEIGHT / 2 + 80, 'Play Again', 0x226644, () => {
-          GameState.reset();
-          this.scene.start('StartScene');
-        });
-        this._makeButton(GAME_WIDTH / 2 + 90, GAME_HEIGHT / 2 + 80, 'Main Menu', 0x334466, () => {
-          GameState.reset();
-          this.scene.start('StartScene');
-        });
+        // Play Again — restart from level 1 with the same difficulty
+        this._btn0 = this._makeButton(GAME_WIDTH / 2 - 90, GAME_HEIGHT / 2 + 80, 'Play Again', 0x226644,
+          () => this._playAgain());
+
+        // Main Menu — go back to the difficulty selection screen
+        this._btn1 = this._makeButton(GAME_WIDTH / 2 + 90, GAME_HEIGHT / 2 + 80, 'Main Menu', 0x334466,
+          () => this._mainMenu());
+
+        this._padFocus = 0;
+        this._updateFocusVisual();
       });
     });
   }
@@ -280,5 +384,6 @@ export class VictoryScene extends Phaser.Scene {
     bg.on('pointerdown', callback);
     bg.on('pointerover', () => bg.setAlpha(0.75));
     bg.on('pointerout',  () => bg.setAlpha(1));
+    return bg;
   }
 }
