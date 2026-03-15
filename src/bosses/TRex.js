@@ -45,7 +45,7 @@ export class TRex extends BaseBoss {
         break;
 
       case BOSS_STATE.TELEGRAPHING:
-        if (this.stateTimer < 16) {
+        if (!this._stateSetupDone) { this._stateSetupDone = true;
           if (this._phase === ATTACK.CHOMP) {
             // T-Rex lowers head and growls
             this.sprite.play('boss_volcano_chomp', true);

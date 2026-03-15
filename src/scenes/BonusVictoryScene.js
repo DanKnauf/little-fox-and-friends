@@ -131,12 +131,26 @@ export class BonusVictoryScene extends Phaser.Scene {
         bunny.play('bunny_happy', true);
         this._burstStars(bunny.x, bunny.y);
 
-        // All celebrate together
-        this.time.delayedCall(700, () => {
-          bunny.play('bunny_celebrate', true);
-          this._launchFireworkLoop();
-          this._allBounce([fox, bear, steg, sloth, bunny]);
-          this._showEndScreen(fox, bear, steg, sloth, bunny);
+        // Bunny delivers a carrot to each hero, then returns to centre
+        this.time.delayedCall(500, () => {
+          this._deliverCarrots(
+            bunny,
+            [
+              { sprite: fox,   x: foxFinalX   },
+              { sprite: bear,  x: bearFinalX  },
+              { sprite: steg,  x: stegFinalX  },
+              { sprite: sloth, x: slothFinalX },
+            ],
+            bunnyFinalX,
+            groundY,
+            () => {
+              // All celebrate together
+              bunny.play('bunny_celebrate', true);
+              this._launchFireworkLoop();
+              this._allBounce([fox, bear, steg, sloth, bunny]);
+              this._showEndScreen(fox, bear, steg, sloth, bunny);
+            }
+          );
         });
       });
     });
@@ -183,6 +197,59 @@ export class BonusVictoryScene extends Phaser.Scene {
   _updateFocusVisual() {
     if (this._btn0) this._btn0.setStrokeStyle(this._padFocus === 0 ? 3 : 2, this._padFocus === 0 ? 0xffff00 : 0xffffff);
     if (this._btn1) this._btn1.setStrokeStyle(this._padFocus === 1 ? 3 : 2, this._padFocus === 1 ? 0xffff00 : 0xffffff);
+  }
+
+  // Bunny hops to each hero in order, drops a carrot, then hops back to centre
+  _deliverCarrots(bunny, heroes, returnX, groundY, onDone) {
+    const step = (i) => {
+      if (i >= heroes.length) {
+        // Return to centre
+        bunny.play('bunny_happy', true);
+        this.tweens.add({
+          targets: bunny, x: returnX,
+          duration: 500, ease: 'Power2',
+          onComplete: () => { bunny.play('bunny_celebrate', true); onDone(); }
+        });
+        return;
+      }
+      const { x } = heroes[i];
+      const dur = Phaser.Math.Clamp(Math.abs(bunny.x - x) * 1.2, 250, 650);
+      bunny.play('bunny_happy', true);
+      this.tweens.add({
+        targets: bunny, x,
+        duration: dur, ease: 'Linear',
+        onComplete: () => {
+          bunny.play('bunny_idle', true);
+          this._showCarrot(x - 14, groundY - 16);
+          this.time.delayedCall(320, () => step(i + 1));
+        }
+      });
+    };
+    step(0);
+  }
+
+  // Pop a small carrot graphic at (x, y) then float it upward
+  _showCarrot(x, y) {
+    const g = this.add.graphics().setDepth(25);
+    g.x = x; g.y = y;
+    // Orange carrot body (downward-pointing triangle)
+    g.fillStyle(0xff7700, 1);
+    g.fillTriangle(0, 0, -7, -16, 7, -16);
+    // Green leafy top
+    g.fillStyle(0x33aa22, 1);
+    g.fillTriangle(-5, -14, 0, -26, 2, -14);
+    g.fillTriangle( 1, -12, 8, -22, 9, -12);
+    g.fillTriangle(-8, -11, -3, -22, -2, -11);
+    // Scale-pop entrance
+    g.setScale(0);
+    this.tweens.add({ targets: g, scaleX: 1, scaleY: 1, duration: 180, ease: 'Back.easeOut' });
+    // Float up and fade after a moment
+    this.time.delayedCall(700, () => {
+      this.tweens.add({
+        targets: g, y: g.y - 35, alpha: 0, duration: 500,
+        onComplete: () => { if (g.active) g.destroy(); }
+      });
+    });
   }
 
   _allBounce(sprites) {

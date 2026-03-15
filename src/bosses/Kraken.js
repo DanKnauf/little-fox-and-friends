@@ -42,7 +42,7 @@ export class Kraken extends BaseBoss {
         break;
 
       case BOSS_STATE.TELEGRAPHING:
-        if (this.stateTimer < 16) {
+        if (!this._stateSetupDone) { this._stateSetupDone = true;
           if (currentAttack === 'tentacle') {
             this.sprite.play('boss_ocean_tentacle', true);
             this.sprite.setTint(0x44ffcc);
@@ -75,7 +75,7 @@ export class Kraken extends BaseBoss {
         break;
 
       case BOSS_STATE.ATTACKING:
-        if (this.stateTimer < 16) {
+        if (!this._stateSetupDone) { this._stateSetupDone = true;
           if (currentAttack === 'tentacle') {
             this._doTentacleSlam();
           } else if (currentAttack === 'ink') {

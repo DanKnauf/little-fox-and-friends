@@ -110,6 +110,7 @@ export class PauseScene extends Phaser.Scene {
     AudioManager.play('button_click');
     this.scene.sleep('PauseScene');   // keep objects alive to avoid texture cache issues
     this.scene.resume('GameScene');
+    if (this.scene.isPaused('BossScene')) this.scene.resume('BossScene');
   }
 
   _quit() {

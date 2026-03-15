@@ -35,7 +35,7 @@ export class ForestGuardian extends BaseBoss {
         break;
 
       case BOSS_STATE.TELEGRAPHING:
-        if (this.stateTimer < 16) {
+        if (!this._stateSetupDone) { this._stateSetupDone = true;
           if (this._phase % 2 === 0) {
             this.sprite.play('boss_forest_charge', true);
             if (this._player) {

@@ -246,7 +246,7 @@ export class GameScene extends Phaser.Scene {
     if (unlocked.includes('babybear'))
       companionHUDConfig.babybear  = { emoji: '🐻', color: '#c8a060', maxHearts: GameState.state.companions.babybear.maxHearts };
     if (unlocked.includes('steggie'))
-      companionHUDConfig.steggie   = { emoji: '🦕', color: '#4A8C5C', maxHearts: GameState.state.companions.steggie.maxHearts };
+      companionHUDConfig.steggie   = { iconKey: 'steggie_icon', color: '#4A8C5C', maxHearts: GameState.state.companions.steggie.maxHearts };
     if (unlocked.includes('mamasloth'))
       companionHUDConfig.mamasloth = { emoji: '🦥', color: '#9aaa88', maxHearts: GameState.state.companions.mamasloth.maxHearts };
     this._hud = new HUD(this, this._littleFox.maxHearts, companionHUDConfig);
@@ -348,6 +348,7 @@ export class GameScene extends Phaser.Scene {
   _triggerPause() {
     if (this.scene.isActive('PauseScene')) return; // already paused
     this.scene.pause('GameScene');
+    if (this.scene.isActive('BossScene')) this.scene.pause('BossScene');
     // Wake the scene if it was previously put to sleep (resume path),
     // otherwise launch it for the first time. This avoids repeatedly
     // creating and destroying PauseScene's Text objects which causes

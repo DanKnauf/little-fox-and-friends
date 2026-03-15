@@ -353,8 +353,10 @@ function drawSteggie(ctx, cx, cy, legOff, isHurt) {
 
   // ── HEAD (tiny, low-held, beak-like — characteristic of stegosaurus) ────
   ctx.fillStyle = green;
-  // Neck bridge — fills any antialiasing gap between body right edge and head
-  ctx.fillRect(cx + 7, cy - 1, 9, 9);
+  // Neck — smooth oval bridges the body's right shoulder to the head ellipse
+  ctx.beginPath();
+  ctx.ellipse(cx + 10, cy + 3, 5, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
   // Head ellipse
   ctx.beginPath();
   ctx.ellipse(cx + 13, cy + 2, 6, 5, -0.2, 0, Math.PI * 2);

@@ -37,7 +37,7 @@ export class ScorpionKing extends BaseBoss {
         break;
 
       case BOSS_STATE.TELEGRAPHING:
-        if (this.stateTimer < 16) {
+        if (!this._stateSetupDone) { this._stateSetupDone = true;
           if (currentAttack === 'claw') {
             this.sprite.play('boss_desert_claw', true);
           } else {
@@ -50,7 +50,7 @@ export class ScorpionKing extends BaseBoss {
         break;
 
       case BOSS_STATE.ATTACKING:
-        if (this.stateTimer < 16) {
+        if (!this._stateSetupDone) { this._stateSetupDone = true;
           if (currentAttack === 'claw') {
             this._doClawSwipe();
           } else {
