@@ -44,14 +44,27 @@ Little Fox's Mama — Mama Sloth — has been taken. Little Fox must journey thr
 
 ## 4. Controls
 
+### Keyboard & Mouse
+
 | Input | Action |
 |---|---|
-| W | Move up / climb |
+| W or Spacebar | Jump |
 | A | Move left |
-| S | Move down / crouch |
+| S | Crouch (while grounded) |
 | D | Move right |
-| Spacebar | Jump |
-| Left mouse click | Shoot projectile |
+| Left mouse click | Shoot toward cursor |
+| ESC | Pause / Resume |
+
+### Xbox Controller
+
+| Input | Action |
+|---|---|
+| Left Stick or D-Pad Left/Right | Move |
+| A Button | Jump |
+| X Button / RB / RT | Shoot |
+| Start Button | Pause / Resume |
+
+On menus, use Left/Right on the stick or D-pad to navigate options and A to confirm.
 
 Controls are identical across all levels. No control remapping required for MVP.
 
@@ -74,20 +87,29 @@ The game opens on a **main menu screen** before any gameplay begins. The menu mu
 Little Fox's Mama Sloth has been taken! Help Little Fox rescue her by battling through the Forest, the Desert, and the Ocean.
 
 **Keyboard Controls:**
-- W — Move up / climb
+- W or Spacebar — Jump
 - A — Move left
-- S — Move down / crouch
+- S — Crouch (while grounded)
 - D — Move right
-- Spacebar — Jump
+- ESC — Pause / Resume
 
 **Mouse Controls:**
-- Left click — Shoot
+- Left click — Shoot toward cursor
+
+**Xbox Controller Controls:**
+- Left Stick / D-Pad — Move
+- A Button — Jump
+- X Button / RB / RT — Shoot
+- Start Button — Pause / Resume
+- Left/Right on menus — Navigate; A — Select
 
 **Gameplay Tips:**
 - Touching an enemy costs you one heart. Shoot them before they reach you!
-- Find hidden potions behind objects to restore your health and grow big!
+- Find hidden potions behind objects to restore your health and grow big for 10 seconds!
+- While big and invincible, touching an enemy kills it instantly — charge right through them!
 - Beat the boss at the end of each level to rescue a friend who will help you fight.
-- Watch your ammo on Medium and Hard — pick up ammo packs to reload.
+- Watch your ammo on Medium and Hard — pick up ammo packs to reload. Extra packs are placed near the boss zone.
+- Pause anytime with ESC or Start to see the full controls reference.
 - When you find Mama Sloth, she'll give everyone a big hug!
 
 ---
@@ -200,7 +222,9 @@ Ammunition applies to Little Fox's shooter only. Companions have unlimited ammo 
 - Each level contains hidden potions (count varies by difficulty — see Section 9)
 - Potions are hidden behind level objects: trees, crates, rocks, coral formations (environment-appropriate)
 - Collecting a potion: fully restores all of Little Fox's hearts AND temporarily doubles his size for 10 seconds
-- Size doubling is visual and satisfying — does not significantly alter hitbox or speed
+- While in big/size-up mode, Little Fox is also **invincible** — he cannot take damage and touching an enemy kills it instantly
+- Rainbow color cycling visual indicates active invincibility
+- Size doubling is visual and satisfying; the effect ends cleanly (character returns to normal appearance)
 - **Sound — collect potion:** Magical shimmer/twinkle
 - **Sound — size effect active:** Subtle low power-up hum
 
@@ -215,10 +239,9 @@ Selected on the main menu before the game starts. Affects hearts, ammo, speed, e
 | Little Fox starting hearts | 5 | 4 | 3 |
 | Companion hearts | 5 | 4 | 3 |
 | Starting ammo | Unlimited | 40 pellets | 20 pellets |
-| Ammo pickups in levels | None | Plentiful | Scarce |
+| Ammo pickups per level | None | 9 | 9 |
 | Enemy movement speed | 0.7x | 1.0x | 1.3x |
 | Boss attack speed multiplier | 0.6x | 1.0x | 1.4x |
-| Boss attack telegraph window | 1.5s | 1.0s | 0.6s |
 | Enemy density per screen | Low | Medium | High |
 | Potion count per level | 4 | 3 | 2 |
 
@@ -256,10 +279,10 @@ All difficulty settings must keep the game completable and enjoyable for childre
 **Boss music:** Same base theme but shifts to minor key, adds low drone, tempo increases — conveys urgency without being scary for young children.
 
 **Level 1 Boss — The Forest Guardian (large spider/root creature)**
+- **HP:** 10
 - **Arena:** A wide forest clearing
 - **Health bar:** Visible at top of screen
-- **Attack pattern (Easy/Medium):** Predictable sequence — charge left, charge right, drop webs from above (telegraphed by shadow). Pause between attacks gives player time to react.
-- **Attack pattern (Hard):** Sequence speeds up, shorter pauses, web drops have smaller telegraph window
+- **Attack pattern:** Predictable sequence — charge left, charge right, drop webs from above. Pause between attacks gives player time to react. On Hard, attacks are faster.
 - **Defeat reward:** Baby Bear is freed from a web/cage — joins as companion
 - **Defeat sound:** Crumbling/scuttling sound + triumphant jingle
 
@@ -282,10 +305,10 @@ All difficulty settings must keep the game completable and enjoyable for childre
 **Boss music:** Same base theme, lower register, adds urgent pulse/heartbeat rhythm, minor mode — signals this is the big desert moment.
 
 **Level 2 Boss — The Desert Scorpion King**
+- **HP:** 12
 - **Arena:** A flat sandstone platform surrounded by sand pits
 - **Health bar:** Visible at top of screen
-- **Attack pattern (Easy/Medium):** Slow but hard-hitting claw swipes (telegraphed by claw raise animation), tail sting that arcs overhead (telegraphed by tail glow). Predictable rhythm.
-- **Attack pattern (Hard):** Adds a sand-throw that temporarily obscures vision; shorter telegraph windows
+- **Attack pattern:** Hard-hitting claw swipes and tail sting arc attacks. Predictable rhythm. On Hard, attacks are faster.
 - **Defeat reward:** Steggie is freed from a sand trap — joins as companion
 - **Defeat sound:** Heavy thud + dust cloud + triumphant jingle
 
@@ -308,10 +331,10 @@ All difficulty settings must keep the game completable and enjoyable for childre
 **Boss music:** Full orchestral-style buildup — the most intense music in the game. Low bass pulses, urgent rhythm, dissonant harmonics. Signals the final battle. Resolves into the victory fanfare on defeat.
 
 **Level 3 Boss — The Kraken (massive sea creature)**
+- **HP:** 14
 - **Arena:** A large coastal platform with water on both sides
 - **Health bar:** Visible at top of screen
-- **Attack pattern (Easy/Medium):** Tentacle slam (telegraphed by tentacle shadow), ink spray (telegraphed by body glow), roar that pushes characters back. With both companions firing, the fight is achievable.
-- **Attack pattern (Hard):** Multiple simultaneous tentacle slams, faster ink spray, shorter telegraph windows
+- **Attack pattern:** Tentacle slam, ink spray that drifts across the screen, and a roar that pushes all characters back. With both companions firing, the fight is achievable. On Hard, attacks are faster.
 - **Defeat reward:** Mama Sloth appears on the platform — victory cutscene triggers
 - **Defeat sound:** Deep ocean rumble + splash + full victory fanfare begins
 
@@ -335,9 +358,10 @@ All difficulty settings must keep the game completable and enjoyable for childre
 
 | State | Description |
 |---|---|
-| Main menu | Title, difficulty selection, instructions, START button |
+| Main menu | Title, difficulty selection, START button. Navigate with keyboard or Xbox controller. |
 | Level intro | Brief environment title card fades in then out |
 | Gameplay | Active level play |
+| Paused | Overlay showing controls reference, Resume and Quit buttons. ESC or Start button to toggle. |
 | Boss encounter | Boss arena loads, boss health bar appears, boss music begins |
 | Level complete | Brief celebration animation, transition to next level at full health and reset ammo |
 | Game over | Player reached 0 hearts — "Try Again" (restart current level) and "Main Menu" buttons |
@@ -587,18 +611,18 @@ Mama Sloth's design should be immediately readable as a sloth and feel warm and 
 
 ## 16. Boss Design Summary
 
-| Boss | Level | Key Mechanic | Telegraph | Reward |
+| Boss | Level | HP | Key Mechanic | Reward |
 |---|---|---|---|---|
-| Forest Guardian | 1 — Forest | Charge + web drop | Shadow before web drop | Unlocks Baby Bear |
-| Scorpion King | 2 — Desert | Claw swipe + tail sting | Claw raise / tail glow | Unlocks Steggie |
-| The Kraken | 3 — Ocean | Tentacle slam + ink spray | Tentacle shadow / body glow | Rescues Mama Sloth |
+| Forest Guardian | 1 — Forest | 10 | Charge + web drop | Unlocks Baby Bear |
+| Scorpion King | 2 — Desert | 12 | Claw swipe + tail sting arc | Unlocks Steggie |
+| The Kraken | 3 — Ocean | 14 | Tentacle slam + ink spray + roar push | Rescues Mama Sloth |
 
-All bosses must:
-- Have a visible health bar
-- Telegraph attacks with enough lead time for a 7-year-old to react (Easy: 1.5s, Medium: 1.0s, Hard: 0.6s)
-- Have predictable, learnable attack sequences
-- Be defeatable with the companion(s) available at that point in the game
+All bosses:
+- Have a visible health bar at the top of the screen
+- Have predictable, learnable attack sequences with pauses between attacks
+- Are defeatable with the companion(s) available at that point in the game
 - Trigger a music shift (exploration → boss music) on arena entry
+- Deal exactly 1 heart of damage per hit to the player and companions
 
 ---
 
