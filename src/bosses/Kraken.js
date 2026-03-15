@@ -4,7 +4,7 @@ import { GAME_HEIGHT, GAME_WIDTH, DEPTH } from '../constants.js';
 
 export class Kraken extends BaseBoss {
   constructor(scene, x, y) {
-    super(scene, x, y, 'boss_ocean', 10, 'The Kraken');
+    super(scene, x, y, 'boss_ocean', 14, 'The Kraken');
     this.sprite.play('boss_ocean_idle', true);
     this._attacks = ['tentacle', 'ink', 'roar', 'tentacle', 'ink'];
     this._attackIndex = 0;
@@ -36,27 +36,15 @@ export class Kraken extends BaseBoss {
 
       case BOSS_STATE.TELEGRAPHING:
         if (this.stateTimer < 16) {
-          AudioManager.play('boss_telegraph');
           if (currentAttack === 'tentacle') {
             this.sprite.play('boss_ocean_tentacle', true);
-            // Flash the boss cyan to telegraph a tentacle slam
-            this.sprite.setTint(0x00ffff);
-            this.scene.tweens.add({
-              targets: this.sprite,
-              alpha: { from: 1, to: 0.4 },
-              duration: 100,
-              yoyo: true,
-              repeat: Math.floor(this._telegraphMs / 200)
-            });
           } else if (currentAttack === 'ink') {
             this.sprite.play('boss_ocean_ink', true);
-            this.sprite.setTint(0x00ccff);
-          } else { // roar
+          } else {
             this.sprite.play('boss_ocean_idle', true);
-            this.sprite.setTint(0xff6600);
           }
         }
-        if (this.stateTimer >= this._telegraphMs) {
+        if (this.stateTimer >= 400) {
           this.sprite.clearTint();
           this.transitionTo(BOSS_STATE.ATTACKING);
         }

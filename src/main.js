@@ -7,6 +7,7 @@ import { BossScene } from './scenes/BossScene.js';
 import { LevelCompleteScene } from './scenes/LevelCompleteScene.js';
 import { GameOverScene } from './scenes/GameOverScene.js';
 import { VictoryScene } from './scenes/VictoryScene.js';
+import { PauseScene } from './scenes/PauseScene.js';
 import { GAME_WIDTH, GAME_HEIGHT } from './constants.js';
 
 // Polyfill CanvasRenderingContext2D.roundRect for older browsers
@@ -30,6 +31,29 @@ if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D
 function removeLoadingScreen() {
   const el = document.getElementById('loading-screen');
   if (el) el.remove();
+}
+
+// Make the canvas physical pixels match the screen's actual pixel density.
+// Phaser's Scale.FIT sets canvas CSS size but not physical pixel count.
+// Calling renderer.resize() with the DPR-multiplied size keeps the WebGL
+// projection (resolution: 3) working while eliminating blur from upscaling.
+function sharpCanvas(game) {
+  const canvas = game.canvas;
+  const apply = () => {
+    const dpr  = window.devicePixelRatio || 1;
+    const cssW = Math.round(parseFloat(canvas.style.width)  || canvas.clientWidth  || GAME_WIDTH);
+    const cssH = Math.round(parseFloat(canvas.style.height) || canvas.clientHeight || GAME_HEIGHT);
+    if (!cssW || !cssH) return;
+    const pw = Math.round(cssW * dpr);
+    const ph = Math.round(cssH * dpr);
+    if (canvas.width !== pw || canvas.height !== ph) {
+      canvas.width  = pw;
+      canvas.height = ph;
+      game.renderer.resize(pw, ph);
+    }
+  };
+  game.scale.on('resize', apply);
+  setTimeout(apply, 50);
 }
 
 // Render the internal canvas buffer at 3× the logical game size.
@@ -56,7 +80,7 @@ const config = {
     gamepad: true
   },
   callbacks: {
-    postBoot: removeLoadingScreen
+    postBoot: (game) => { removeLoadingScreen(); sharpCanvas(game); }
   },
   physics: {
     default: 'arcade',
@@ -73,7 +97,8 @@ const config = {
     BossScene,
     LevelCompleteScene,
     GameOverScene,
-    VictoryScene
+    VictoryScene,
+    PauseScene
   ]
 };
 

@@ -28,125 +28,110 @@ function generateLittleFox(scene) {
 
 function drawFox(ctx, cx, cy, legOff, isJump, isHurt) {
   ctx.save();
-  if (isHurt) ctx.globalAlpha = 0.7;
+  if (isHurt) ctx.globalAlpha = 0.75;
 
-  const bodyColor  = isHurt ? '#ff7744' : '#D4621A'; // rust-orange
-  const bellyColor = '#f0c080';  // warm cream belly
-  const earInner   = '#ffaaaa';  // pink inner ear
-  const muzzleColor = '#f0c080'; // cream muzzle
+  // Shift the character 3px down so there's room for ears at the top of the 32px frame
+  const oy = cy + 3;  // effective vertical centre = y 19 in the 32px frame
 
-  // ── TAIL (behind body, drawn first) ─────────────────────────────────────────
-  ctx.strokeStyle = bodyColor; ctx.lineWidth = 7; ctx.lineCap = 'round';
+  const orange = isHurt ? '#FF9966' : '#FF6600';
+  const cream  = '#FFF5CC';
+  const pink   = '#FFAAAA';
+  const dark   = '#1a0a00';
+
+  // ── TAIL (drawn behind body) ──────────────────────────────────────────────
+  // Curve from lower-back of fox sweeping upward-left, tip stays inside frame
+  ctx.strokeStyle = orange; ctx.lineWidth = 7; ctx.lineCap = 'round';
   ctx.beginPath();
-  ctx.moveTo(cx - 6, cy + 5);
-  ctx.quadraticCurveTo(cx - 22, cy + 2, cx - 20, cy - 10);
+  ctx.moveTo(cx - 3, oy + 4);
+  ctx.quadraticCurveTo(cx - 12, oy + 1, cx - 10, oy - 8);
   ctx.stroke();
-  // white fluffy tip
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
-  ctx.arc(cx - 20, cy - 10, 6, 0, Math.PI * 2);
-  ctx.fill();
-  // light grey outline on tip
-  ctx.strokeStyle = '#dddddd'; ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.arc(cx - 20, cy - 10, 6, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // ── BODY ────────────────────────────────────────────────────────────────────
-  ctx.fillStyle = bodyColor;
-  ctx.beginPath();
-  ctx.ellipse(cx, cy + 3, 9, 11, 0, 0, Math.PI * 2);
+  ctx.arc(cx - 10, oy - 9, 4, 0, Math.PI * 2);
   ctx.fill();
 
-  // belly / chest patch
-  ctx.fillStyle = bellyColor;
+  // ── BODY ─────────────────────────────────────────────────────────────────
+  ctx.fillStyle = orange;
   ctx.beginPath();
-  ctx.ellipse(cx + 1, cy + 5, 5, 7, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx - 1, oy + 3, 8, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // belly
+  ctx.fillStyle = cream;
+  ctx.beginPath();
+  ctx.ellipse(cx, oy + 4, 4.5, 6.5, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // ── HEAD ────────────────────────────────────────────────────────────────────
-  ctx.fillStyle = bodyColor;
+  // ── LEGS ─────────────────────────────────────────────────────────────────
+  const jy = isJump ? -3 : 0;
+  ctx.fillStyle = orange;
   ctx.beginPath();
-  ctx.ellipse(cx + 2, cy - 8, 8, 7, 0.1, 0, Math.PI * 2);
+  ctx.ellipse(cx - 4, oy + 12 + legOff + jy, 3, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(cx + 3, oy + 12 - legOff + jy, 3, 4, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // white face mask (forehead + eye area)
-  ctx.fillStyle = bellyColor;
+  // ── HEAD ─────────────────────────────────────────────────────────────────
+  // head centre at y = oy - 8 = 11, giving 11px of room above for ears (tip at y≈2)
+  const hx = cx + 1, hy = oy - 8;
+  ctx.fillStyle = orange;
   ctx.beginPath();
-  ctx.ellipse(cx + 2, cy - 10, 5, 4, 0, 0, Math.PI * 2);
+  ctx.arc(hx, hy, 7, 0, Math.PI * 2);
   ctx.fill();
 
-  // ── EARS (large pointed triangles) ──────────────────────────────────────────
-  // left ear
-  ctx.fillStyle = bodyColor;
+  // ── EARS ─────────────────────────────────────────────────────────────────
+  // Back ear (left)
+  ctx.fillStyle = orange;
   ctx.beginPath();
-  ctx.moveTo(cx - 3, cy - 13);
-  ctx.lineTo(cx - 9, cy - 24);
-  ctx.lineTo(cx + 2, cy - 14);
+  ctx.moveTo(hx - 5, hy - 4);
+  ctx.lineTo(hx - 8, hy - 10);   // tip at y = hy-10 = 1  (inside frame)
+  ctx.lineTo(hx - 1, hy - 4);
   ctx.closePath(); ctx.fill();
-  ctx.fillStyle = earInner;
+  ctx.fillStyle = pink;
   ctx.beginPath();
-  ctx.moveTo(cx - 3, cy - 14);
-  ctx.lineTo(cx - 7, cy - 22);
-  ctx.lineTo(cx + 1, cy - 15);
-  ctx.closePath(); ctx.fill();
-
-  // right ear
-  ctx.fillStyle = bodyColor;
-  ctx.beginPath();
-  ctx.moveTo(cx + 5, cy - 13);
-  ctx.lineTo(cx + 12, cy - 23);
-  ctx.lineTo(cx + 11, cy - 13);
-  ctx.closePath(); ctx.fill();
-  ctx.fillStyle = earInner;
-  ctx.beginPath();
-  ctx.moveTo(cx + 6, cy - 14);
-  ctx.lineTo(cx + 11, cy - 21);
-  ctx.lineTo(cx + 10, cy - 14);
+  ctx.moveTo(hx - 5, hy - 5);
+  ctx.lineTo(hx - 7, hy - 9);
+  ctx.lineTo(hx - 2, hy - 5);
   ctx.closePath(); ctx.fill();
 
-  // ── SNOUT / MUZZLE (elongated, pointed) ─────────────────────────────────────
-  ctx.fillStyle = muzzleColor;
+  // Front ear (right)
+  ctx.fillStyle = orange;
   ctx.beginPath();
-  ctx.ellipse(cx + 7, cy - 7, 6, 3.5, 0.15, 0, Math.PI * 2);
+  ctx.moveTo(hx + 3, hy - 4);
+  ctx.lineTo(hx + 6, hy - 10);   // tip at y = 1
+  ctx.lineTo(hx + 8, hy - 4);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = pink;
+  ctx.beginPath();
+  ctx.moveTo(hx + 3, hy - 5);
+  ctx.lineTo(hx + 5, hy - 9);
+  ctx.lineTo(hx + 7, hy - 5);
+  ctx.closePath(); ctx.fill();
+
+  // ── MUZZLE (cream rectangle-ish snout pointing right) ────────────────────
+  ctx.fillStyle = cream;
+  ctx.beginPath();
+  ctx.ellipse(hx + 5, hy + 2, 4.5, 2.8, 0.15, 0, Math.PI * 2);
   ctx.fill();
 
-  // black nose tip — at the front of the muzzle, well within frame
-  ctx.fillStyle = '#111';
+  // Nose — dark oval at tip of muzzle, clearly within frame (x = hx+8 = 26)
+  ctx.fillStyle = dark;
   ctx.beginPath();
-  ctx.ellipse(cx + 11, cy - 7, 2, 1.5, 0, 0, Math.PI * 2);
+  ctx.ellipse(hx + 8, hy + 2, 2, 1.6, 0, 0, Math.PI * 2);
   ctx.fill();
-  // tiny nose highlight
-  ctx.fillStyle = '#444';
+  ctx.fillStyle = '#555';
   ctx.beginPath();
-  ctx.arc(cx + 10.5, cy - 7.5, 0.7, 0, Math.PI * 2);
+  ctx.arc(hx + 7.5, hy + 1.5, 0.7, 0, Math.PI * 2);
   ctx.fill();
 
-  // ── EYES ────────────────────────────────────────────────────────────────────
-  ctx.fillStyle = '#222';
+  // ── EYE ──────────────────────────────────────────────────────────────────
+  ctx.fillStyle = dark;
   ctx.beginPath();
-  ctx.arc(cx + 1, cy - 11, 2, 0, Math.PI * 2);
+  ctx.arc(hx + 2, hy - 2, 2, 0, Math.PI * 2);
   ctx.fill();
-  ctx.beginPath();
-  ctx.arc(cx + 6, cy - 11, 2, 0, Math.PI * 2);
-  ctx.fill();
-  // eye shine
   ctx.fillStyle = '#fff';
   ctx.beginPath();
-  ctx.arc(cx + 2, cy - 12, 0.8, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(cx + 7, cy - 12, 0.8, 0, Math.PI * 2);
-  ctx.fill();
-
-  // ── LEGS ────────────────────────────────────────────────────────────────────
-  const jumpY = isJump ? -3 : 0;
-  ctx.fillStyle = bodyColor;
-  ctx.beginPath();
-  ctx.ellipse(cx - 4, cy + 12 + legOff + jumpY, 3, 5, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(cx + 4, cy + 12 - legOff + jumpY, 3, 5, 0, 0, Math.PI * 2);
+  ctx.arc(hx + 2.7, hy - 2.7, 0.8, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.restore();
@@ -224,11 +209,25 @@ function drawBear(ctx, cx, cy, legOff, isAttack, isHurt) {
   ctx.ellipse(cx + 3, cy - 6, 3, 2, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // attack paw
+  // arms — always visible; attack frame extends arm forward
+  ctx.fillStyle = bodyColor;
   if (isAttack) {
-    ctx.fillStyle = bodyColor;
+    // punching arm extended forward
     ctx.beginPath();
-    ctx.ellipse(cx + 18, cy, 6, 5, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx + 16, cy - 1, 7, 4, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    // fist / paw
+    ctx.beginPath();
+    ctx.arc(cx + 22, cy - 1, 5, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    // left arm
+    ctx.beginPath();
+    ctx.ellipse(cx - 11, cy - 1, 4, 6, 0.3, 0, Math.PI * 2);
+    ctx.fill();
+    // right arm
+    ctx.beginPath();
+    ctx.ellipse(cx + 11, cy - 1, 4, 6, -0.3, 0, Math.PI * 2);
     ctx.fill();
   }
 

@@ -5,7 +5,7 @@ import { GAME_HEIGHT, DEPTH } from '../constants.js';
 
 export class ScorpionKing extends BaseBoss {
   constructor(scene, x, y) {
-    super(scene, x, y, 'boss_desert', 10, 'Scorpion King');
+    super(scene, x, y, 'boss_desert', 12, 'Scorpion King');
     this.sprite.play('boss_desert_idle', true);
     this._attacks = ['claw', 'tail', 'claw', 'tail']; // cycle
     this._attackIndex = 0;
@@ -35,17 +35,13 @@ export class ScorpionKing extends BaseBoss {
 
       case BOSS_STATE.TELEGRAPHING:
         if (this.stateTimer < 16) {
-          AudioManager.play('boss_telegraph');
           if (currentAttack === 'claw') {
             this.sprite.play('boss_desert_claw', true);
-            this.sprite.setTint(0xff8800);
           } else {
             this.sprite.play('boss_desert_tail', true);
-            this.sprite.setTint(0xffee00);
           }
         }
-        if (this.stateTimer >= this._telegraphMs) {
-          this.sprite.clearTint();
+        if (this.stateTimer >= 400) {
           this.transitionTo(BOSS_STATE.ATTACKING);
         }
         break;

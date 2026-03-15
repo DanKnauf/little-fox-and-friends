@@ -32,39 +32,19 @@ export class ForestGuardian extends BaseBoss {
         break;
 
       case BOSS_STATE.TELEGRAPHING:
-        if (this.stateTimer === 0 || this.stateTimer < 16) {
-          AudioManager.play('boss_telegraph');
+        if (this.stateTimer < 16) {
           if (this._phase % 2 === 0) {
             this.sprite.play('boss_forest_charge', true);
-            // Set charge direction based on player position
             if (this._player) {
               this._chargeTarget = this._player.sprite.x > this.sprite.x ? this._arenaRight : this._arenaLeft;
             } else {
               this._chargeTarget = this._chargeTarget === this._arenaRight ? this._arenaLeft : this._arenaRight;
             }
-            // Show telegraph hint: flicker red
-            this.scene.tweens.add({
-              targets: this.sprite,
-              alpha: { from: 1, to: 0.5 },
-              duration: 150,
-              yoyo: true,
-              repeat: Math.floor(this._telegraphMs / 300)
-            });
           } else {
             this.sprite.play('boss_forest_web', true);
-            // Flash the boss sprite green to telegraph a web drop
-            this.scene.tweens.add({
-              targets: this.sprite,
-              alpha: { from: 1, to: 0.4 },
-              duration: 120,
-              yoyo: true,
-              repeat: Math.floor(this._telegraphMs / 240)
-            });
-            this.sprite.setTint(0x44ff44);
           }
         }
-
-        if (this.stateTimer >= this._telegraphMs) {
+        if (this.stateTimer >= 400) {
           this.transitionTo(BOSS_STATE.ATTACKING);
         }
         break;
@@ -89,10 +69,10 @@ export class ForestGuardian extends BaseBoss {
         } else {
           // Web drop
           if (this.stateTimer < 100) {
-            this.sprite.clearTint();
             const webX = this._player ? this._player.sprite.x : this.sprite.x;
             // Create web hazard
-            const web = this.scene.add.image(webX, GAME_HEIGHT - 58, 'web_hazard').setDepth(DEPTH.TERRAIN);
+            const web = this.scene.add.image(webX, GAME_HEIGHT - 58, 'web_hazard')
+              .setDepth(DEPTH.TERRAIN).setAlpha(0); // invisible — damage from proximity in _checkWebDamage
             this.scene.physics.add.existing(web, true);
             this._webHazards.push({ sprite: web, timer: 0 });
           }

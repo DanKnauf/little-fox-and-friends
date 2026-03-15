@@ -140,17 +140,21 @@ export class GameScene extends Phaser.Scene {
       });
     }
 
-    // Player vs enemies (damage)
+    // Player vs enemies — damage or invincible kill
     this.physics.add.overlap(this._littleFox.sprite, this._buildEnemySpriteGroup(), (playerSprite, enemySprite) => {
       const enemy = this._findEnemyBySprite(enemySprite);
-      if (enemy && enemy.canDamagePlayer()) {
+      if (!enemy || !enemy.isAlive()) return;
+      if (this._littleFox._invincible) {
+        enemy.takeDamage(99); // instant kill on contact while invincible
+      } else if (enemy.canDamagePlayer()) {
         this._littleFox.takeDamage(1);
       }
     });
 
     // Player vs potions
     this.physics.add.overlap(this._littleFox.sprite, this._potionGroup, (playerSprite, potionSprite) => {
-      potionSprite.destroy();
+      if (!potionSprite.active) return;
+      this._potionGroup.remove(potionSprite, true, true); // safe removal during physics callback
       this._littleFox.activateSizeUp();
     });
 
@@ -184,9 +188,14 @@ export class GameScene extends Phaser.Scene {
     this._hud = new HUD(this, this._littleFox.maxHearts, companionHUDConfig);
     this._hud.refresh();
 
+    // Pause — ESC key or Xbox Start button (button 9)
+    this._escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+    this._padStartPrev = false;
+
     // Events
     this.events.on('playerDefeated', () => {
       this.time.delayedCall(800, () => {
+        this.scene.stop('BossScene');
         this.scene.start('GameOverScene');
       });
     });
@@ -200,6 +209,15 @@ export class GameScene extends Phaser.Scene {
 
   update(time, delta) {
     if (!this._littleFox || !this._littleFox.isAlive()) return;
+
+    // Pause trigger: ESC key or Xbox Start button (button 9)
+    if (Phaser.Input.Keyboard.JustDown(this._escKey)) {
+      this._triggerPause(); return;
+    }
+    const pad = this.input.gamepad?.getPad(0) ?? null;
+    const startNow = !!(pad?.isButtonDown(9));
+    if (startNow && !this._padStartPrev) { this._triggerPause(); return; }
+    this._padStartPrev = startNow;
 
     // Parallax scroll
     const camX = this.cameras.main.scrollX;
@@ -256,6 +274,12 @@ export class GameScene extends Phaser.Scene {
     return this._enemies.find(e => e.sprite === sprite) || null;
   }
 
+  _triggerPause() {
+    if (this.scene.isActive('PauseScene')) return; // already paused
+    this.scene.pause('GameScene');
+    this.scene.launch('PauseScene');
+  }
+
   _launchBoss() {
     AudioManager.stopMusic();
     this.scene.launch('BossScene', { level: this._level });
@@ -264,6 +288,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   shutdown() {
+    // Stop BossScene so stale boss timers don't fire into the next GameScene run
+    if (this.scene.isActive('BossScene')) this.scene.stop('BossScene');
+    if (this.scene.isActive('PauseScene')) this.scene.stop('PauseScene');
+
     // Cancel all pending timers so stale callbacks don't fire on stale sprites
     this.time.removeAllEvents();
     this.tweens.killAll();

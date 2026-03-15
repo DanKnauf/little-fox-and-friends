@@ -151,8 +151,11 @@ export class LittleFox extends Entity {
   }
 
   _fireProjectile(targetX, targetY) {
+    // Fire from ground-enemy height rather than fox visual centre.
+    // In big mode the fox is 2x taller so the centre rises — compensate.
+    const fireY = this.sprite.y + (this._isSizeUp ? 20 : 0);
     this._shootCooldown = 300;
-    this._projectiles.fire(this.sprite.x, this.sprite.y - 8, targetX, targetY, 600);
+    this._projectiles.fire(this.sprite.x, fireY, targetX, targetY, 600);
     this.sprite.play('fox_shoot', true);
     this.scene.time.delayedCall(200, () => {
       if (this.sprite?.active) this.sprite.play('fox_idle', true);
@@ -167,9 +170,9 @@ export class LittleFox extends Entity {
 
   _shootForward() {
     if (!this._canShoot()) return;
+    const fireY = this.sprite.y + (this._isSizeUp ? 20 : 0);
     const targetX = this.sprite.x + (this._facingRight ? 600 : -600);
-    const targetY = this.sprite.y - 8;
-    this._fireProjectile(targetX, targetY);
+    this._fireProjectile(targetX, fireY);
   }
 
   _shootAt(worldX, worldY) {
@@ -193,31 +196,22 @@ export class LittleFox extends Entity {
     AudioManager.playLoop('size_hum');
 
     // Rainbow cycling tint to show invincibility (star-power effect)
-    if (this._rainbowTween) this._rainbowTween.remove();
-    let hue = 0;
+    this._stopRainbow();
+    const COLORS = [0xff0000, 0xff8800, 0xffff00, 0x00ff44, 0x00ccff, 0xaa44ff, 0xff44aa];
+    let ci = 0;
     this._rainbowTween = this.scene.time.addEvent({
-      delay: 80,
-      repeat: 124,  // ~10 seconds worth
+      delay: 100,
+      repeat: 99,  // 100 × 100ms = 10 s
       callback: () => {
         if (!this.sprite?.active) return;
-        hue = (hue + 30) % 360;
-        const r = Math.round(255 * Math.max(0, Math.cos(hue * Math.PI / 180)));
-        const g = Math.round(255 * Math.max(0, Math.cos((hue - 120) * Math.PI / 180)));
-        const b = Math.round(255 * Math.max(0, Math.cos((hue - 240) * Math.PI / 180)));
-        this.sprite.setTint((r << 16) | (g << 8) | b || 0xffffff);
+        this.sprite.setTint(COLORS[ci % COLORS.length]);
+        ci++;
       }
     });
 
     if (this._sizeUpTimer) this._sizeUpTimer.remove();
     this._sizeUpTimer = this.scene.time.delayedCall(10000, () => {
-      this._isSizeUp = false;
-      this._invincible = false;
-      if (this._rainbowTween) { this._rainbowTween.remove(); this._rainbowTween = null; }
-      if (this.sprite.active) {
-        this.sprite.setScale(1.4);
-        this.sprite.clearTint();
-      }
-      AudioManager.stopLoop('size_hum');
+      this._endSizeUp();
     });
   }
 
@@ -230,6 +224,22 @@ export class LittleFox extends Entity {
       this.scene.events.emit('playerDefeated');
     }
     return true;
+  }
+
+  _stopRainbow() {
+    if (this._rainbowTween) { this._rainbowTween.remove(); this._rainbowTween = null; }
+  }
+
+  _endSizeUp() {
+    this._isSizeUp = false;
+    this._invincible = false;
+    this._stopRainbow();
+    if (this.sprite?.active) {
+      this.sprite.setScale(1.4);
+      this.sprite.clearTint();
+      this.sprite.setAlpha(1); // ensure fully visible after any flash effects
+    }
+    AudioManager.stopLoop('size_hum');
   }
 
   getProjectileGroup() {
