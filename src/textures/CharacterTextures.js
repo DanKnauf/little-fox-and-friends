@@ -108,13 +108,18 @@ function drawFox(ctx, cx, cy, legOff, isJump, isHurt) {
   // ── SNOUT / MUZZLE (elongated, pointed) ─────────────────────────────────────
   ctx.fillStyle = muzzleColor;
   ctx.beginPath();
-  ctx.ellipse(cx + 9, cy - 7, 5, 3, 0.25, 0, Math.PI * 2);
+  ctx.ellipse(cx + 7, cy - 7, 6, 3.5, 0.15, 0, Math.PI * 2);
   ctx.fill();
 
-  // black nose tip
+  // black nose tip — at the front of the muzzle, well within frame
   ctx.fillStyle = '#111';
   ctx.beginPath();
-  ctx.ellipse(cx + 13, cy - 7, 2, 1.5, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx + 11, cy - 7, 2, 1.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // tiny nose highlight
+  ctx.fillStyle = '#444';
+  ctx.beginPath();
+  ctx.arc(cx + 10.5, cy - 7.5, 0.7, 0, Math.PI * 2);
   ctx.fill();
 
   // ── EYES ────────────────────────────────────────────────────────────────────

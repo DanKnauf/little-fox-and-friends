@@ -4,7 +4,7 @@ import { GAME_HEIGHT, DEPTH } from '../constants.js';
 
 export class ForestGuardian extends BaseBoss {
   constructor(scene, x, y) {
-    super(scene, x, y, 'boss_forest', 20, 'Forest Guardian');
+    super(scene, x, y, 'boss_forest', 10, 'Forest Guardian');
     this.sprite.play('boss_forest_idle', true);
     this._phase = 0;  // 0=charge, 1=web drop alternating
     this._chargeTarget = 1;
@@ -52,11 +52,15 @@ export class ForestGuardian extends BaseBoss {
             });
           } else {
             this.sprite.play('boss_forest_web', true);
-            // Show shadow warning below where web will drop
-            const shadowX = this._player ? this._player.sprite.x : this.sprite.x;
-            this._webShadow = this.scene.add.image(shadowX, GAME_HEIGHT - 55, 'shadow_warning')
-              .setDepth(DEPTH.TERRAIN).setAlpha(0);
-            this.scene.tweens.add({ targets: this._webShadow, alpha: 0.8, duration: this._telegraphMs * 0.8 });
+            // Flash the boss sprite green to telegraph a web drop
+            this.scene.tweens.add({
+              targets: this.sprite,
+              alpha: { from: 1, to: 0.4 },
+              duration: 120,
+              yoyo: true,
+              repeat: Math.floor(this._telegraphMs / 240)
+            });
+            this.sprite.setTint(0x44ff44);
           }
         }
 
@@ -85,10 +89,10 @@ export class ForestGuardian extends BaseBoss {
         } else {
           // Web drop
           if (this.stateTimer < 100) {
-            const shadowX = this._webShadow ? this._webShadow.x : this.sprite.x;
-            if (this._webShadow) { this._webShadow.destroy(); this._webShadow = null; }
+            this.sprite.clearTint();
+            const webX = this._player ? this._player.sprite.x : this.sprite.x;
             // Create web hazard
-            const web = this.scene.add.image(shadowX, GAME_HEIGHT - 58, 'web_hazard').setDepth(DEPTH.TERRAIN);
+            const web = this.scene.add.image(webX, GAME_HEIGHT - 58, 'web_hazard').setDepth(DEPTH.TERRAIN);
             this.scene.physics.add.existing(web, true);
             this._webHazards.push({ sprite: web, timer: 0 });
           }
@@ -164,7 +168,6 @@ export class ForestGuardian extends BaseBoss {
     for (const w of this._webHazards) {
       if (w.sprite?.active) w.sprite.destroy();
     }
-    if (this._webShadow?.active) this._webShadow.destroy();
     super.destroy();
   }
 }

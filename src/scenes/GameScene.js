@@ -75,9 +75,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Player
-    const { hearts, maxHearts } = GameState.state;
+    const { playerHearts, maxHearts } = GameState.state;
     this._littleFox = new LittleFox(this, layout.startX, layout.startY, maxHearts);
-    this._littleFox.hearts = hearts;
+    this._littleFox.hearts = playerHearts || maxHearts;
 
     // Companions
     this._companions = {};

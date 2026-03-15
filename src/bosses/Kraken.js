@@ -4,7 +4,7 @@ import { GAME_HEIGHT, GAME_WIDTH, DEPTH } from '../constants.js';
 
 export class Kraken extends BaseBoss {
   constructor(scene, x, y) {
-    super(scene, x, y, 'boss_ocean', 30, 'The Kraken');
+    super(scene, x, y, 'boss_ocean', 10, 'The Kraken');
     this.sprite.play('boss_ocean_idle', true);
     this._attacks = ['tentacle', 'ink', 'roar', 'tentacle', 'ink'];
     this._attackIndex = 0;
@@ -39,11 +39,15 @@ export class Kraken extends BaseBoss {
           AudioManager.play('boss_telegraph');
           if (currentAttack === 'tentacle') {
             this.sprite.play('boss_ocean_tentacle', true);
-            // Shadow warning
-            const shadowX = this._player ? this._player.sprite.x + Phaser.Math.Between(-40, 40) : this.sprite.x;
-            this._tentacleShadow = this.scene.add.image(shadowX, GAME_HEIGHT - 55, 'shadow_warning')
-              .setDepth(DEPTH.TERRAIN).setAlpha(0).setScale(1.5, 1);
-            this.scene.tweens.add({ targets: this._tentacleShadow, alpha: 0.9, duration: this._telegraphMs * 0.9, scaleX: 2.0 });
+            // Flash the boss cyan to telegraph a tentacle slam
+            this.sprite.setTint(0x00ffff);
+            this.scene.tweens.add({
+              targets: this.sprite,
+              alpha: { from: 1, to: 0.4 },
+              duration: 100,
+              yoyo: true,
+              repeat: Math.floor(this._telegraphMs / 200)
+            });
           } else if (currentAttack === 'ink') {
             this.sprite.play('boss_ocean_ink', true);
             this.sprite.setTint(0x00ccff);
@@ -88,7 +92,6 @@ export class Kraken extends BaseBoss {
       case BOSS_STATE.RECOVERING:
         this.sprite.play('boss_ocean_idle', true);
         this.sprite.clearTint();
-        if (this._tentacleShadow?.active) { this._tentacleShadow.destroy(); this._tentacleShadow = null; }
         if (this._tentacleSlam?.active) { this._tentacleSlam.destroy(); this._tentacleSlam = null; }
         if (this.stateTimer > 1200) {
           this.transitionTo(BOSS_STATE.IDLE);
@@ -98,8 +101,10 @@ export class Kraken extends BaseBoss {
   }
 
   _doTentacleSlam() {
-    if (this._tentacleShadow) { this._tentacleShadow.destroy(); this._tentacleShadow = null; }
-    const slamX = this._player ? this._player.sprite.x : this.sprite.x;
+    this.sprite.clearTint();
+    const slamX = this._player
+      ? this._player.sprite.x + Phaser.Math.Between(-40, 40)
+      : this.sprite.x;
 
     // Tentacle drops from above
     this._tentacleSlam = this.scene.add.rectangle(slamX, 0, 30, 120, 0x1a5566)
@@ -164,7 +169,6 @@ export class Kraken extends BaseBoss {
   destroy() {
     if (this._inkCloud?.active) this._inkCloud.destroy();
     if (this._tentacleSlam?.active) this._tentacleSlam.destroy();
-    if (this._tentacleShadow?.active) this._tentacleShadow.destroy();
     super.destroy();
   }
 }

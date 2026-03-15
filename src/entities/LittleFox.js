@@ -185,16 +185,38 @@ export class LittleFox extends Entity {
   activateSizeUp() {
     if (!this._alive) return;
     this._isSizeUp = true;
+    this._invincible = true;
     this.sprite.setScale(2.8);
     this.healFull();
     this.scene.events.emit('heartsChanged');
     AudioManager.play('potion_collect');
     AudioManager.playLoop('size_hum');
 
+    // Rainbow cycling tint to show invincibility (star-power effect)
+    if (this._rainbowTween) this._rainbowTween.remove();
+    let hue = 0;
+    this._rainbowTween = this.scene.time.addEvent({
+      delay: 80,
+      repeat: 124,  // ~10 seconds worth
+      callback: () => {
+        if (!this.sprite?.active) return;
+        hue = (hue + 30) % 360;
+        const r = Math.round(255 * Math.max(0, Math.cos(hue * Math.PI / 180)));
+        const g = Math.round(255 * Math.max(0, Math.cos((hue - 120) * Math.PI / 180)));
+        const b = Math.round(255 * Math.max(0, Math.cos((hue - 240) * Math.PI / 180)));
+        this.sprite.setTint((r << 16) | (g << 8) | b || 0xffffff);
+      }
+    });
+
     if (this._sizeUpTimer) this._sizeUpTimer.remove();
     this._sizeUpTimer = this.scene.time.delayedCall(10000, () => {
       this._isSizeUp = false;
-      if (this.sprite.active) this.sprite.setScale(1.4);
+      this._invincible = false;
+      if (this._rainbowTween) { this._rainbowTween.remove(); this._rainbowTween = null; }
+      if (this.sprite.active) {
+        this.sprite.setScale(1.4);
+        this.sprite.clearTint();
+      }
       AudioManager.stopLoop('size_hum');
     });
   }

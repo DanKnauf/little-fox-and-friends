@@ -2,10 +2,15 @@ import { GameState } from '../GameState.js';
 import { AudioManager } from '../audio/AudioManager.js';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 
+const DIFF_ORDER = ['easy', 'medium', 'hard'];
+
 export class StartScene extends Phaser.Scene {
   constructor() {
     super('StartScene');
     this._selectedDifficulty = 'medium';
+    this._padLeftPrev  = false;
+    this._padRightPrev = false;
+    this._padAPrev     = false;
   }
 
   create() {
@@ -140,6 +145,42 @@ export class StartScene extends Phaser.Scene {
       GameState.applyDifficulty(this._selectedDifficulty);
       this.scene.start('LevelIntroScene', { level: 1 });
     });
+  }
+
+  update() {
+    const pad = this.input.gamepad?.getPad(0) ?? null;
+    if (!pad) return;
+
+    const leftNow  = pad.isButtonDown(14) || (pad.axes[0]?.getValue() ?? 0) < -0.4;
+    const rightNow = pad.isButtonDown(15) || (pad.axes[0]?.getValue() ?? 0) >  0.4;
+    const aNow     = pad.isButtonDown(0);
+
+    if (leftNow && !this._padLeftPrev) {
+      const idx = DIFF_ORDER.indexOf(this._selectedDifficulty);
+      if (idx > 0) {
+        this._selectedDifficulty = DIFF_ORDER[idx - 1];
+        this._highlightDiff(this._selectedDifficulty);
+        AudioManager.play('button_click');
+      }
+    }
+    if (rightNow && !this._padRightPrev) {
+      const idx = DIFF_ORDER.indexOf(this._selectedDifficulty);
+      if (idx < DIFF_ORDER.length - 1) {
+        this._selectedDifficulty = DIFF_ORDER[idx + 1];
+        this._highlightDiff(this._selectedDifficulty);
+        AudioManager.play('button_click');
+      }
+    }
+    if (aNow && !this._padAPrev) {
+      AudioManager.resume();
+      AudioManager.play('button_click');
+      GameState.applyDifficulty(this._selectedDifficulty);
+      this.scene.start('LevelIntroScene', { level: 1 });
+    }
+
+    this._padLeftPrev  = leftNow;
+    this._padRightPrev = rightNow;
+    this._padAPrev     = aNow;
   }
 
   _makeDiffButton(x, y, label, key, color, hoverColor) {

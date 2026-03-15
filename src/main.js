@@ -32,24 +32,25 @@ function removeLoadingScreen() {
   if (el) el.remove();
 }
 
-// Use device pixel ratio (capped at 2) so the internal canvas buffer is rendered
-// at native screen density — this eliminates the bilinear blur caused by CSS
-// upscaling a low-resolution canvas to fill large monitors.
-const dpr = Math.min(window.devicePixelRatio || 1, 2);
+// Render the internal canvas buffer at 3× the logical game size.
+// With a 800×480 game this produces a 2400×1440 canvas buffer, which on a 2K
+// monitor (2560×1440) maps almost 1:1 — no CSS upscaling, no blur.
+// On FHD (1920×1080) or smaller the buffer is downscaled, which is also sharp.
+const RESOLUTION = 3;
 
 const config = {
   type: Phaser.AUTO,
   parent: 'game',
   width: GAME_WIDTH,
   height: GAME_HEIGHT,
+  resolution: RESOLUTION,
   backgroundColor: '#1a0a2e',
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
   render: {
-    antialias: true,
-    resolution: dpr
+    antialias: true
   },
   input: {
     gamepad: true

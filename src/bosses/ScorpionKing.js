@@ -5,7 +5,7 @@ import { GAME_HEIGHT, DEPTH } from '../constants.js';
 
 export class ScorpionKing extends BaseBoss {
   constructor(scene, x, y) {
-    super(scene, x, y, 'boss_desert', 25, 'Scorpion King');
+    super(scene, x, y, 'boss_desert', 10, 'Scorpion King');
     this.sprite.play('boss_desert_idle', true);
     this._attacks = ['claw', 'tail', 'claw', 'tail']; // cycle
     this._attackIndex = 0;

@@ -99,6 +99,10 @@ export const DesertLayout = {
     { x: 3380, y: G - 288 },  // on platform [3380, G-260]
     { x: 4120, y: G - 288 },  // on platform [4120, G-260]
     { x: 5000, y: G - 248 },  // on platform in area
+    // pre-boss ammo cache
+    { x: 5400, y: G - 208 },  // on platform [5400, G-180]
+    { x: 5600, y: G - 278 },  // on platform [5600, G-250]
+    { x: 5800, y: G - 228 },  // on platform [5800, G-200]
   ],
   bossZoneTriggerX: BOSS_ZONE_X,
   bossSpawnX: BOSS_ZONE_X + 430,

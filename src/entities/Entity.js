@@ -5,6 +5,7 @@ export class Entity {
     this.hearts = maxHearts;
     this._iFrames = false;
     this._iFrameTimer = null;
+    this._invincible = false;
     this._alive = true;
 
     this.sprite = scene.physics.add.sprite(x, y, textureKey, frame);
@@ -12,7 +13,7 @@ export class Entity {
   }
 
   takeDamage(amount = 1) {
-    if (!this._alive || this._iFrames) return false;
+    if (!this._alive || this._iFrames || this._invincible) return false;
 
     this.hearts = Math.max(0, this.hearts - amount);
     this._startIFrames();
