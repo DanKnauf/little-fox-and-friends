@@ -7,17 +7,67 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: #1a0a2e;
+      background: #0a0020;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      overflow: hidden;
     }
     canvas { display: block; }
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      background: #1a0a2e;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      font-size: 22px;
+      z-index: 9999;
+    }
+    #loading-screen .subtitle {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #aaa;
+    }
+    #error-box {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      color: #ff6666;
+      font-family: monospace;
+      font-size: 13px;
+      padding: 30px;
+      z-index: 99999;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
   </style>
-  <script type="module" crossorigin src="/little-fox-and-friends/assets/index-DWKnyruq.js"></script>
+  <script type="module" crossorigin src="/little-fox-and-friends/assets/index-diw21R7C.js"></script>
 </head>
 <body>
+  <div id="loading-screen">
+    🦊 Little Fox and Friends
+    <div class="subtitle">Loading...</div>
+  </div>
+  <div id="error-box"></div>
+  <div id="game"></div>
+
+  <script>
+    // Catch any JS errors and show them on-screen
+    window.addEventListener('error', function(e) {
+      var box = document.getElementById('error-box');
+      box.style.display = 'block';
+      box.textContent += 'ERROR: ' + e.message + '\n  at ' + e.filename + ':' + e.lineno + '\n\n';
+    });
+    window.addEventListener('unhandledrejection', function(e) {
+      var box = document.getElementById('error-box');
+      box.style.display = 'block';
+      box.textContent += 'PROMISE REJECTION: ' + e.reason + '\n\n';
+    });
+  </script>
 </body>
 </html>
