@@ -65,8 +65,8 @@ export class StartScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // ── Panel layout constants ───────────────────────────────────────────────
-    const PANEL_TOP = 186;
-    const PANEL_H   = 192;
+    const PANEL_TOP = 184;
+    const PANEL_H   = 182;
     const P_LEFT    = 16;
     const P_MID_R   = GAME_WIDTH / 2 - 8;   // right edge of left panel
     const P_RIGHT_L = GAME_WIDTH / 2 + 8;   // left edge of right panel

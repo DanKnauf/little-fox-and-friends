@@ -29,7 +29,10 @@ export class Kraken extends BaseBoss {
       case BOSS_STATE.IDLE:
         this.sprite.play('boss_ocean_idle', true);
         this.sprite.clearTint();
+        this._doWander(delta);
         if (this.stateTimer > 1500) {
+          this._wanderTarget = null;
+          this.sprite.body.setVelocityX(0);
           this.transitionTo(BOSS_STATE.TELEGRAPHING);
         }
         break;
@@ -82,7 +85,10 @@ export class Kraken extends BaseBoss {
         this.sprite.clearTint();
         if (this._tentacleSlam?.active) { this._tentacleSlam.destroy(); this._tentacleSlam = null; }
         if (this._inkCloud?.active) { this._inkCloud.destroy(); this._inkCloud = null; }
+        this._doWander(delta);
         if (this.stateTimer > 1200) {
+          this._wanderTarget = null;
+          this.sprite.body.setVelocityX(0);
           this.transitionTo(BOSS_STATE.IDLE);
         }
         break;

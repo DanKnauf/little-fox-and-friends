@@ -34,6 +34,14 @@ export class BaseBoss {
 
     // Safety timeout: force RECOVERING if stuck in any state > 10s
     this._safetyTimer = null;
+
+    // Random wander (set arena bounds in subclass to override defaults)
+    this._arenaLeft  = x - 300;
+    this._arenaRight = x + 300;
+    this._wanderTimer  = 0;
+    this._wanderDelay  = Phaser.Math.Between(2000, 4000);
+    this._wanderTarget = null;
+    this._wanderSpeed  = 90;
   }
 
   update(time, delta) {
@@ -46,9 +54,36 @@ export class BaseBoss {
     // Override in subclasses
   }
 
+  // Lateral drift during idle/recovering — call from subclass IDLE and RECOVERING cases
+  _doWander(delta) {
+    this._wanderTimer += delta;
+    if (this._wanderTimer >= this._wanderDelay && this._wanderTarget === null) {
+      const spread = (this._arenaRight - this._arenaLeft) * 0.35;
+      this._wanderTarget = Phaser.Math.Clamp(
+        this.sprite.x + Phaser.Math.Between(-spread, spread),
+        this._arenaLeft + 40,
+        this._arenaRight - 40
+      );
+      this._wanderTimer  = 0;
+      this._wanderDelay  = Phaser.Math.Between(2000, 4000);
+    }
+    if (this._wanderTarget !== null) {
+      const dx = this._wanderTarget - this.sprite.x;
+      if (Math.abs(dx) > 8) {
+        this.sprite.body.setVelocityX(Math.sign(dx) * this._wanderSpeed * this._speedMult);
+        this.sprite.setFlipX(dx < 0);
+      } else {
+        this.sprite.body.setVelocityX(0);
+        this._wanderTarget = null;
+      }
+    }
+  }
+
   transitionTo(newState) {
     this.state = newState;
-    this.stateTimer = 0;
+    this.stateTimer  = 0;
+    this._wanderTimer  = 0;
+    this._wanderTarget = null;
     if (this._safetyTimer) this._safetyTimer.remove();
     if (newState !== BOSS_STATE.DEFEATED) {
       this._safetyTimer = this.scene.time.delayedCall(10000, () => {

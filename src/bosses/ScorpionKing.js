@@ -28,7 +28,10 @@ export class ScorpionKing extends BaseBoss {
     switch (this.state) {
       case BOSS_STATE.IDLE:
         this.sprite.play('boss_desert_idle', true);
+        this._doWander(delta);
         if (this.stateTimer > 1600) {
+          this._wanderTarget = null;
+          this.sprite.body.setVelocityX(0);
           this.transitionTo(BOSS_STATE.TELEGRAPHING);
         }
         break;
@@ -62,8 +65,11 @@ export class ScorpionKing extends BaseBoss {
 
       case BOSS_STATE.RECOVERING:
         this.sprite.play('boss_desert_idle', true);
-        this.sprite.body.setVelocityX(0);
+        if (this.stateTimer < 50) this.sprite.body.setVelocityX(0);
+        this._doWander(delta);
         if (this.stateTimer > 1200) {
+          this._wanderTarget = null;
+          this.sprite.body.setVelocityX(0);
           this.transitionTo(BOSS_STATE.IDLE);
         }
         break;

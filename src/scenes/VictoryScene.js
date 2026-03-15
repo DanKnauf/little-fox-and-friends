@@ -73,43 +73,51 @@ export class VictoryScene extends Phaser.Scene {
         onComplete: () => {
           mamaSlothSprite.play('mamasloth_celebrate', true);
 
-          // Hug Fox — heart fireworks launch here
+          // Move to Fox first, then hug — heart fireworks launch here
           this.time.delayedCall(200, () => {
-            this._doHug(mamaSlothSprite, foxSprite, true, () => {
+            this.tweens.add({
+              targets: mamaSlothSprite,
+              x: foxSprite.x + 10,
+              duration: 600,
+              ease: 'Power2',
+              onComplete: () => {
+                this._doHug(mamaSlothSprite, foxSprite, true, () => {
 
-              // Hug Bear
-              this.time.delayedCall(300, () => {
-                this.tweens.add({
-                  targets: mamaSlothSprite,
-                  x: bearSprite.x,
-                  duration: 500,
-                  ease: 'Power2',
-                  onComplete: () => {
-                    this._doHug(mamaSlothSprite, bearSprite, false, () => {
+                  // Hug Bear
+                  this.time.delayedCall(300, () => {
+                    this.tweens.add({
+                      targets: mamaSlothSprite,
+                      x: bearSprite.x,
+                      duration: 500,
+                      ease: 'Power2',
+                      onComplete: () => {
+                        this._doHug(mamaSlothSprite, bearSprite, false, () => {
 
-                      // Kiss Steggie — they're married!
-                      this.time.delayedCall(300, () => {
-                        this.tweens.add({
-                          targets: mamaSlothSprite,
-                          x: steggieSprite.x + 10,
-                          duration: 500,
-                          ease: 'Power2',
-                          onComplete: () => {
-                            this._doKiss(mamaSlothSprite, steggieSprite, () => {
+                          // Kiss Steggie — they're married!
+                          this.time.delayedCall(300, () => {
+                            this.tweens.add({
+                              targets: mamaSlothSprite,
+                              x: steggieSprite.x + 10,
+                              duration: 500,
+                              ease: 'Power2',
+                              onComplete: () => {
+                                this._doKiss(mamaSlothSprite, steggieSprite, () => {
 
-                              // All celebrate
-                              this.time.delayedCall(400, () => {
-                                this._allCelebrate([foxSprite, bearSprite, steggieSprite, mamaSlothSprite]);
-                                this._showEndScreen();
-                              });
+                                  // All celebrate
+                                  this.time.delayedCall(400, () => {
+                                    this._allCelebrate([foxSprite, bearSprite, steggieSprite, mamaSlothSprite]);
+                                    this._showEndScreen();
+                                  });
+                                });
+                              }
                             });
-                          }
+                          });
                         });
-                      });
+                      }
                     });
-                  }
+                  });
                 });
-              });
+              }
             });
           });
         }

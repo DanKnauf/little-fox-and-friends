@@ -26,7 +26,10 @@ export class ForestGuardian extends BaseBoss {
     switch (this.state) {
       case BOSS_STATE.IDLE:
         this.sprite.play('boss_forest_idle', true);
+        this._doWander(delta);
         if (this.stateTimer > 1800) {
+          this._wanderTarget = null;
+          this.sprite.body.setVelocityX(0);
           this.transitionTo(BOSS_STATE.TELEGRAPHING);
         }
         break;
@@ -84,8 +87,9 @@ export class ForestGuardian extends BaseBoss {
         break;
 
       case BOSS_STATE.RECOVERING:
-        this.sprite.body.setVelocityX(0);
+        if (this.stateTimer < 50) this.sprite.body.setVelocityX(0);
         this.sprite.play('boss_forest_idle', true);
+        this._doWander(delta);
 
         // Age web hazards
         for (let i = this._webHazards.length - 1; i >= 0; i--) {
@@ -97,6 +101,8 @@ export class ForestGuardian extends BaseBoss {
         }
 
         if (this.stateTimer > 1000) {
+          this._wanderTarget = null;
+          this.sprite.body.setVelocityX(0);
           this.transitionTo(BOSS_STATE.IDLE);
         }
         break;
