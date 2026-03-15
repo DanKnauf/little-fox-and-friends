@@ -74,10 +74,10 @@ export class BootScene extends Phaser.Scene {
     }
 
     // Bosses
-    this.anims.create({ key: 'boss_forest_idle',   frames: this.anims.generateFrameNumbers('boss_forest', { start: 0, end: 0 }), frameRate: 2, repeat: -1 });
-    this.anims.create({ key: 'boss_forest_charge', frames: this.anims.generateFrameNumbers('boss_forest', { start: 1, end: 1 }), frameRate: 1, repeat: -1 });
-    this.anims.create({ key: 'boss_forest_web',    frames: this.anims.generateFrameNumbers('boss_forest', { start: 2, end: 2 }), frameRate: 1, repeat: -1 });
-    this.anims.create({ key: 'boss_forest_hurt',   frames: this.anims.generateFrameNumbers('boss_forest', { start: 3, end: 3 }), frameRate: 1, repeat: 0 });
+    this.anims.create({ key: 'boss_mantis_idle',   frames: this.anims.generateFrameNumbers('boss_mantis', { start: 0, end: 0 }), frameRate: 2, repeat: -1 });
+    this.anims.create({ key: 'boss_mantis_strike', frames: this.anims.generateFrameNumbers('boss_mantis', { start: 1, end: 1 }), frameRate: 1, repeat: -1 });
+    this.anims.create({ key: 'boss_mantis_leap',   frames: this.anims.generateFrameNumbers('boss_mantis', { start: 2, end: 2 }), frameRate: 1, repeat: -1 });
+    this.anims.create({ key: 'boss_mantis_hurt',   frames: this.anims.generateFrameNumbers('boss_mantis', { start: 3, end: 3 }), frameRate: 1, repeat: 0 });
 
     this.anims.create({ key: 'boss_desert_idle',  frames: this.anims.generateFrameNumbers('boss_desert', { start: 0, end: 0 }), frameRate: 2, repeat: -1 });
     this.anims.create({ key: 'boss_desert_claw',  frames: this.anims.generateFrameNumbers('boss_desert', { start: 1, end: 1 }), frameRate: 1, repeat: -1 });

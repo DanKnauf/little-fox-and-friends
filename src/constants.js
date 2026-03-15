@@ -23,7 +23,7 @@ export const DEPTH = {
 };
 
 export const LEVEL_CONFIG = {
-  1: { name: 'The Forest',  bgKey: 'forest', bossKey: 'ForestGuardian',  companionReward: 'babybear' },
+  1: { name: 'The Forest',  bgKey: 'forest', bossKey: 'PrayingMantis',   companionReward: 'babybear' },
   2: { name: 'The Desert',  bgKey: 'desert', bossKey: 'ScorpionKing',    companionReward: 'steggie'  },
   3: { name: 'The Ocean',   bgKey: 'ocean',  bossKey: 'Kraken',          companionReward: null       }
 };

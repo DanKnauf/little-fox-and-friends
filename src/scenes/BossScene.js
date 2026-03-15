@@ -2,12 +2,12 @@ import { GAME_WIDTH, GAME_HEIGHT, LEVEL_CONFIG, DEPTH } from '../constants.js';
 import { GameState } from '../GameState.js';
 import { AudioManager } from '../audio/AudioManager.js';
 import { BossHealthBar } from '../ui/BossHealthBar.js';
-import { ForestGuardian } from '../bosses/ForestGuardian.js';
+import { PrayingMantis } from '../bosses/PrayingMantis.js';
 import { ScorpionKing } from '../bosses/ScorpionKing.js';
 import { Kraken } from '../bosses/Kraken.js';
 
 const BOSS_CLASSES = {
-  ForestGuardian,
+  PrayingMantis,
   ScorpionKing,
   Kraken
 };

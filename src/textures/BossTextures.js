@@ -1,115 +1,149 @@
 export function generateBossTextures(scene) {
-  generateForestGuardian(scene);
+  generatePrayingMantis(scene);
   generateScorpionKing(scene);
   generateKraken(scene);
 }
 
-function generateForestGuardian(scene) {
+function generatePrayingMantis(scene) {
   const W = 96, H = 96, FRAMES = 4;
   const canvas = document.createElement('canvas');
   canvas.width = W * FRAMES; canvas.height = H;
   const ctx = canvas.getContext('2d');
 
-  const states = ['idle', 'charge', 'web', 'hurt'];
+  const states = ['idle', 'strike', 'leap', 'hurt'];
   for (let f = 0; f < FRAMES; f++) {
-    drawForestGuardian(ctx, f * W + 48, 48, states[f]);
+    drawPrayingMantis(ctx, f * W + 48, 52, states[f]);
   }
-  scene.textures.addSpriteSheet('boss_forest', canvas, { frameWidth: W, frameHeight: H });
+  scene.textures.addSpriteSheet('boss_mantis', canvas, { frameWidth: W, frameHeight: H });
 }
 
-function drawForestGuardian(ctx, cx, cy, state) {
+function drawPrayingMantis(ctx, cx, cy, state) {
   ctx.save();
 
-  const baseColor = state === 'hurt' ? '#994422' :
-                    state === 'charge' ? '#cc3300' : '#3d2010';
-  const legColor = state === 'hurt' ? '#662200' : '#2a1500';
+  const lime       = state === 'hurt' ? '#99ee99' : '#3aaa3a';
+  const dark       = state === 'hurt' ? '#55bb55' : '#1a6a1a';
+  const mid        = state === 'hurt' ? '#66cc66' : '#2a882a';
+  const eyeColor   = state === 'strike' ? '#ff3300' : '#ff9900';
+  const armExtend  = state === 'strike' ? 14 : 0;
+  const leaping    = state === 'leap';
 
-  // Root tentacles / web strands behind
-  ctx.strokeStyle = '#553311'; ctx.lineWidth = 3;
-  for (let i = 0; i < 6; i++) {
-    const a = (i / 6) * Math.PI * 2;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy + 10);
-    ctx.lineTo(cx + Math.cos(a) * 44, cy + Math.sin(a) * 30 + 10);
-    ctx.stroke();
-  }
-
-  // Spider legs (8 legs)
-  ctx.strokeStyle = legColor; ctx.lineWidth = 5;
-  const legAngles = [-Math.PI * 0.75, -Math.PI * 0.5, -Math.PI * 0.25, -Math.PI * 0.1,
-                      Math.PI * 0.1, Math.PI * 0.25, Math.PI * 0.5, Math.PI * 0.75];
-  for (const a of legAngles) {
-    const mx = cx + Math.cos(a) * 28;
-    const my = cy + Math.sin(a) * 18 + 10;
-    const ex = cx + Math.cos(a) * 46;
-    const ey = cy + Math.sin(a) * 28 + 14;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy + 10);
-    ctx.lineTo(mx, my);
-    ctx.lineTo(ex, ey);
-    ctx.stroke();
-  }
-
-  // Main body
-  ctx.fillStyle = baseColor;
+  // ── Abdomen (long tapered segment) ────────────────────────────────────
+  ctx.fillStyle = lime;
   ctx.beginPath();
-  ctx.ellipse(cx, cy, 28, 26, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx, cy + 18, 11, 22, leaping ? 0.25 : 0, 0, Math.PI * 2);
   ctx.fill();
-
-  // Green/root texture on body
-  ctx.strokeStyle = '#2d5a0a'; ctx.lineWidth = 2;
+  // Segmentation stripes
+  ctx.strokeStyle = dark; ctx.lineWidth = 1.5;
   for (let i = 0; i < 5; i++) {
     ctx.beginPath();
-    ctx.arc(cx - 8 + i * 4, cy - 8 + i * 3, 6, 0.5, 2.5);
+    ctx.ellipse(cx, cy + 8 + i * 6, 11 - i * 0.8, 2, leaping ? 0.25 : 0, 0, Math.PI);
     ctx.stroke();
   }
 
-  // Eyes - 8 glowing eyes
-  ctx.fillStyle = state === 'charge' ? '#ff0' : '#ff6600';
-  const eyePositions = [[-10,-10],[-4,-14],[4,-14],[10,-10],[-12,-4],[12,-4],[-6,-6],[6,-6]];
-  for (const [ex, ey] of eyePositions) {
-    ctx.beginPath();
-    ctx.arc(cx + ex, cy + ey, 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#ffff00';
-    ctx.beginPath();
-    ctx.arc(cx + ex, cy + ey, 1.5, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = state === 'charge' ? '#ff0' : '#ff6600';
-  }
-
-  // Mandibles
-  ctx.fillStyle = legColor;
+  // ── Thorax ─────────────────────────────────────────────────────────────
+  ctx.fillStyle = mid;
   ctx.beginPath();
-  ctx.moveTo(cx - 8, cy + 10);
-  ctx.lineTo(cx - 14, cy + 28);
-  ctx.lineTo(cx - 4, cy + 14);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(cx + 8, cy + 10);
-  ctx.lineTo(cx + 14, cy + 28);
-  ctx.lineTo(cx + 4, cy + 14);
+  ctx.ellipse(cx, cy - 2, 15, 13, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Web drop indicator in 'web' state
-  if (state === 'web') {
-    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
-    for (let i = 0; i < 8; i++) {
-      const a = (i / 8) * Math.PI * 2;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(cx + Math.cos(a) * 20, cy + Math.sin(a) * 20);
-      ctx.stroke();
-    }
-    for (let r = 5; r <= 20; r += 5) {
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.stroke();
-    }
+  // ── Walking legs (4 small legs on thorax sides) ────────────────────────
+  ctx.strokeStyle = dark; ctx.lineWidth = 2;
+  const wLegs = [[-15, 2, -24, 18], [-15, 8, -22, 24], [15, 2, 24, 18], [15, 8, 22, 24]];
+  for (const [x1, y1, x2, y2] of wLegs) {
+    ctx.beginPath();
+    ctx.moveTo(cx + x1, cy + y1);
+    ctx.lineTo(cx + x2, cy + y2);
+    ctx.stroke();
   }
+
+  // ── Wing buds (narrow triangles on back of thorax) ─────────────────────
+  ctx.fillStyle = dark;
+  [[-1, 1], [1, 1]].forEach(([side, _]) => {
+    ctx.beginPath();
+    ctx.moveTo(cx + side * 10, cy - 8);
+    ctx.lineTo(cx + side * 22, cy + 4);
+    ctx.lineTo(cx + side * 10, cy + 6);
+    ctx.closePath();
+    ctx.fill();
+  });
+
+  // ── Raptorial forelegs ─────────────────────────────────────────────────
+  // Upper arm
+  const armY = cy - 10;
+  [[cx - 12, -0.5], [cx + 12, 0.5]].forEach(([ax, tilt]) => {
+    ctx.save();
+    ctx.translate(ax, armY);
+    ctx.rotate(tilt * (leaping ? 1.6 : 1.0));
+
+    // Upper arm bone
+    ctx.fillStyle = mid;
+    ctx.beginPath();
+    ctx.roundRect(-4, -16 - armExtend, 8, 20 + armExtend, 3);
+    ctx.fill();
+
+    // Forearm / tibia (bent inward toward body center for prayer pose)
+    const tibiaAngle = tilt < 0 ? 0.9 : -0.9;
+    ctx.save();
+    ctx.translate(0, -16 - armExtend);
+    ctx.rotate(tibiaAngle);
+    ctx.fillStyle = lime;
+    ctx.beginPath();
+    ctx.roundRect(-3, -14, 6, 16, 2);
+    ctx.fill();
+    // Spine/spike on inner edge
+    ctx.fillStyle = '#004400';
+    const spineDir = tilt < 0 ? 1 : -1;
+    for (let s = 0; s < 3; s++) {
+      ctx.beginPath();
+      ctx.moveTo(spineDir * 3, -4 - s * 4);
+      ctx.lineTo(spineDir * 8, -6 - s * 4);
+      ctx.lineTo(spineDir * 3, -8 - s * 4);
+      ctx.fill();
+    }
+    ctx.restore();
+    ctx.restore();
+  });
+
+  // ── Prothorax / neck ───────────────────────────────────────────────────
+  ctx.fillStyle = mid;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy - 17, 7, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ── Head (inverted triangle) ───────────────────────────────────────────
+  ctx.fillStyle = lime;
+  ctx.beginPath();
+  ctx.moveTo(cx,      cy - 34);   // top vertex
+  ctx.lineTo(cx - 16, cy - 22);
+  ctx.lineTo(cx + 16, cy - 22);
+  ctx.closePath();
+  ctx.fill();
+
+  // ── Compound eyes ─────────────────────────────────────────────────────
+  for (const [ex, ey] of [[cx - 13, cy - 26], [cx + 13, cy - 26]]) {
+    // Outer bulge
+    ctx.fillStyle = eyeColor;
+    ctx.beginPath(); ctx.ellipse(ex, ey, 8, 8, 0, 0, Math.PI * 2); ctx.fill();
+    // Pupil
+    ctx.fillStyle = '#000';
+    ctx.beginPath(); ctx.arc(ex + (ex < cx ? 1 : -1), ey, 4, 0, Math.PI * 2); ctx.fill();
+    // Highlight
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(ex + (ex < cx ? 2 : -2), ey - 2, 1.5, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // ── Antennae ───────────────────────────────────────────────────────────
+  ctx.strokeStyle = dark; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(cx - 8, cy - 34); ctx.lineTo(cx - 24, cy - 50); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx + 8, cy - 34); ctx.lineTo(cx + 24, cy - 50); ctx.stroke();
+  // Antenna tips
+  ctx.fillStyle = mid;
+  ctx.beginPath(); ctx.arc(cx - 24, cy - 50, 2.5, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 24, cy - 50, 2.5, 0, Math.PI * 2); ctx.fill();
 
   ctx.restore();
 }
+
 
 function generateScorpionKing(scene) {
   const W = 96, H = 80, FRAMES = 4;
