@@ -112,8 +112,10 @@ export class Kraken extends BaseBoss {
     const slamX = this._tentacleTargetX ?? (this._player ? this._player.sprite.x : this.sprite.x);
     const sx2   = this._tentacleTarget2X ?? (slamX + Phaser.Math.Between(-130, 130));
 
-    // Remove primary warning glow as the tentacle begins its fall
-    if (this._tentacleWarnG?.active) { this._tentacleWarnG.destroy(); this._tentacleWarnG = null; }
+    // Capture glow refs as locals so closures always reference the right object
+    // regardless of instance-variable reassignment, and clear the instance vars now.
+    const warnG  = this._tentacleWarnG;  this._tentacleWarnG  = null;
+    const warnG2 = this._tentacleWarnG2; this._tentacleWarnG2 = null;
 
     const g = this.scene.add.graphics().setDepth(DEPTH.BOSS + 1);
     g.fillStyle(0x0a3344, 1);
@@ -132,13 +134,14 @@ export class Kraken extends BaseBoss {
     g.y = -130;
     this._tentacleObj = g;
 
-    // 320ms fall (was 200ms) — visible warning glow gives player time to dodge
     this.scene.tweens.add({
       targets: g,
       y: GAME_HEIGHT - 80,
       duration: 320,
       ease: 'Power3',
       onComplete: () => {
+        // Primary glow disappears the moment the tentacle lands
+        if (warnG?.active) warnG.destroy();
         this._checkTentacleDamage(slamX);
         this.scene.cameras.main.shake(200, 0.015);
         this.scene.time.delayedCall(300, () => {
@@ -146,10 +149,13 @@ export class Kraken extends BaseBoss {
           if (this._tentacleObj === g) this._tentacleObj = null;
         });
 
-        // Second slam — remove its warning glow then drop
+        // Second slam
         this.scene.time.delayedCall(200, () => {
-          if (!this._alive) return;
-          if (this._tentacleWarnG2?.active) { this._tentacleWarnG2.destroy(); this._tentacleWarnG2 = null; }
+          if (!this._alive) {
+            // Boss died — still clean up the secondary glow
+            if (warnG2?.active) warnG2.destroy();
+            return;
+          }
 
           const g2 = this.scene.add.graphics().setDepth(DEPTH.BOSS + 1);
           g2.fillStyle(0x0a3344, 1); g2.fillRect(-14, 0, 28, 90);
@@ -162,6 +168,8 @@ export class Kraken extends BaseBoss {
             duration: 300,
             ease: 'Power3',
             onComplete: () => {
+              // Secondary glow disappears the moment this tentacle lands
+              if (warnG2?.active) warnG2.destroy();
               this._checkTentacleDamage(sx2);
               this.scene.time.delayedCall(260, () => { if (g2.active) g2.destroy(); });
             }
