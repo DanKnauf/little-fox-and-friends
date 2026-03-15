@@ -147,7 +147,7 @@ export class StartScene extends Phaser.Scene {
     const text = this.add.text(0, 0, label, { fontSize: '15px', color: '#ffffff', fontFamily: 'Arial Bold' }).setOrigin(0.5);
     container.add([bg, text]);
 
-    bg.on('pointerover', () => { bg.setFillColor(hoverColor); });
+    bg.on('pointerover', () => { bg.setFillStyle(hoverColor); });
     bg.on('pointerout',  () => { this._highlightDiff(this._selectedDifficulty); });
     bg.on('pointerdown', () => {
       this._selectedDifficulty = key;
@@ -162,7 +162,7 @@ export class StartScene extends Phaser.Scene {
     const colors   = { easy: 0x22aa44, medium: 0xddaa00, hard: 0xcc2222 };
     const selected = { easy: 0x44ff88, medium: 0xffdd44, hard: 0xff5555 };
     for (const [k, btn] of Object.entries(this._diffButtons)) {
-      btn.bg.setFillColor(k === key ? selected[k] : colors[k]);
+      btn.bg.setFillStyle(k === key ? selected[k] : colors[k]);
       btn.bg.setStrokeStyle(k === key ? 3 : 0, 0xffffff);
     }
   }
@@ -174,8 +174,8 @@ export class StartScene extends Phaser.Scene {
       .setStrokeStyle(2, 0xffffff);
     const text = this.add.text(0, 0, label, { fontSize: '20px', color: '#ffffff', fontFamily: 'Arial Black, Arial' }).setOrigin(0.5);
     container.add([bg, text]);
-    bg.on('pointerover', () => bg.setFillColor(hoverColor));
-    bg.on('pointerout',  () => bg.setFillColor(color));
+    bg.on('pointerover', () => bg.setFillStyle(hoverColor));
+    bg.on('pointerout',  () => bg.setFillStyle(color));
     bg._container = container;
     return bg;
   }

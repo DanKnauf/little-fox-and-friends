@@ -48,7 +48,7 @@ export class BossHealthBar {
     // Color shift green → yellow → red
     const r = Math.round(255);
     const g = Math.round(ratio * 200);
-    this._fill.setFillColor(Phaser.Display.Color.GetColor(r, g, 0));
+    this._fill.setFillStyle(Phaser.Display.Color.GetColor(r, g, 0));
   }
 
   flash() {
