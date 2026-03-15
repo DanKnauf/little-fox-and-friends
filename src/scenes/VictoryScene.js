@@ -105,18 +105,19 @@ export class VictoryScene extends Phaser.Scene {
     });
   }
 
-  // Draws a heart shape at (cx, cy) with given size using canvas 2D
+  // Draws a heart shape using fillCircle + fillTriangle (Phaser 3 compatible)
   _drawHeart(graphics, cx, cy, size, color) {
     graphics.fillStyle(color, 1);
-    graphics.beginPath();
-    // Approximate heart with bezier curves
-    const s = size;
-    graphics.moveTo(cx, cy + s * 0.25);
-    graphics.bezierCurveTo(cx, cy, cx - s * 0.5, cy - s * 0.4, cx - s * 0.5, cy - s * 0.1);
-    graphics.bezierCurveTo(cx - s * 0.5, cy - s * 0.55, cx, cy - s * 0.55, cx, cy - s * 0.25);
-    graphics.bezierCurveTo(cx, cy - s * 0.55, cx + s * 0.5, cy - s * 0.55, cx + s * 0.5, cy - s * 0.1);
-    graphics.bezierCurveTo(cx + s * 0.5, cy - s * 0.4, cx, cy, cx, cy + s * 0.25);
-    graphics.fillPath();
+    const r = size * 0.34;
+    // Two circles for the top lobes
+    graphics.fillCircle(cx - r, cy - r * 0.2, r);
+    graphics.fillCircle(cx + r, cy - r * 0.2, r);
+    // Triangle for the bottom point
+    graphics.fillTriangle(
+      cx - r * 1.8, cy - r * 0.2,
+      cx + r * 1.8, cy - r * 0.2,
+      cx,           cy + r * 1.5
+    );
   }
 
   _launchHeartFirework(x, y) {

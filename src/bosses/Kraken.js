@@ -81,6 +81,7 @@ export class Kraken extends BaseBoss {
         this.sprite.play('boss_ocean_idle', true);
         this.sprite.clearTint();
         if (this._tentacleSlam?.active) { this._tentacleSlam.destroy(); this._tentacleSlam = null; }
+        if (this._inkCloud?.active) { this._inkCloud.destroy(); this._inkCloud = null; }
         if (this.stateTimer > 1200) {
           this.transitionTo(BOSS_STATE.IDLE);
         }

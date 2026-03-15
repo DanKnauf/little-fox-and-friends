@@ -262,75 +262,129 @@ function generateSteggie(scene) {
 
 function drawSteggie(ctx, cx, cy, legOff, isHurt) {
   ctx.save();
-  const bodyColor = isHurt ? '#88cc88' : '#4A8C5C';
-  const plateColor = '#2d7a6e';
+  const green  = isHurt ? '#88cc88' : '#4A8C5C';
+  const dark   = '#2d5c3a';
+  const plateC = '#5ab87a';
+  const tipC   = '#d06020';
 
-  // body
-  ctx.fillStyle = bodyColor;
+  // ── TAIL (drawn first so body covers base) ──────────────────────────────
+  ctx.strokeStyle = green; ctx.lineWidth = 8; ctx.lineCap = 'round';
   ctx.beginPath();
-  ctx.ellipse(cx, cy + 2, 18, 10, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // back plates (more prominent, teal/orange tips)
-  const platePositions = [-10, 0, 10];
-  for (let pi = 0; pi < platePositions.length; pi++) {
-    const px = platePositions[pi];
-    ctx.fillStyle = plateColor;
+  ctx.moveTo(cx - 14, cy + 5);
+  ctx.quadraticCurveTo(cx - 22, cy + 3, cx - 21, cy - 2);
+  ctx.stroke();
+  // Thagomizer — 4 short spikes radiating upward from tail tip
+  ctx.fillStyle = dark;
+  const tailTipX = cx - 21; const tailTipY = cy - 2;
+  const spikeAngles = [-2.3, -1.9, -1.5, -1.1];
+  for (const a of spikeAngles) {
+    const ex = Math.max(cx - 22, tailTipX + Math.cos(a) * 9);
+    const ey = tailTipY + Math.sin(a) * 9;
     ctx.beginPath();
-    ctx.moveTo(cx + px - 4, cy - 4);
-    ctx.lineTo(cx + px, cy - 16);
-    ctx.lineTo(cx + px + 4, cy - 4);
-    ctx.fill();
-    // orange tip
-    ctx.fillStyle = '#e07030';
-    ctx.beginPath();
-    ctx.moveTo(cx + px - 2, cy - 10);
-    ctx.lineTo(cx + px, cy - 16);
-    ctx.lineTo(cx + px + 2, cy - 10);
-    ctx.fill();
+    ctx.moveTo(tailTipX - 3, tailTipY + 3);
+    ctx.lineTo(ex, ey);
+    ctx.lineTo(tailTipX + 3, tailTipY - 1);
+    ctx.closePath(); ctx.fill();
   }
 
-  // head
-  ctx.fillStyle = bodyColor;
+  // ── BODY (iconic arched/humped stegosaurus shape) ───────────────────────
+  ctx.fillStyle = green;
   ctx.beginPath();
-  ctx.ellipse(cx + 18, cy - 2, 7, 6, 0.3, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.moveTo(cx - 17, cy + 8);                          // tail base
+  ctx.bezierCurveTo(
+    cx - 16, cy - 6, cx - 2, cy - 11, cx + 7, cy - 5   // high arched back
+  );
+  ctx.quadraticCurveTo(cx + 15, cy - 1, cx + 14, cy + 5); // neck slope down
+  ctx.bezierCurveTo(
+    cx + 10, cy + 10, cx - 10, cy + 10, cx - 17, cy + 8  // belly
+  );
+  ctx.closePath(); ctx.fill();
 
-  // eye
-  ctx.fillStyle = '#222';
+  // ── DORSAL PLATES (diamond/kite shapes — stegosaurus signature) ─────────
+  // Spine position at each x based on body arch
+  const spineY = (dx) => {
+    const t = Math.max(0, Math.min(1, (dx + 17) / 24));
+    return cy - 11 + t * 6 + (1 - Math.abs(t - 0.35) * 2.2) * 5;
+  };
+  const plates = [
+    { dx: -11, w: 4, h:  9 },
+    { dx:  -5, w: 6, h: 12 },
+    { dx:  +1, w: 6, h: 12 },
+    { dx:  +7, w: 4, h:  8 },
+    { dx: +11, w: 3, h:  5 },
+  ];
+  for (const p of plates) {
+    const px   = cx + p.dx;
+    const py   = spineY(p.dx);
+    const maxH = py - (cy - 17);          // don't clip above frame top
+    const h    = Math.min(p.h, maxH);
+    if (h <= 0) continue;
+
+    // Diamond shape
+    ctx.fillStyle = plateC;
+    ctx.beginPath();
+    ctx.moveTo(px,        py - h);           // top point
+    ctx.lineTo(px + p.w,  py - h * 0.42);   // right
+    ctx.lineTo(px,        py);               // base at spine
+    ctx.lineTo(px - p.w,  py - h * 0.42);   // left
+    ctx.closePath(); ctx.fill();
+
+    // Orange tip
+    ctx.fillStyle = tipC;
+    ctx.beginPath();
+    ctx.moveTo(px,              py - h);
+    ctx.lineTo(px + p.w * 0.5, py - h * 0.62);
+    ctx.lineTo(px - p.w * 0.5, py - h * 0.62);
+    ctx.closePath(); ctx.fill();
+
+    // Dark outline
+    ctx.strokeStyle = dark; ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(px,       py - h);
+    ctx.lineTo(px + p.w, py - h * 0.42);
+    ctx.lineTo(px,       py);
+    ctx.lineTo(px - p.w, py - h * 0.42);
+    ctx.closePath(); ctx.stroke();
+  }
+
+  // ── HEAD (tiny, low-held, beak-like — characteristic of stegosaurus) ────
+  ctx.fillStyle = green;
   ctx.beginPath();
-  ctx.arc(cx + 23, cy - 4, 1.5, 0, Math.PI * 2);
+  ctx.ellipse(cx + 17, cy + 2, 6, 5, -0.2, 0, Math.PI * 2);
   ctx.fill();
+  // Flat beak / snout
+  ctx.beginPath();
+  ctx.moveTo(cx + 12, cy + 0);
+  ctx.lineTo(cx + 23, cy + 1);
+  ctx.lineTo(cx + 21, cy + 6);
+  ctx.lineTo(cx + 11, cy + 5);
+  ctx.closePath(); ctx.fill();
+  // Eye
+  ctx.fillStyle = '#111';
+  ctx.beginPath(); ctx.arc(cx + 19, cy + 0, 1.8, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.arc(cx + 23.5, cy - 4.5, 0.6, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 19.6, cy - 0.5, 0.7, 0, Math.PI * 2); ctx.fill();
+  // Nostril
+  ctx.fillStyle = dark;
+  ctx.beginPath(); ctx.arc(cx + 22, cy + 3, 0.9, 0, Math.PI * 2); ctx.fill();
 
-  // tail with spikes
-  ctx.strokeStyle = bodyColor; ctx.lineWidth = 5;
-  ctx.beginPath();
-  ctx.moveTo(cx - 16, cy + 2);
-  ctx.quadraticCurveTo(cx - 26, cy + 8, cx - 24, cy + 4);
-  ctx.stroke();
-  // tail spikes
-  ctx.fillStyle = '#2d7a6e';
-  ctx.beginPath(); ctx.moveTo(cx - 22, cy + 2); ctx.lineTo(cx - 26, cy - 2); ctx.lineTo(cx - 20, cy + 4); ctx.fill();
-  ctx.beginPath(); ctx.moveTo(cx - 19, cy + 3); ctx.lineTo(cx - 24, cy + 0); ctx.lineTo(cx - 17, cy + 5); ctx.fill();
-
-  // legs
-  ctx.fillStyle = bodyColor;
-  const legXs = [-10, -4, 4, 10];
-  for (let i = 0; i < 4; i++) {
-    const off = (i % 2 === 0) ? legOff : -legOff;
-    ctx.beginPath();
-    ctx.ellipse(cx + legXs[i], cy + 10 + off, 3, 5, 0, 0, Math.PI * 2);
-    ctx.fill();
-    // toe claws
-    ctx.fillStyle = '#3a6a4a';
-    ctx.beginPath();
-    ctx.ellipse(cx + legXs[i], cy + 14 + off, 4, 2, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = bodyColor;
+  // ── LEGS (4 legs — back pair slightly taller than front) ────────────────
+  ctx.fillStyle = green;
+  // Back pair
+  ctx.beginPath(); ctx.ellipse(cx - 10, cy + 11 + legOff, 3.5, 6, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx - 4,  cy + 11 - legOff, 3.5, 6, 0, 0, Math.PI * 2); ctx.fill();
+  // Front pair
+  ctx.beginPath(); ctx.ellipse(cx + 5,  cy +  9 - legOff, 3,   5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx + 10, cy +  9 + legOff, 3,   5, 0, 0, Math.PI * 2); ctx.fill();
+  // Foot pads
+  ctx.fillStyle = dark;
+  for (const [lx, ly] of [
+    [cx - 10, cy + 15 + legOff],
+    [cx - 4,  cy + 15 - legOff],
+    [cx + 5,  cy + 12 - legOff],
+    [cx + 10, cy + 12 + legOff],
+  ]) {
+    ctx.beginPath(); ctx.ellipse(lx, ly, 4, 2, 0, 0, Math.PI * 2); ctx.fill();
   }
 
   ctx.restore();
