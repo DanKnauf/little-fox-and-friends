@@ -30,8 +30,8 @@ function drawFox(ctx, cx, cy, legOff, isJump, isHurt) {
   ctx.save();
   if (isHurt) ctx.globalAlpha = 0.75;
 
-  // Shift the character 3px down so there's room for ears at the top of the 32px frame
-  const oy = cy + 3;  // effective vertical centre = y 19 in the 32px frame
+  // Shift the character 5px down so ear tips clear the frame-top anti-aliasing zone
+  const oy = cy + 5;  // effective vertical centre = y 21 in the 32px frame
 
   const orange = isHurt ? '#FF9966' : '#FF6600';
   const cream  = '#FFF5CC';

@@ -7,7 +7,7 @@ export class ScorpionKing extends BaseBoss {
   constructor(scene, x, y) {
     super(scene, x, y, 'boss_desert', 18, 'Scorpion King');
     this.sprite.play('boss_desert_idle', true);
-    this._attacks = ['claw', 'tail', 'claw', 'claw', 'tail']; // cycle
+    this._attacks = ['claw', 'tail', 'claw', 'claw', 'tail', 'claw', 'tail']; // cycle
     this._attackIndex = 0;
     this._player = null;
     this._companions = [];
@@ -29,7 +29,7 @@ export class ScorpionKing extends BaseBoss {
       case BOSS_STATE.IDLE:
         this.sprite.play('boss_desert_idle', true);
         this._doWander(delta);
-        if (this.stateTimer > 900) {
+        if (this.stateTimer > 600) {
           this._wanderTarget = null;
           this.sprite.body.setVelocityX(0);
           this.transitionTo(BOSS_STATE.TELEGRAPHING);
@@ -44,7 +44,7 @@ export class ScorpionKing extends BaseBoss {
             this.sprite.play('boss_desert_tail', true);
           }
         }
-        if (this.stateTimer >= 300) {
+        if (this.stateTimer >= 200) {
           this.transitionTo(BOSS_STATE.ATTACKING);
         }
         break;
@@ -57,7 +57,7 @@ export class ScorpionKing extends BaseBoss {
             this._doTailArc();
           }
         }
-        if (this.stateTimer > 800) {
+        if (this.stateTimer > 600) {
           this._attackIndex++;
           this.transitionTo(BOSS_STATE.RECOVERING);
         }
@@ -67,7 +67,7 @@ export class ScorpionKing extends BaseBoss {
         this.sprite.play('boss_desert_idle', true);
         if (this.stateTimer < 50) this.sprite.body.setVelocityX(0);
         this._doWander(delta);
-        if (this.stateTimer > 700) {
+        if (this.stateTimer > 450) {
           this._wanderTarget = null;
           this.sprite.body.setVelocityX(0);
           this.transitionTo(BOSS_STATE.IDLE);
@@ -81,7 +81,7 @@ export class ScorpionKing extends BaseBoss {
     const sweepX = this._player ? this._player.sprite.x : this.sprite.x + 100;
     const dir = sweepX > this.sprite.x ? 1 : -1;
     this.sprite.setFlipX(dir < 0);
-    this.sprite.body.setVelocityX(dir * 300 * this._speedMult);
+    this.sprite.body.setVelocityX(dir * 400 * this._speedMult);
 
     // Damage on proximity
     this.scene.time.delayedCall(300, () => {
@@ -106,15 +106,17 @@ export class ScorpionKing extends BaseBoss {
       proj.body.setVelocityY(-200);
     }
 
-    this.scene.time.delayedCall(350, () => {
-      if (!this._alive || !this._player?.isAlive()) return;
-      const p2 = this._tailProjectiles.fire(
-        this.sprite.x, this.sprite.y - 30,
-        this._player.sprite.x, this._player.sprite.y,
-        280 * this._speedMult
-      );
-      if (p2) p2.body.setVelocityY(-160);
-    });
+    for (let i = 1; i <= 3; i++) {
+      this.scene.time.delayedCall(i * 280, () => {
+        if (!this._alive || !this._player?.isAlive()) return;
+        const p2 = this._tailProjectiles.fire(
+          this.sprite.x, this.sprite.y - 30,
+          this._player.sprite.x, this._player.sprite.y,
+          300 * this._speedMult
+        );
+        if (p2) p2.body.setVelocityY(-160);
+      });
+    }
   }
 
   _checkMeleeDamage(range) {

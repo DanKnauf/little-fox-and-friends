@@ -38,9 +38,9 @@ export class BaseBoss {
     this._arenaLeft  = x - 300;
     this._arenaRight = x + 300;
     this._wanderTimer  = 0;
-    this._wanderDelay  = Phaser.Math.Between(800, 1800);
+    this._wanderDelay  = Phaser.Math.Between(400, 900);
     this._wanderTarget = null;
-    this._wanderSpeed  = 140;
+    this._wanderSpeed  = 200;
   }
 
   update(time, delta) {
@@ -64,7 +64,7 @@ export class BaseBoss {
         this._arenaRight - 40
       );
       this._wanderTimer  = 0;
-      this._wanderDelay  = Phaser.Math.Between(800, 1800);
+      this._wanderDelay  = Phaser.Math.Between(400, 900);
     }
     if (this._wanderTarget !== null) {
       const dx = this._wanderTarget - this.sprite.x;

@@ -146,6 +146,17 @@ export class GameScene extends Phaser.Scene {
       });
     }
 
+    // Companions vs enemies — contact damage
+    for (const comp of this._companionList) {
+      this.physics.add.overlap(comp.sprite, this._buildEnemySpriteGroup(), (compSprite, enemySprite) => {
+        const enemy = this._findEnemyBySprite(enemySprite);
+        if (!enemy || !enemy.isAlive()) return;
+        if (enemy.canDamagePlayer()) {
+          comp.takeDamage(1);
+        }
+      });
+    }
+
     // Player vs enemies — damage or invincible kill
     this.physics.add.overlap(this._littleFox.sprite, this._buildEnemySpriteGroup(), (playerSprite, enemySprite) => {
       const enemy = this._findEnemyBySprite(enemySprite);
