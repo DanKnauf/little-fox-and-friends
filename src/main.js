@@ -1,17 +1,19 @@
 import Phaser from 'phaser';
 
-// Workaround for Phaser 3.90.x GamepadPlugin bug: during scene teardown the
-// pads array can contain undefined entries, causing pad.destroy() to throw
-// "Cannot read properties of undefined (reading 'removeAllListeners')".
-// Patch the prototype once at startup so every scene transition is safe.
+// Workaround for Phaser 3.90.x GamepadPlugin bug: stopListeners() iterates
+// this.gamepads calling removeAllListeners() with no null guard, but
+// navigator.getGamepads() can return sparse arrays with null slots that end
+// up in this.gamepads, causing "Cannot read properties of undefined
+// (reading 'removeAllListeners')" on every scene transition.
+// Patch stopListeners() (the actual crash site) to filter nulls first.
 try {
   const _proto = Phaser.Input.Gamepad.GamepadPlugin.prototype;
-  const _origDestroy = _proto.destroy;
-  _proto.destroy = function () {
-    if (Array.isArray(this.pads)) {
-      this.pads = this.pads.filter(Boolean);
+  const _origStop = _proto.stopListeners;
+  _proto.stopListeners = function () {
+    if (Array.isArray(this.gamepads)) {
+      this.gamepads = this.gamepads.filter(Boolean);
     }
-    _origDestroy.call(this);
+    _origStop.call(this);
   };
 } catch (_) { /* Phaser build without gamepad support — nothing to patch */ }
 
