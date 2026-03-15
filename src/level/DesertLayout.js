@@ -92,6 +92,14 @@ export const DesertLayout = {
     { key: 'cover_rock', x: 1400, y: G - 60 },
     { key: 'cover_rock', x: 4500, y: G - 60 },
   ],
+  ammoPickups: [
+    { x: 480,  y: G - 60 },
+    { x: 1200, y: G - 60 },
+    { x: 2100, y: G - 60 },
+    { x: 3000, y: G - 60 },
+    { x: 4000, y: G - 60 },
+    { x: 5000, y: G - 60 },
+  ],
   bossZoneTriggerX: BOSS_ZONE_X,
   bossSpawnX: BOSS_ZONE_X + 430,
   bossSpawnY: G - 120

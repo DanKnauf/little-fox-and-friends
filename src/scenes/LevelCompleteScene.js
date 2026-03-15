@@ -27,8 +27,8 @@ export class LevelCompleteScene extends Phaser.Scene {
       }).setOrigin(0.5);
 
     if (this._companionUnlocked) {
-      const names = { babybear: 'Baby Bear', stegge: 'Stegge' };
-      const sprites = { babybear: 'bear', stegge: 'stegge' };
+      const names = { babybear: 'Baby Bear', steggie: 'Steggie' };
+      const sprites = { babybear: 'bear', steggie: 'steggie' };
       const name = names[this._companionUnlocked] || this._companionUnlocked;
       const spriteKey = sprites[this._companionUnlocked] || 'bear';
 

@@ -52,14 +52,14 @@ export class BootScene extends Phaser.Scene {
     this.anims.create({ key: 'bear_attack', frames: this.anims.generateFrameNumbers('bear', { start: 4, end: 4 }), frameRate: 1,  repeat: 0 });
     this.anims.create({ key: 'bear_hurt',   frames: this.anims.generateFrameNumbers('bear', { start: 5, end: 5 }), frameRate: 1,  repeat: 0 });
 
-    // Stegge
-    this.anims.create({ key: 'stegge_walk', frames: this.anims.generateFrameNumbers('stegge', { start: 0, end: 3 }), frameRate: 6,  repeat: -1 });
-    this.anims.create({ key: 'stegge_idle', frames: this.anims.generateFrameNumbers('stegge', { start: 0, end: 0 }), frameRate: 1,  repeat: -1 });
-    this.anims.create({ key: 'stegge_hurt', frames: this.anims.generateFrameNumbers('stegge', { start: 4, end: 4 }), frameRate: 1,  repeat: 0 });
+    // Steggie
+    this.anims.create({ key: 'steggie_walk', frames: this.anims.generateFrameNumbers('steggie', { start: 0, end: 3 }), frameRate: 6,  repeat: -1 });
+    this.anims.create({ key: 'steggie_idle', frames: this.anims.generateFrameNumbers('steggie', { start: 0, end: 0 }), frameRate: 1,  repeat: -1 });
+    this.anims.create({ key: 'steggie_hurt', frames: this.anims.generateFrameNumbers('steggie', { start: 4, end: 4 }), frameRate: 1,  repeat: 0 });
 
-    // Mamoslav
-    this.anims.create({ key: 'mamoslav_idle',      frames: this.anims.generateFrameNumbers('mamoslav', { start: 0, end: 0 }), frameRate: 1,  repeat: -1 });
-    this.anims.create({ key: 'mamoslav_celebrate', frames: this.anims.generateFrameNumbers('mamoslav', { start: 1, end: 2 }), frameRate: 4,  repeat: -1 });
+    // Mama Sloth
+    this.anims.create({ key: 'mamasloth_idle',      frames: this.anims.generateFrameNumbers('mamasloth', { start: 0, end: 0 }), frameRate: 1,  repeat: -1 });
+    this.anims.create({ key: 'mamasloth_celebrate', frames: this.anims.generateFrameNumbers('mamasloth', { start: 1, end: 2 }), frameRate: 4,  repeat: -1 });
 
     // Enemies — spiders
     for (const level of ['forest', 'desert', 'ocean']) {

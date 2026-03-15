@@ -1,4 +1,5 @@
 import { DEPTH } from '../constants.js';
+import { GameState } from '../GameState.js';
 
 const HEART_SIZE = 24;
 const HEART_GAP = 6;
@@ -14,10 +15,12 @@ export class HUD {
     this._companionConfig = companionConfig; // { key: { hearts, maxHearts, label, color } }
     this._playerHeartImages = [];
     this._companionRows = {};
+    this._ammoText = null;
 
     this._build();
 
     scene.events.on('heartsChanged', () => this.refresh());
+    scene.events.on('ammoChanged', () => this._refreshAmmo());
     scene.events.on('shutdown', () => this._cleanup());
   }
 
@@ -37,6 +40,16 @@ export class HUD {
         'heart_full'
       ).setScrollFactor(0).setDepth(DEPTH.HUD).setScale(0.9);
       this._playerHeartImages.push(img);
+    }
+
+    // Ammo counter (bottom-right, hidden on easy/unlimited)
+    if (GameState.state.ammo !== Infinity) {
+      this._ammoText = scene.add.text(
+        scene.cameras.main.width - 12,
+        scene.cameras.main.height - 12,
+        this._ammoLabel(),
+        { fontSize: '16px', color: '#ffe066', fontFamily: 'Arial Bold', stroke: '#4a3000', strokeThickness: 3 }
+      ).setScrollFactor(0).setDepth(DEPTH.HUD).setOrigin(1, 1);
     }
 
     // Companion rows
@@ -91,6 +104,20 @@ export class HUD {
         row.hearts[i].setTexture(filled ? 'heart_small' : 'heart_empty');
         row.hearts[i].setAlpha(filled ? 1 : 0.3);
       }
+    }
+  }
+
+  _ammoLabel() {
+    const ammo = GameState.state.ammo;
+    return `★ ${ammo}`;
+  }
+
+  _refreshAmmo() {
+    if (this._ammoText) {
+      this._ammoText.setText(this._ammoLabel());
+      const ammo = GameState.state.ammo;
+      const color = ammo <= 5 ? '#ff4444' : ammo <= 10 ? '#ffaa22' : '#ffe066';
+      this._ammoText.setColor(color);
     }
   }
 

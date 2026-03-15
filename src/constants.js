@@ -3,9 +3,9 @@ export const GAME_HEIGHT = 480;
 export const LEVEL_WIDTH = 7200;
 
 export const DIFFICULTY = {
-  easy:   { hearts: 5, enemySpeed: 0.7, bossSpeed: 0.6, telegraphMs: 1500, density: 'low',    potions: 4 },
-  medium: { hearts: 4, enemySpeed: 1.0, bossSpeed: 1.0, telegraphMs: 1000, density: 'medium', potions: 3 },
-  hard:   { hearts: 3, enemySpeed: 1.3, bossSpeed: 1.4, telegraphMs:  600, density: 'high',   potions: 2 }
+  easy:   { hearts: 5, enemySpeed: 0.7, bossSpeed: 0.6, telegraphMs: 1500, density: 'low',    potions: 4, ammo: Infinity, ammoPickups: 0 },
+  medium: { hearts: 4, enemySpeed: 1.0, bossSpeed: 1.0, telegraphMs: 1000, density: 'medium', potions: 3, ammo: 40,       ammoPickups: 6 },
+  hard:   { hearts: 3, enemySpeed: 1.3, bossSpeed: 1.4, telegraphMs:  600, density: 'high',   potions: 2, ammo: 20,       ammoPickups: 4 }
 };
 
 export const DEPTH = {
@@ -24,7 +24,7 @@ export const DEPTH = {
 
 export const LEVEL_CONFIG = {
   1: { name: 'The Forest',  bgKey: 'forest', bossKey: 'ForestGuardian',  companionReward: 'babybear' },
-  2: { name: 'The Desert',  bgKey: 'desert', bossKey: 'ScorpionKing',    companionReward: 'stegge'   },
+  2: { name: 'The Desert',  bgKey: 'desert', bossKey: 'ScorpionKing',    companionReward: 'steggie'  },
   3: { name: 'The Ocean',   bgKey: 'ocean',  bossKey: 'Kraken',          companionReward: null       }
 };
 

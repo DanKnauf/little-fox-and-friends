@@ -2,6 +2,7 @@ import { Entity } from './Entity.js';
 import { ProjectileGroup } from './Projectile.js';
 import { AudioManager } from '../audio/AudioManager.js';
 import { DEPTH, GAME_HEIGHT } from '../constants.js';
+import { GameState } from '../GameState.js';
 
 export class LittleFox extends Entity {
   constructor(scene, x, y, maxHearts) {
@@ -110,6 +111,11 @@ export class LittleFox extends Entity {
 
   _shoot(pointer) {
     if (this._shootCooldown > 0 || !this._alive) return;
+
+    // Check ammo (Infinity = easy mode unlimited)
+    const ammo = GameState.state.ammo;
+    if (ammo !== Infinity && ammo <= 0) return;
+
     this._shootCooldown = 300;
 
     const cam = this.scene.cameras.main;
@@ -122,6 +128,12 @@ export class LittleFox extends Entity {
       if (this.sprite.active) this.sprite.play('fox_idle', true);
     });
     AudioManager.play('shoot');
+
+    // Decrement ammo
+    if (ammo !== Infinity) {
+      GameState.state.ammo -= 1;
+      this.scene.events.emit('ammoChanged');
+    }
   }
 
   activateSizeUp() {

@@ -99,6 +99,14 @@ export const OceanLayout = {
     { key: 'cover_coral', x: 3200, y: G - 50 },
     { key: 'cover_coral', x: 5100, y: G - 50 },
   ],
+  ammoPickups: [
+    { x: 500,  y: G - 60 },
+    { x: 1300, y: G - 60 },
+    { x: 2200, y: G - 60 },
+    { x: 3100, y: G - 60 },
+    { x: 4100, y: G - 60 },
+    { x: 5100, y: G - 60 },
+  ],
   bossZoneTriggerX: BOSS_ZONE_X,
   bossSpawnX: BOSS_ZONE_X + 500,
   bossSpawnY: G - 140

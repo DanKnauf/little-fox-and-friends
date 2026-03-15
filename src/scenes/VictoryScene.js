@@ -5,6 +5,7 @@ import { GameState } from '../GameState.js';
 export class VictoryScene extends Phaser.Scene {
   constructor() {
     super('VictoryScene');
+    this._fireworkTimer = null;
   }
 
   create() {
@@ -28,66 +29,65 @@ export class VictoryScene extends Phaser.Scene {
     }
 
     // Title
-    const titleText = this.add.text(GAME_WIDTH / 2, 50, 'You Rescued Mamoslav!', {
+    const titleText = this.add.text(GAME_WIDTH / 2, 50, 'You Rescued Mama Sloth!', {
       fontSize: '34px', color: '#ffe066', fontFamily: 'Arial Black, Arial',
       stroke: '#885500', strokeThickness: 4
     }).setOrigin(0.5).setAlpha(0);
     this.tweens.add({ targets: titleText, alpha: 1, duration: 800 });
 
-    // Characters start positions
-    const foxSprite   = this.add.sprite(100, GAME_HEIGHT - 80, 'fox').setScale(2.2);
-    const bearSprite  = this.add.sprite(200, GAME_HEIGHT - 80, 'bear').setScale(2.2);
-    const steggeSprite= this.add.sprite(320, GAME_HEIGHT - 80, 'stegge').setScale(2.2);
-    const mamoslavSprite = this.add.sprite(GAME_WIDTH + 60, GAME_HEIGHT - 80, 'mamoslav').setScale(2.2);
+    // Characters
+    const foxSprite      = this.add.sprite(100,             GAME_HEIGHT - 80, 'fox').setScale(2.2);
+    const bearSprite     = this.add.sprite(200,             GAME_HEIGHT - 80, 'bear').setScale(2.2);
+    const steggieSprite  = this.add.sprite(320,             GAME_HEIGHT - 80, 'steggie').setScale(2.2);
+    const mamaSlothSprite= this.add.sprite(GAME_WIDTH + 60, GAME_HEIGHT - 80, 'mamasloth').setScale(2.0);
 
     foxSprite.play('fox_idle');
     bearSprite.play('bear_idle');
-    steggeSprite.play('stegge_idle');
-    mamoslavSprite.play('mamoslav_idle');
+    steggieSprite.play('steggie_idle');
+    mamaSlothSprite.play('mamasloth_idle');
 
     // Stars burst
     this.time.delayedCall(300, () => { this._burstStars(); });
 
-    // Mamoslav entrance
+    // Mama Sloth entrance
     this.time.delayedCall(1000, () => {
       AudioManager.play('victory');
 
-      // Mamoslav runs in
       this.tweens.add({
-        targets: mamoslavSprite,
+        targets: mamaSlothSprite,
         x: GAME_WIDTH / 2 + 120,
         duration: 900,
         ease: 'Power2',
         onComplete: () => {
-          mamoslavSprite.play('mamoslav_celebrate', true);
+          mamaSlothSprite.play('mamasloth_celebrate', true);
 
-          // Hug Fox
+          // Hug Fox — heart fireworks launch here
           this.time.delayedCall(200, () => {
-            this._doHug(mamoslavSprite, foxSprite, () => {
+            this._doHug(mamaSlothSprite, foxSprite, true, () => {
 
               // Hug Bear
               this.time.delayedCall(300, () => {
                 this.tweens.add({
-                  targets: mamoslavSprite,
+                  targets: mamaSlothSprite,
                   x: bearSprite.x,
                   duration: 500,
                   ease: 'Power2',
                   onComplete: () => {
-                    this._doHug(mamoslavSprite, bearSprite, () => {
+                    this._doHug(mamaSlothSprite, bearSprite, false, () => {
 
-                      // Hug Stegge
+                      // Hug Steggie
                       this.time.delayedCall(300, () => {
                         this.tweens.add({
-                          targets: mamoslavSprite,
-                          x: steggeSprite.x,
+                          targets: mamaSlothSprite,
+                          x: steggieSprite.x,
                           duration: 500,
                           ease: 'Power2',
                           onComplete: () => {
-                            this._doHug(mamoslavSprite, steggeSprite, () => {
+                            this._doHug(mamaSlothSprite, steggieSprite, false, () => {
 
                               // All celebrate
                               this.time.delayedCall(400, () => {
-                                this._allCelebrate([foxSprite, bearSprite, steggeSprite, mamoslavSprite]);
+                                this._allCelebrate([foxSprite, bearSprite, steggieSprite, mamaSlothSprite]);
                                 this._showEndScreen();
                               });
                             });
@@ -105,23 +105,84 @@ export class VictoryScene extends Phaser.Scene {
     });
   }
 
-  _doHug(mamoslav, target, onComplete) {
-    AudioManager.play('potion_collect');
-    const hearts = [];
+  // Draws a heart shape at (cx, cy) with given size using canvas 2D
+  _drawHeart(graphics, cx, cy, size, color) {
+    graphics.fillStyle(color, 1);
+    graphics.beginPath();
+    // Approximate heart with bezier curves
+    const s = size;
+    graphics.moveTo(cx, cy + s * 0.25);
+    graphics.bezierCurveTo(cx, cy, cx - s * 0.5, cy - s * 0.4, cx - s * 0.5, cy - s * 0.1);
+    graphics.bezierCurveTo(cx - s * 0.5, cy - s * 0.55, cx, cy - s * 0.55, cx, cy - s * 0.25);
+    graphics.bezierCurveTo(cx, cy - s * 0.55, cx + s * 0.5, cy - s * 0.55, cx + s * 0.5, cy - s * 0.1);
+    graphics.bezierCurveTo(cx + s * 0.5, cy - s * 0.4, cx, cy, cx, cy + s * 0.25);
+    graphics.fillPath();
+  }
 
-    // Spawn heart particles
-    for (let i = 0; i < 5; i++) {
+  _launchHeartFirework(x, y) {
+    const colors = [0xff3366, 0xff66aa, 0xff99bb, 0xffccdd, 0xff0044, 0xff6699];
+    const count = 16;
+
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      const speed = Phaser.Math.Between(60, 140);
+      const vx = Math.cos(angle) * speed;
+      const vy = Math.sin(angle) * speed;
+      const size = Phaser.Math.Between(6, 14);
+      const color = colors[i % colors.length];
+
+      // Use a graphics object for each heart particle
+      const g = this.add.graphics();
+      g.setDepth(50);
+      this._drawHeart(g, x, y, size, color);
+
+      this.tweens.add({
+        targets: g,
+        x: vx * 0.8,
+        y: vy * 0.8,
+        alpha: 0,
+        duration: Phaser.Math.Between(600, 1100),
+        ease: 'Power2',
+        onUpdate: (tween) => {
+          const progress = tween.progress;
+          g.clear();
+          const px = x + vx * progress;
+          const py = y + vy * progress - 60 * progress * progress; // arc upward
+          this._drawHeart(g, px, py, size * (1 - progress * 0.5), color);
+        },
+        onComplete: () => g.destroy()
+      });
+    }
+  }
+
+  _startHeartFireworksLoop() {
+    this._fireworkTimer = this.time.addEvent({
+      delay: 400,
+      repeat: 18,
+      callback: () => {
+        const x = Phaser.Math.Between(80, GAME_WIDTH - 80);
+        const y = Phaser.Math.Between(60, GAME_HEIGHT - 120);
+        this._launchHeartFirework(x, y);
+        AudioManager.play('potion_collect');
+      }
+    });
+  }
+
+  _doHug(mamaSloth, target, triggerFireworks, onComplete) {
+    // Emoji hearts burst around target
+    const hearts = [];
+    for (let i = 0; i < 6; i++) {
       const h = this.add.text(
         target.x + Phaser.Math.Between(-30, 30),
         target.y + Phaser.Math.Between(-20, 20),
-        '❤️', { fontSize: '20px' }
-      );
+        '❤️', { fontSize: '22px' }
+      ).setDepth(30);
       hearts.push(h);
       this.tweens.add({
         targets: h,
-        y: h.y - 60,
+        y: h.y - 70,
         alpha: 0,
-        duration: 800,
+        duration: 900,
         delay: i * 80,
         onComplete: () => h.destroy()
       });
@@ -129,13 +190,18 @@ export class VictoryScene extends Phaser.Scene {
 
     // Scale pulse for hug
     this.tweens.add({
-      targets: [mamoslav, target],
-      scaleX: { from: 2.2, to: 2.8 },
-      scaleY: { from: 2.2, to: 2.8 },
-      duration: 200,
+      targets: [mamaSloth, target],
+      scaleX: { from: 2.2, to: 2.9 },
+      scaleY: { from: 2.2, to: 2.9 },
+      duration: 220,
       yoyo: true,
       repeat: 1,
-      onComplete
+      onComplete: () => {
+        if (triggerFireworks) {
+          this._startHeartFireworksLoop();
+        }
+        if (onComplete) onComplete();
+      }
     });
   }
 
@@ -172,6 +238,11 @@ export class VictoryScene extends Phaser.Scene {
   }
 
   _showEndScreen() {
+    if (this._fireworkTimer) {
+      this._fireworkTimer.remove();
+      this._fireworkTimer = null;
+    }
+
     const overlay = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0).setDepth(10);
 
     this.time.delayedCall(1500, () => {
@@ -181,14 +252,12 @@ export class VictoryScene extends Phaser.Scene {
         this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40, 'The End', {
           fontSize: '60px', color: '#ffe066', fontFamily: 'Arial Black, Arial',
           stroke: '#885500', strokeThickness: 6
-        }).setOrigin(0.5).setDepth(11).setAlpha(0)
-          .setAlpha(1);
+        }).setOrigin(0.5).setDepth(11);
 
         this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 20, 'Little Fox and Friends', {
           fontSize: '20px', color: '#ffffff', fontFamily: 'Arial'
         }).setOrigin(0.5).setDepth(11);
 
-        // Buttons
         this._makeButton(GAME_WIDTH / 2 - 90, GAME_HEIGHT / 2 + 80, 'Play Again', 0x226644, () => {
           GameState.reset();
           this.scene.start('StartScene');

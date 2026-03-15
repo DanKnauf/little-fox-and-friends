@@ -23,7 +23,7 @@ export class BossScene extends Phaser.Scene {
 
   create() {
     AudioManager.init(this);
-    AudioManager.playMusic(this._level);
+    AudioManager.playBossMusic(this._level);
 
     const cfg = LEVEL_CONFIG[this._level];
     const BossClass = BOSS_CLASSES[cfg.bossKey];

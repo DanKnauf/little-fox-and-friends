@@ -1,8 +1,9 @@
 export function generateCharacterTextures(scene) {
   generateLittleFox(scene);
   generateBabyBear(scene);
-  generateStegge(scene);
-  generateMamoslav(scene);
+  generateSteggie(scene);
+  generateMamaSloth(scene);
+  generateAmmoPickup(scene);
 }
 
 // ─── Little Fox ──────────────────────────────────────────────────────────────
@@ -201,8 +202,8 @@ function drawBear(ctx, cx, cy, legOff, isAttack, isHurt) {
   ctx.restore();
 }
 
-// ─── Stegge (Stegosaurus) ────────────────────────────────────────────────────
-function generateStegge(scene) {
+// ─── Steggie (Stegosaurus) ───────────────────────────────────────────────────
+function generateSteggie(scene) {
   const W = 48, H = 32, FRAMES = 5;
   const canvas = document.createElement('canvas');
   canvas.width = W * FRAMES; canvas.height = H;
@@ -212,13 +213,13 @@ function generateStegge(scene) {
     const ox = f * W;
     const legOff = [0, 4, 0, -4][f % 4];
     const isHurt = f === 4;
-    drawStegge(ctx, ox + 24, 18, legOff, isHurt);
+    drawSteggie(ctx, ox + 24, 18, legOff, isHurt);
   }
 
-  scene.textures.addSpriteSheet('stegge', canvas, { frameWidth: W, frameHeight: H });
+  scene.textures.addSpriteSheet('steggie', canvas, { frameWidth: W, frameHeight: H });
 }
 
-function drawStegge(ctx, cx, cy, legOff, isHurt) {
+function drawSteggie(ctx, cx, cy, legOff, isHurt) {
   ctx.save();
   const bodyColor = isHurt ? '#88cc88' : '#4A8C5C';
   const plateColor = '#2d7a6e';
@@ -229,14 +230,22 @@ function drawStegge(ctx, cx, cy, legOff, isHurt) {
   ctx.ellipse(cx, cy + 2, 18, 10, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // back plates
+  // back plates (more prominent, teal/orange tips)
   const platePositions = [-10, 0, 10];
-  for (const px of platePositions) {
+  for (let pi = 0; pi < platePositions.length; pi++) {
+    const px = platePositions[pi];
     ctx.fillStyle = plateColor;
     ctx.beginPath();
     ctx.moveTo(cx + px - 4, cy - 4);
-    ctx.lineTo(cx + px, cy - 14);
+    ctx.lineTo(cx + px, cy - 16);
     ctx.lineTo(cx + px + 4, cy - 4);
+    ctx.fill();
+    // orange tip
+    ctx.fillStyle = '#e07030';
+    ctx.beginPath();
+    ctx.moveTo(cx + px - 2, cy - 10);
+    ctx.lineTo(cx + px, cy - 16);
+    ctx.lineTo(cx + px + 2, cy - 10);
     ctx.fill();
   }
 
@@ -251,13 +260,21 @@ function drawStegge(ctx, cx, cy, legOff, isHurt) {
   ctx.beginPath();
   ctx.arc(cx + 23, cy - 4, 1.5, 0, Math.PI * 2);
   ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(cx + 23.5, cy - 4.5, 0.6, 0, Math.PI * 2);
+  ctx.fill();
 
-  // tail
+  // tail with spikes
   ctx.strokeStyle = bodyColor; ctx.lineWidth = 5;
   ctx.beginPath();
   ctx.moveTo(cx - 16, cy + 2);
   ctx.quadraticCurveTo(cx - 26, cy + 8, cx - 24, cy + 4);
   ctx.stroke();
+  // tail spikes
+  ctx.fillStyle = '#2d7a6e';
+  ctx.beginPath(); ctx.moveTo(cx - 22, cy + 2); ctx.lineTo(cx - 26, cy - 2); ctx.lineTo(cx - 20, cy + 4); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(cx - 19, cy + 3); ctx.lineTo(cx - 24, cy + 0); ctx.lineTo(cx - 17, cy + 5); ctx.fill();
 
   // legs
   ctx.fillStyle = bodyColor;
@@ -267,14 +284,21 @@ function drawStegge(ctx, cx, cy, legOff, isHurt) {
     ctx.beginPath();
     ctx.ellipse(cx + legXs[i], cy + 10 + off, 3, 5, 0, 0, Math.PI * 2);
     ctx.fill();
+    // toe claws
+    ctx.fillStyle = '#3a6a4a';
+    ctx.beginPath();
+    ctx.ellipse(cx + legXs[i], cy + 14 + off, 4, 2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = bodyColor;
   }
 
   ctx.restore();
 }
 
-// ─── Mamoslav ────────────────────────────────────────────────────────────────
-function generateMamoslav(scene) {
-  const W = 32, H = 36, FRAMES = 3;
+// ─── Mama Sloth ──────────────────────────────────────────────────────────────
+function generateMamaSloth(scene) {
+  // Frames: 0 idle, 1-2 celebrate
+  const W = 36, H = 40, FRAMES = 3;
   const canvas = document.createElement('canvas');
   canvas.width = W * FRAMES; canvas.height = H;
   const ctx = canvas.getContext('2d');
@@ -282,78 +306,186 @@ function generateMamoslav(scene) {
   for (let f = 0; f < FRAMES; f++) {
     const ox = f * W;
     const isCelebrate = f >= 1;
-    const armRaise = f === 2 ? -8 : 0;
-    drawMamoslav(ctx, ox + 16, 18, isCelebrate, armRaise);
+    const armRaise = f === 2 ? -10 : 0;
+    drawMamaSloth(ctx, ox + 18, 22, isCelebrate, armRaise);
   }
 
-  scene.textures.addSpriteSheet('mamoslav', canvas, { frameWidth: W, frameHeight: H });
+  scene.textures.addSpriteSheet('mamasloth', canvas, { frameWidth: W, frameHeight: H });
 }
 
-function drawMamoslav(ctx, cx, cy, celebrate, armRaise) {
+function drawMamaSloth(ctx, cx, cy, celebrate, armRaise) {
   ctx.save();
-  // body
-  ctx.fillStyle = '#f5c8d8';
+
+  const furColor    = '#9aaa88';  // grey-green sloth fur
+  const bellyColor  = '#c8d4b0';  // lighter belly
+  const faceColor   = '#d4c8a0';  // warm cream face mask
+  const clawColor   = '#5a4a2a';  // dark brown claws
+  const noseColor   = '#7a5a44';
+
+  // body — round, heavy-looking
+  ctx.fillStyle = furColor;
   ctx.beginPath();
-  ctx.ellipse(cx, cy + 4, 10, 12, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx, cy + 2, 11, 13, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // head
-  ctx.fillStyle = '#fce0e8';
+  // belly patch
+  ctx.fillStyle = bellyColor;
   ctx.beginPath();
-  ctx.arc(cx, cy - 8, 12, 0, Math.PI * 2);
+  ctx.ellipse(cx, cy + 4, 6, 8, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // ears / bun
-  ctx.fillStyle = '#f5c8d8';
+  // head — large and round like a real sloth
+  ctx.fillStyle = furColor;
   ctx.beginPath();
-  ctx.arc(cx - 8, cy - 18, 5, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(cx + 8, cy - 18, 5, 0, Math.PI * 2);
+  ctx.arc(cx, cy - 11, 11, 0, Math.PI * 2);
   ctx.fill();
 
-  // eyes - happy arc
-  ctx.strokeStyle = '#884466'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+  // face mask (cream circle)
+  ctx.fillStyle = faceColor;
   ctx.beginPath();
-  ctx.arc(cx - 4, cy - 8, 3, Math.PI * 0.1, Math.PI * 0.9);
+  ctx.ellipse(cx, cy - 10, 7, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // dark eye rings (sloths have dark patches around eyes)
+  ctx.fillStyle = '#6a5a40';
+  ctx.beginPath();
+  ctx.arc(cx - 3, cy - 13, 3.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(cx + 3, cy - 13, 3.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // eyes — droopy/sleepy looking (half-moon shape)
+  ctx.fillStyle = '#222';
+  ctx.beginPath();
+  ctx.arc(cx - 3, cy - 13, 2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(cx + 3, cy - 13, 2, 0, Math.PI * 2);
+  ctx.fill();
+  // sleepy drooping eyelid lines
+  ctx.strokeStyle = '#4a3a20'; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(cx - 3, cy - 13, 2, Math.PI + 0.3, 0 - 0.3);
   ctx.stroke();
   ctx.beginPath();
-  ctx.arc(cx + 4, cy - 8, 3, Math.PI * 0.1, Math.PI * 0.9);
+  ctx.arc(cx + 3, cy - 13, 2, Math.PI + 0.3, 0 - 0.3);
   ctx.stroke();
 
-  // cheeks
-  ctx.fillStyle = 'rgba(255,120,120,0.3)';
+  // eye shine
+  ctx.fillStyle = '#fff';
   ctx.beginPath();
-  ctx.arc(cx - 6, cy - 6, 3, 0, Math.PI * 2);
+  ctx.arc(cx - 2.2, cy - 14, 0.7, 0, Math.PI * 2);
   ctx.fill();
   ctx.beginPath();
-  ctx.arc(cx + 6, cy - 6, 3, 0, Math.PI * 2);
+  ctx.arc(cx + 3.8, cy - 14, 0.7, 0, Math.PI * 2);
   ctx.fill();
 
-  // smile
-  ctx.strokeStyle = '#884466'; ctx.lineWidth = 1.5;
+  // nose — small round
+  ctx.fillStyle = noseColor;
   ctx.beginPath();
-  ctx.arc(cx, cy - 4, 4, 0.1, Math.PI - 0.1);
+  ctx.ellipse(cx, cy - 8, 2.5, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // smile — gentle
+  ctx.strokeStyle = noseColor; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.arc(cx, cy - 6, 3, 0.15, Math.PI - 0.15);
   ctx.stroke();
 
-  // arms
-  ctx.fillStyle = '#f5c8d8';
-  const armY = celebrate ? cy + 2 + armRaise : cy + 4;
-  ctx.beginPath();
-  ctx.ellipse(cx - 14, armY, 4, 6, celebrate ? -0.5 : 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(cx + 14, armY, 4, 6, celebrate ? 0.5 : 0, 0, Math.PI * 2);
-  ctx.fill();
+  // arms with LONG CURVED CLAWS (signature sloth feature)
+  ctx.fillStyle = furColor;
+  const armAngle = celebrate ? (armRaise < -5 ? -0.8 : -0.4) : 0.3;
+  const armYL = celebrate ? cy - 2 + armRaise : cy + 2;
+  const armYR = celebrate ? cy - 2 + armRaise : cy + 2;
 
-  // legs
-  ctx.fillStyle = '#f5c8d8';
+  // left arm
   ctx.beginPath();
-  ctx.ellipse(cx - 5, cy + 14, 3, 5, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx - 13, armYL, 4, 7, armAngle, 0, Math.PI * 2);
+  ctx.fill();
+  // left claws — 3 long curved claws
+  ctx.strokeStyle = clawColor; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+  for (let c = -1; c <= 1; c++) {
+    const clawStartX = cx - 13 + c * 2;
+    const clawStartY = armYL + 7;
+    ctx.beginPath();
+    ctx.moveTo(clawStartX, clawStartY);
+    ctx.quadraticCurveTo(clawStartX - 2, clawStartY + 5, clawStartX + 1, clawStartY + 7);
+    ctx.stroke();
+  }
+
+  // right arm
+  ctx.fillStyle = furColor;
+  ctx.beginPath();
+  ctx.ellipse(cx + 13, armYR, 4, 7, -armAngle, 0, Math.PI * 2);
+  ctx.fill();
+  // right claws
+  for (let c = -1; c <= 1; c++) {
+    const clawStartX = cx + 13 + c * 2;
+    const clawStartY = armYR + 7;
+    ctx.beginPath();
+    ctx.moveTo(clawStartX, clawStartY);
+    ctx.quadraticCurveTo(clawStartX + 2, clawStartY + 5, clawStartX - 1, clawStartY + 7);
+    ctx.stroke();
+  }
+
+  // legs — short and stubby
+  ctx.fillStyle = furColor;
+  ctx.beginPath();
+  ctx.ellipse(cx - 5, cy + 13, 4, 5, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.beginPath();
-  ctx.ellipse(cx + 5, cy + 14, 3, 5, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx + 5, cy + 13, 4, 5, 0, 0, Math.PI * 2);
   ctx.fill();
+  // foot claws
+  ctx.strokeStyle = clawColor; ctx.lineWidth = 1.5;
+  for (const fx of [cx - 5, cx + 5]) {
+    for (let c = -1; c <= 1; c++) {
+      ctx.beginPath();
+      ctx.moveTo(fx + c * 2, cy + 17);
+      ctx.quadraticCurveTo(fx + c * 2, cy + 21, fx + c * 2 + (c >= 0 ? 2 : -2), cy + 22);
+      ctx.stroke();
+    }
+  }
 
   ctx.restore();
+}
+
+// ─── Ammo Pickup ─────────────────────────────────────────────────────────────
+function generateAmmoPickup(scene) {
+  const W = 20, H = 16;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // box body
+  ctx.fillStyle = '#e8c840';
+  ctx.beginPath();
+  ctx.roundRect(1, 2, 18, 12, 2);
+  ctx.fill();
+
+  // dark border
+  ctx.strokeStyle = '#a08000';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(1, 2, 18, 12, 2);
+  ctx.stroke();
+
+  // "x" label
+  ctx.fillStyle = '#6a4400';
+  ctx.font = 'bold 7px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('★', 10, 8);
+
+  // small bullet silhouettes on sides
+  ctx.fillStyle = '#a08000';
+  ctx.beginPath();
+  ctx.ellipse(4, 8, 1.5, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(16, 8, 1.5, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  scene.textures.addImage('ammo_pickup', canvas);
 }

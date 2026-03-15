@@ -1,4 +1,4 @@
-import { GAME_WIDTH, GAME_HEIGHT, LEVEL_WIDTH, LEVEL_CONFIG, DEPTH } from '../constants.js';
+import { GAME_WIDTH, GAME_HEIGHT, LEVEL_WIDTH, LEVEL_CONFIG, DEPTH, DIFFICULTY } from '../constants.js';
 import { GameState } from '../GameState.js';
 import { AudioManager } from '../audio/AudioManager.js';
 import { LevelBuilder } from '../level/LevelBuilder.js';
@@ -9,7 +9,7 @@ import { DesertLayout } from '../level/DesertLayout.js';
 import { OceanLayout } from '../level/OceanLayout.js';
 import { LittleFox } from '../entities/LittleFox.js';
 import { BabyBear } from '../entities/BabyBear.js';
-import { Stegge } from '../entities/Stegge.js';
+import { Steggie } from '../entities/Steggie.js';
 import { HUD } from '../ui/HUD.js';
 
 const LAYOUTS = { 1: ForestLayout, 2: DesertLayout, 3: OceanLayout };
@@ -58,6 +58,22 @@ export class GameScene extends Phaser.Scene {
     const potionPlacer = new PotionPlacer(this, layout, difficulty);
     this._potionGroup = potionPlacer.place();
 
+    // Ammo pickups (only on medium/hard — easy has Infinity ammo)
+    this._ammoGroup = null;
+    if (GameState.state.ammo !== Infinity) {
+      const ammoCfg = DIFFICULTY[difficulty] || DIFFICULTY.medium;
+      const ammoCount = ammoCfg.ammoPickups || 0;
+      const ammoSpots = (layout.ammoPickups || []).slice(0, ammoCount);
+      this._ammoGroup = this.physics.add.staticGroup();
+      for (const spot of ammoSpots) {
+        const sprite = this.add.image(spot.x, spot.y, 'ammo_pickup');
+        sprite.setDepth(DEPTH.TERRAIN + 1);
+        this.physics.add.existing(sprite, true);
+        this.tweens.add({ targets: sprite, y: spot.y - 6, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        this._ammoGroup.add(sprite);
+      }
+    }
+
     // Player
     const { hearts, maxHearts } = GameState.state;
     this._littleFox = new LittleFox(this, layout.startX, layout.startY, maxHearts);
@@ -79,15 +95,15 @@ export class GameScene extends Phaser.Scene {
       this.physics.add.collider(bear.sprite, ground);
     }
 
-    if (unlocked.includes('stegge')) {
-      const stegge = new Stegge(this, layout.startX - 140, layout.startY, GameState.state.companions.stegge.maxHearts);
-      stegge.hearts = GameState.state.companions.stegge.hearts;
-      stegge.setPlayer(this._littleFox);
-      stegge.setEnemies(this._enemies);
-      this._companions['stegge'] = stegge;
-      this._companionList.push(stegge);
-      this.physics.add.collider(stegge.sprite, platforms);
-      this.physics.add.collider(stegge.sprite, ground);
+    if (unlocked.includes('steggie')) {
+      const steggie = new Steggie(this, layout.startX - 140, layout.startY, GameState.state.companions.steggie.maxHearts);
+      steggie.hearts = GameState.state.companions.steggie.hearts;
+      steggie.setPlayer(this._littleFox);
+      steggie.setEnemies(this._enemies);
+      this._companions['steggie'] = steggie;
+      this._companionList.push(steggie);
+      this.physics.add.collider(steggie.sprite, platforms);
+      this.physics.add.collider(steggie.sprite, ground);
     }
 
     // Give birds their player reference
@@ -138,6 +154,16 @@ export class GameScene extends Phaser.Scene {
       this._littleFox.activateSizeUp();
     });
 
+    // Ammo pickups
+    if (this._ammoGroup) {
+      this.physics.add.overlap(this._littleFox.sprite, this._ammoGroup, (playerSprite, ammoSprite) => {
+        ammoSprite.destroy();
+        GameState.addAmmo(10);
+        this.events.emit('ammoChanged');
+        AudioManager.play('potion_collect');
+      });
+    }
+
     // Boss zone trigger
     this.physics.add.overlap(this._littleFox.sprite, bossZone, () => {
       if (!this._bossTriggered) {
@@ -153,7 +179,7 @@ export class GameScene extends Phaser.Scene {
     // HUD
     const companionHUDConfig = {
       babybear: { emoji: '🐻', color: '#c8a060', maxHearts: GameState.state.companions.babybear.maxHearts },
-      stegge:   { emoji: '🦕', color: '#4A8C5C', maxHearts: GameState.state.companions.stegge.maxHearts }
+      steggie:  { emoji: '🦕', color: '#4A8C5C', maxHearts: GameState.state.companions.steggie.maxHearts }
     };
     this._hud = new HUD(this, this._littleFox.maxHearts, companionHUDConfig);
     this._hud.refresh();
