@@ -278,13 +278,13 @@ All difficulty settings must keep the game completable and enjoyable for childre
 **Background music:** Light, bouncy woodland adventure theme — playful and warm. Generated via Web Audio API using oscillators and rhythmic percussion patterns. Think "friendly forest" — upbeat, slightly whimsical.
 **Boss music:** Same base theme but shifts to minor key, adds low drone, tempo increases — conveys urgency without being scary for young children.
 
-**Level 1 Boss — The Forest Guardian (large spider/root creature)**
+**Level 1 Boss — The Giant Praying Mantis**
 - **HP:** 10
 - **Arena:** A wide forest clearing
 - **Health bar:** Visible at top of screen
-- **Attack pattern:** Predictable sequence — charge left, charge right, drop webs from above. Pause between attacks gives player time to react. On Hard, attacks are faster.
-- **Defeat reward:** Baby Bear is freed from a web/cage — joins as companion
-- **Defeat sound:** Crumbling/scuttling sound + triumphant jingle
+- **Attack pattern:** Predictable sequence — fast lunge strike toward the player, arcing leap to player's position. Pause between attacks gives player time to react. On Hard, attacks are faster.
+- **Defeat reward:** Baby Bear is freed — joins as companion
+- **Defeat sound:** Triumphant jingle
 
 ---
 
@@ -613,7 +613,7 @@ Mama Sloth's design should be immediately readable as a sloth and feel warm and 
 
 | Boss | Level | HP | Key Mechanic | Reward |
 |---|---|---|---|---|
-| Forest Guardian | 1 — Forest | 10 | Charge + web drop | Unlocks Baby Bear |
+| Giant Praying Mantis | 1 — Forest | 10 | Lunge strike + arcing leap | Unlocks Baby Bear |
 | Scorpion King | 2 — Desert | 12 | Claw swipe + tail sting arc | Unlocks Steggie |
 | The Kraken | 3 — Ocean | 14 | Tentacle slam + ink spray + roar push | Rescues Mama Sloth |
 

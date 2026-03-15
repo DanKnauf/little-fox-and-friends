@@ -63,7 +63,7 @@ On the menus, use **Left/Right** on the stick or D-pad to navigate and **A** to 
 ### Level 1 — The Forest
 Dense woodland with mossy logs, tree branches, and a stream gap. Spiders crawl the logs, Evil Birds swoop from the canopy, and Creepers lurk in the bushes.
 
-**Boss:** The Forest Guardian (10 HP) — a massive spider/root creature that charges and drops webs. Defeat it to free Baby Bear.
+**Boss:** The Giant Praying Mantis (10 HP) — a fearsome insect that lunges with a fast strike and leaps through the air toward Little Fox. Defeat it to free Baby Bear.
 
 ### Level 2 — The Desert
 Sandy dunes, sandstone ruins, and crumbling bridges. Baby Bear fights alongside you here.

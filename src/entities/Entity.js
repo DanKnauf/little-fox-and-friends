@@ -54,7 +54,12 @@ export class Entity {
       duration: 120,
       yoyo: true,
       repeat: 3,
-      ease: 'Linear'
+      ease: 'Linear',
+      onComplete: () => {
+        if (this.sprite && this.sprite.active) {
+          this.sprite.setAlpha(1);
+        }
+      }
     });
     this.sprite.setTint(0xff4444);
     this.scene.time.delayedCall(500, () => {
