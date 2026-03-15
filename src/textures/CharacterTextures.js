@@ -297,17 +297,19 @@ function drawSteggie(ctx, cx, cy, legOff, isHurt) {
     ctx.closePath(); ctx.fill();
   }
 
-  // ── BODY (iconic arched/humped stegosaurus shape) ───────────────────────
+  // ── BODY + NECK + HEAD as ONE connected path (no internal seam) ─────────
+  // Drawing neck and head as separate overlapping shapes leaves antialiased
+  // boundary lines even when same colour.  A single closed path has no
+  // internal edges at all.
   ctx.fillStyle = green;
   ctx.beginPath();
-  ctx.moveTo(cx - 17, cy + 8);                          // tail base
-  ctx.bezierCurveTo(
-    cx - 16, cy - 6, cx - 2, cy - 11, cx + 7, cy - 5   // high arched back
-  );
-  ctx.quadraticCurveTo(cx + 15, cy - 1, cx + 14, cy + 5); // neck slope down
-  ctx.bezierCurveTo(
-    cx + 10, cy + 10, cx - 10, cy + 10, cx - 17, cy + 8  // belly
-  );
+  ctx.moveTo(cx - 17, cy + 8);                                             // tail base
+  ctx.bezierCurveTo(cx - 16, cy - 6, cx - 2, cy - 11, cx + 7, cy - 5);   // arched back
+  ctx.bezierCurveTo(cx + 12, cy - 3, cx + 18,  cy - 1, cx + 21, cy + 1); // neck forward
+  ctx.bezierCurveTo(cx + 23, cy + 1, cx + 23,  cy + 3, cx + 22, cy + 4); // rounded snout tip
+  ctx.bezierCurveTo(cx + 21, cy + 6, cx + 18,  cy + 7, cx + 15, cy + 7); // snout underside
+  ctx.bezierCurveTo(cx + 12, cy + 8, cx +  8,  cy + 8, cx +  7, cy + 7); // lower head back
+  ctx.bezierCurveTo(cx + 10, cy + 10, cx - 10, cy + 10, cx - 17, cy + 8); // belly
   ctx.closePath(); ctx.fill();
 
   // ── DORSAL PLATES (diamond/kite shapes — stegosaurus signature) ─────────
@@ -357,28 +359,15 @@ function drawSteggie(ctx, cx, cy, legOff, isHurt) {
     ctx.closePath(); ctx.stroke();
   }
 
-  // ── HEAD — all-ellipse, no polygon edges that create antialiasing seams ──
-  ctx.fillStyle = green;
-  // Neck oval bridging body shoulder to head
-  ctx.beginPath();
-  ctx.ellipse(cx + 10, cy + 3, 6, 5, 0, 0, Math.PI * 2);
-  ctx.fill();
-  // Main head oval
-  ctx.beginPath();
-  ctx.ellipse(cx + 15, cy + 2, 5, 4, -0.1, 0, Math.PI * 2);
-  ctx.fill();
-  // Snout — smaller forward ellipse (no polygon seam)
-  ctx.beginPath();
-  ctx.ellipse(cx + 19, cy + 3, 3, 2.5, 0, 0, Math.PI * 2);
-  ctx.fill();
-  // Eye
+  // ── EYE + NOSTRIL — details on top of the unified body path ─────────────
+  // Eye sits in the head region (neck curves from cy-1 down to cy+7)
   ctx.fillStyle = '#111';
-  ctx.beginPath(); ctx.arc(cx + 14, cy + 0, 1.8, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 17, cy + 1, 1.8, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#fff';
-  ctx.beginPath(); ctx.arc(cx + 14.6, cy - 0.5, 0.7, 0, Math.PI * 2); ctx.fill();
-  // Nostril
+  ctx.beginPath(); ctx.arc(cx + 17.6, cy + 0.5, 0.7, 0, Math.PI * 2); ctx.fill();
+  // Nostril near snout tip
   ctx.fillStyle = dark;
-  ctx.beginPath(); ctx.arc(cx + 20, cy + 3, 0.9, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 21, cy + 3, 0.9, 0, Math.PI * 2); ctx.fill();
 
   // ── LEGS (4 legs — back pair slightly taller than front) ────────────────
   ctx.fillStyle = green;
