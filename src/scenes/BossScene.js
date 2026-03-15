@@ -41,7 +41,8 @@ export class BossScene extends Phaser.Scene {
     this.time.delayedCall(2000, () => { this.tweens.add({ targets: banner, alpha: 0, duration: 400 }); });
 
     // Get player and companions from GameScene
-    const gameScene = this.scene.get('GameScene');
+    this._gameScene = this.scene.get('GameScene');
+    const gameScene = this._gameScene;
     this._player = gameScene?._littleFox;
     this._companions = Object.values(gameScene?._companions || {});
 
@@ -70,16 +71,7 @@ export class BossScene extends Phaser.Scene {
       this._healthBar.flash();
     });
 
-    // Player projectiles (from GameScene) hitting boss
-    if (this._player && gameScene) {
-      const foxProjGroup = this._player.getProjectileGroup().getGroup();
-      // Override update to also check boss
-      this._projOverlapTimer = this.time.addEvent({
-        delay: 50,
-        loop: true,
-        callback: () => { this._checkProjectileHits(gameScene); }
-      });
-    }
+    // Projectile hit detection runs every frame in update() for reliability
 
     // Boss defeated
     this.events.once('bossDefeated', () => {
@@ -104,6 +96,9 @@ export class BossScene extends Phaser.Scene {
       this._boss.update(time, delta);
     }
 
+    // Projectile vs boss: check every frame to avoid missed hits from polling gaps
+    this._checkProjectileHits();
+
     // ScorpionKing: check if tail projectiles hit player
     if (this._boss?.getTailProjectileGroup && this._player?.isAlive()) {
       const tailGroup = this._boss.getTailProjectileGroup();
@@ -121,25 +116,31 @@ export class BossScene extends Phaser.Scene {
     }
   }
 
-  _checkProjectileHits(gameScene) {
-    if (!this._boss || !this._boss.isAlive()) return;
-    const allProjGroups = [this._player?.getProjectileGroup(), ...this._companions.map(c => c.getProjectileGroup?.())].filter(Boolean);
+  _checkProjectileHits() {
+    if (!this._boss || !this._boss.isAlive() || !this._boss.sprite?.active) return;
+    const bx = this._boss.sprite.x;
+    const by = this._boss.sprite.y;
+    // Use half the boss sprite's display width as hit radius, minimum 80px
+    const hitRadius = Math.max(80, (this._boss.sprite.displayWidth / 2) * 0.85);
+
+    const allProjGroups = [
+      this._player?.getProjectileGroup(),
+      ...this._companions.map(c => c.getProjectileGroup?.())
+    ].filter(Boolean);
 
     for (const pg of allProjGroups) {
       for (const proj of pg.getGroup().getChildren()) {
         if (!proj.active) continue;
-        const dist = Phaser.Math.Distance.Between(proj.x, proj.y, this._boss.sprite.x, this._boss.sprite.y);
-        if (dist < 60) {
+        const dist = Phaser.Math.Distance.Between(proj.x, proj.y, bx, by);
+        if (dist < hitRadius) {
           this._boss.takeDamage(1);
           pg.hit(proj);
-          break;
         }
       }
     }
   }
 
   _onBossDefeated() {
-    if (this._projOverlapTimer) this._projOverlapTimer.remove();
     this._healthBar.destroy();
     AudioManager.stopMusic();
     AudioManager.play('level_complete');
@@ -166,7 +167,6 @@ export class BossScene extends Phaser.Scene {
   }
 
   shutdown() {
-    if (this._projOverlapTimer) this._projOverlapTimer.remove();
     if (this._boss) this._boss.destroy();
     if (this._healthBar) this._healthBar.destroy();
   }
