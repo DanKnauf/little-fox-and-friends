@@ -69,15 +69,22 @@ export class BonusVictoryScene extends Phaser.Scene {
     // ── Character sprites — Fluffy Bunny already on stage, team enters ────────
     const groundY = GAME_HEIGHT - 80;
 
+    // Final resting positions — 5 characters spread evenly across screen
+    const foxFinalX   = 110;
+    const bearFinalX  = 240;
+    const bunnyFinalX = GAME_WIDTH / 2;   // 400 — centre
+    const stegFinalX  = 560;
+    const slothFinalX = 690;
+
     // Fluffy Bunny — on stage, trembling with fear initially
-    const bunny = this.add.sprite(GAME_WIDTH / 2 - 20, groundY, 'bunny').setScale(2.8);
+    const bunny = this.add.sprite(bunnyFinalX, groundY, 'bunny').setScale(2.8);
     bunny.play('bunny_idle');
 
     // Heroes enter from the left, off-screen
-    const fox   = this.add.sprite(-60, groundY, 'fox').setScale(2.4).setFlipX(false);
+    const fox   = this.add.sprite(-60,  groundY, 'fox').setScale(2.4).setFlipX(false);
     const bear  = this.add.sprite(-160, groundY, 'bear').setScale(2.2);
-    const steg  = this.add.sprite(-280, groundY, 'steggie').setScale(2.2);
-    const sloth = this.add.sprite(-400, groundY, 'mamasloth').setScale(2.2);
+    const steg  = this.add.sprite(-300, groundY, 'steggie').setScale(2.2);
+    const sloth = this.add.sprite(-440, groundY, 'mamasloth').setScale(2.2);
 
     fox.play('fox_walk', true);
     bear.play('bear_walk', true);
@@ -97,12 +104,12 @@ export class BonusVictoryScene extends Phaser.Scene {
     this.time.delayedCall(600, () => {
       AudioManager.play('victory');
 
-      // Slide heroes in together
+      // Slide heroes in together to their final positions
       const targets = [
-        { sprite: fox,   finalX: GAME_WIDTH / 2 + 160 },
-        { sprite: bear,  finalX: GAME_WIDTH / 2 + 300 },
-        { sprite: steg,  finalX: GAME_WIDTH / 2 + 440 },
-        { sprite: sloth, finalX: GAME_WIDTH / 2 + 570 },
+        { sprite: fox,   finalX: foxFinalX   },
+        { sprite: bear,  finalX: bearFinalX  },
+        { sprite: steg,  finalX: stegFinalX  },
+        { sprite: sloth, finalX: slothFinalX },
       ];
       for (const t of targets) {
         this.tweens.add({

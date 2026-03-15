@@ -241,12 +241,14 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.startFollow(this._littleFox.sprite, true, 0.1, 0.1);
     this.cameras.main.setDeadzone(100, 80);
 
-    // HUD
-    const companionHUDConfig = {
-      babybear:  { emoji: '🐻', color: '#c8a060', maxHearts: GameState.state.companions.babybear.maxHearts },
-      steggie:   { emoji: '🦕', color: '#4A8C5C', maxHearts: GameState.state.companions.steggie.maxHearts },
-      mamasloth: { emoji: '🦥', color: '#9aaa88', maxHearts: GameState.state.companions.mamasloth.maxHearts }
-    };
+    // HUD — only include companions that are actually unlocked this level
+    const companionHUDConfig = {};
+    if (unlocked.includes('babybear'))
+      companionHUDConfig.babybear  = { emoji: '🐻', color: '#c8a060', maxHearts: GameState.state.companions.babybear.maxHearts };
+    if (unlocked.includes('steggie'))
+      companionHUDConfig.steggie   = { emoji: '🦕', color: '#4A8C5C', maxHearts: GameState.state.companions.steggie.maxHearts };
+    if (unlocked.includes('mamasloth'))
+      companionHUDConfig.mamasloth = { emoji: '🦥', color: '#9aaa88', maxHearts: GameState.state.companions.mamasloth.maxHearts };
     this._hud = new HUD(this, this._littleFox.maxHearts, companionHUDConfig);
     this._hud.refresh();
 

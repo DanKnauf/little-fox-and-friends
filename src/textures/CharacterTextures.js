@@ -352,8 +352,10 @@ function drawSteggie(ctx, cx, cy, legOff, isHurt) {
   }
 
   // ── HEAD (tiny, low-held, beak-like — characteristic of stegosaurus) ────
-  // Head is shifted 4px left vs original to prevent right-edge frame bleed
   ctx.fillStyle = green;
+  // Neck bridge — fills any antialiasing gap between body right edge and head
+  ctx.fillRect(cx + 7, cy - 1, 9, 9);
+  // Head ellipse
   ctx.beginPath();
   ctx.ellipse(cx + 13, cy + 2, 6, 5, -0.2, 0, Math.PI * 2);
   ctx.fill();

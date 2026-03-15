@@ -41,33 +41,33 @@ export class StartScene extends Phaser.Scene {
     }
 
     // ── Title ───────────────────────────────────────────────────────────────
-    this.add.text(GAME_WIDTH / 2, 46, 'Little Fox', {
-      fontSize: '54px', color: '#FF7722', fontFamily: 'Arial Black, Arial',
-      stroke: '#4a1800', strokeThickness: 8
+    this.add.text(GAME_WIDTH / 2, 40, 'Little Fox', {
+      fontSize: '44px', color: '#FF7722', fontFamily: 'Arial Black, Arial',
+      stroke: '#4a1800', strokeThickness: 7
     }).setOrigin(0.5);
 
-    this.add.text(GAME_WIDTH / 2, 100, '& Friends', {
-      fontSize: '36px', color: '#ffe066', fontFamily: 'Arial Black, Arial',
-      stroke: '#7a4400', strokeThickness: 5
+    this.add.text(GAME_WIDTH / 2, 80, '& Friends', {
+      fontSize: '28px', color: '#ffe066', fontFamily: 'Arial Black, Arial',
+      stroke: '#7a4400', strokeThickness: 4
     }).setOrigin(0.5);
 
     // Fox sprite
-    const foxPreview = this.add.sprite(GAME_WIDTH / 2, 146, 'fox').setScale(2.4);
+    const foxPreview = this.add.sprite(GAME_WIDTH / 2, 122, 'fox').setScale(2.0);
     foxPreview.play('fox_idle');
     this.tweens.add({
       targets: foxPreview,
-      y: { from: 143, to: 151 },
+      y: { from: 119, to: 127 },
       duration: 1300, yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
     });
 
     // Tagline
-    this.add.text(GAME_WIDTH / 2, 174, 'Help Little Fox rescue his Mama Sloth!', {
-      fontSize: '13px', color: '#b8a8ff', fontFamily: 'Arial'
+    this.add.text(GAME_WIDTH / 2, 150, 'Help Little Fox rescue his Mama Sloth!', {
+      fontSize: '12px', color: '#b8a8ff', fontFamily: 'Arial'
     }).setOrigin(0.5);
 
     // ── Panel layout constants ───────────────────────────────────────────────
-    const PANEL_TOP = 184;
-    const PANEL_H   = 182;
+    const PANEL_TOP = 162;
+    const PANEL_H   = 175;
     const P_LEFT    = 16;
     const P_MID_R   = GAME_WIDTH / 2 - 8;   // right edge of left panel
     const P_RIGHT_L = GAME_WIDTH / 2 + 8;   // left edge of right panel
@@ -98,7 +98,7 @@ export class StartScene extends Phaser.Scene {
       ['★ Crates',       'Refill ammo (+10)'],
     ];
     controls.forEach(([key, desc], i) => {
-      const cy = PANEL_TOP + 32 + i * 20;
+      const cy = PANEL_TOP + 32 + i * 18;
       this.add.text(KEY_X,  cy, key,  { fontSize: '11px', color: '#ffe066', fontFamily: 'Arial Bold' });
       this.add.text(DESC_X, cy, desc, { fontSize: '11px', color: '#dde0ff', fontFamily: 'Arial' });
     });
@@ -119,7 +119,7 @@ export class StartScene extends Phaser.Scene {
       { label: '★★★  Hard',  color: '#ff6655', heartsText: '♥ ♥ ♥',     ammo: '20 ammo + pickups' },
     ];
     diffInfo.forEach((d, i) => {
-      const dy = PANEL_TOP + 32 + i * 50;
+      const dy = PANEL_TOP + 32 + i * 47;
       this.add.text(P_RIGHT_L + 10, dy, d.label, {
         fontSize: '13px', color: d.color, fontFamily: 'Arial Bold'
       });
@@ -132,8 +132,8 @@ export class StartScene extends Phaser.Scene {
     });
 
     // ── Difficulty selector buttons ──────────────────────────────────────────
-    this.add.text(GAME_WIDTH / 2, 378, 'Choose Difficulty:', {
-      fontSize: '14px', color: '#ddddff', fontFamily: 'Arial'
+    this.add.text(GAME_WIDTH / 2, 350, 'Choose Difficulty:', {
+      fontSize: '13px', color: '#ddddff', fontFamily: 'Arial'
     }).setOrigin(0.5);
 
     this._diffButtons = {};
@@ -143,13 +143,13 @@ export class StartScene extends Phaser.Scene {
       { key: 'hard',   label: 'Hard',   x: GAME_WIDTH / 2 + 134,  color: 0xbb1c1c, hover: 0xdd2222 }
     ];
     for (const d of diffs) {
-      const btn = this._makeDiffButton(d.x, 400, d.label, d.key, d.color, d.hover);
+      const btn = this._makeDiffButton(d.x, 376, d.label, d.key, d.color, d.hover);
       this._diffButtons[d.key] = btn;
     }
     this._highlightDiff('medium');
 
     // ── START GAME button ────────────────────────────────────────────────────
-    const startBg = this._makeStartButton(GAME_WIDTH / 2, 448);
+    const startBg = this._makeStartButton(GAME_WIDTH / 2, 438);
     startBg.on('pointerdown', () => {
       AudioManager.resume();
       AudioManager.play('button_click');
@@ -214,7 +214,7 @@ export class StartScene extends Phaser.Scene {
 
   _makeDiffButton(x, y, label, key, color, hoverColor) {
     const container = this.add.container(x, y);
-    const bg   = this.add.rectangle(0, 0, 108, 36, color).setInteractive({ useHandCursor: true });
+    const bg   = this.add.rectangle(0, 0, 108, 32, color).setInteractive({ useHandCursor: true });
     const text = this.add.text(0, 0, label, {
       fontSize: '16px', color: '#ffffff', fontFamily: 'Arial Black, Arial'
     }).setOrigin(0.5);
