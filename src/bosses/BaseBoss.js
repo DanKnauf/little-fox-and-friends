@@ -81,7 +81,9 @@ export class BaseBoss {
   transitionTo(newState) {
     this.state = newState;
     this.stateTimer  = 0;
-    this._wanderTimer  = 0;
+    // Pre-expire the wander timer so a movement target is chosen on the very
+    // first frame of IDLE / RECOVERING instead of waiting up to 900ms first.
+    this._wanderTimer  = this._wanderDelay;
     this._wanderTarget = null;
     if (this._safetyTimer) this._safetyTimer.remove();
     if (newState !== BOSS_STATE.DEFEATED) {
