@@ -9,6 +9,7 @@ export class VictoryScene extends Phaser.Scene {
     this._fireworkTimer = null;
     this._btn0 = null;
     this._btn1 = null;
+    this._btn2 = null;
     this._padFocus     = 0;
     this._padLeftPrev  = false;
     this._padRightPrev = false;
@@ -23,6 +24,7 @@ export class VictoryScene extends Phaser.Scene {
     // Reset button / gamepad state for this run
     this._btn0 = null;
     this._btn1 = null;
+    this._btn2 = null;
     this._padFocus     = 0;
     this._padLeftPrev  = this._padRightPrev = this._padAPrev = false;
 
@@ -137,18 +139,22 @@ export class VictoryScene extends Phaser.Scene {
     const rightNow = isButtonDown(pad, 15) || getAxis(pad, 0) >  0.4;
     const aNow     = isButtonDown(pad, 0);
 
-    if ((leftNow && !this._padLeftPrev) || (rightNow && !this._padRightPrev)) {
-      this._padFocus = this._padFocus === 0 ? 1 : 0;
+    const btnCount = this._btn2 ? 3 : 2;
+    if (leftNow && !this._padLeftPrev) {
+      this._padFocus = (this._padFocus - 1 + btnCount) % btnCount;
+      this._updateFocusVisual();
+      AudioManager.play('button_click');
+    }
+    if (rightNow && !this._padRightPrev) {
+      this._padFocus = (this._padFocus + 1) % btnCount;
       this._updateFocusVisual();
       AudioManager.play('button_click');
     }
 
     if (aNow && !this._padAPrev) {
-      if (this._padFocus === 0) {
-        this._playAgain();
-      } else {
-        this._mainMenu();
-      }
+      if (this._padFocus === 0) this._playAgain();
+      else if (this._padFocus === 1) this._mainMenu();
+      else this._bonusLevel();
     }
 
     this._padLeftPrev  = leftNow;
@@ -168,9 +174,20 @@ export class VictoryScene extends Phaser.Scene {
     this.scene.start('StartScene');
   }
 
+  _bonusLevel() {
+    AudioManager.play('button_click');
+    // Keep score, companions already unlocked — just advance to level 4
+    GameState.state.currentLevel = 4;
+    GameState.resetForLevel();
+    // Mama Sloth is always unlocked for the bonus level
+    GameState.unlockCompanion('mamasloth');
+    this.scene.start('LevelIntroScene', { level: 4 });
+  }
+
   _updateFocusVisual() {
     if (this._btn0) this._btn0.setStrokeStyle(this._padFocus === 0 ? 3 : 2, this._padFocus === 0 ? 0xffff00 : 0xffffff);
     if (this._btn1) this._btn1.setStrokeStyle(this._padFocus === 1 ? 3 : 2, this._padFocus === 1 ? 0xffff00 : 0xffffff);
+    if (this._btn2) this._btn2.setStrokeStyle(this._padFocus === 2 ? 3 : 2, this._padFocus === 2 ? 0xffee00 : 0xaaaaaa);
   }
 
   // Draws a heart shape using fillCircle + fillTriangle (Phaser 3 compatible)
@@ -378,12 +395,16 @@ export class VictoryScene extends Phaser.Scene {
         }).setOrigin(0.5).setDepth(11);
 
         // Play Again — restart from level 1 with the same difficulty
-        this._btn0 = this._makeButton(GAME_WIDTH / 2 - 90, GAME_HEIGHT / 2 + 90, 'Play Again', 0x226644,
+        this._btn0 = this._makeButton(GAME_WIDTH / 2 - 155, GAME_HEIGHT / 2 + 90, 'Play Again', 0x226644,
           () => this._playAgain());
 
         // Main Menu — go back to the difficulty selection screen
-        this._btn1 = this._makeButton(GAME_WIDTH / 2 + 90, GAME_HEIGHT / 2 + 90, 'Main Menu', 0x334466,
+        this._btn1 = this._makeButton(GAME_WIDTH / 2 + 10, GAME_HEIGHT / 2 + 90, 'Main Menu', 0x334466,
           () => this._mainMenu());
+
+        // Bonus Level — secret option, slightly dimmer styling
+        this._btn2 = this._makeButton(GAME_WIDTH / 2 + 175, GAME_HEIGHT / 2 + 90, '🌋 Bonus!', 0x883300,
+          () => this._bonusLevel());
 
         this._padFocus = 0;
         this._updateFocusVisual();

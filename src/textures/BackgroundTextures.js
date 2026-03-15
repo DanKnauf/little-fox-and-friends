@@ -2,6 +2,7 @@ export function generateBackgroundTextures(scene) {
   generateForestBG(scene);
   generateDesertBG(scene);
   generateOceanBG(scene);
+  generateVolcanoBG(scene);
 }
 
 function makeBG(w, h, drawFn) {
@@ -260,4 +261,147 @@ function drawCloud(ctx, x, y, size) {
   ctx.arc(x + size, y, size * 0.45, 0, Math.PI * 2);
   ctx.arc(x + size * 0.5, y + size * 0.2, size * 0.5, 0, Math.PI * 2);
   ctx.fill();
+}
+
+// ─── Volcano ──────────────────────────────────────────────────────────────────
+function generateVolcanoBG(scene) {
+  // Sky layer — dark, brooding with lava-glow horizon
+  scene.textures.addCanvas('bg_volcano_sky', makeBG(512, 480, (ctx, w, h) => {
+    // Deep purple-black sky to angry orange at horizon
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, '#1a0a1e');
+    grad.addColorStop(0.45, '#3d1228');
+    grad.addColorStop(0.75, '#8b2500');
+    grad.addColorStop(1, '#cc4400');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+    // Ash clouds — dark grey puffs
+    ctx.fillStyle = 'rgba(40,20,20,0.75)';
+    drawCloud(ctx, 20, 55, 70);
+    drawCloud(ctx, 220, 30, 90);
+    drawCloud(ctx, 390, 65, 60);
+    // Lava horizon glow
+    const glowGrad = ctx.createLinearGradient(0, h * 0.8, 0, h);
+    glowGrad.addColorStop(0, 'rgba(255,80,0,0)');
+    glowGrad.addColorStop(1, 'rgba(255,120,0,0.55)');
+    ctx.fillStyle = glowGrad;
+    ctx.fillRect(0, h * 0.8, w, h * 0.2);
+    // Embers — small orange dots floating up
+    ctx.fillStyle = 'rgba(255,160,0,0.8)';
+    for (let i = 0; i < 18; i++) {
+      const ex = (i * 73 + 30) % w;
+      const ey = 40 + (i * 53) % (h - 80);
+      ctx.beginPath();
+      ctx.arc(ex, ey, 1.5 + (i % 3) * 0.7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }));
+
+  // Far layer — distant volcano silhouettes with lava rivers
+  scene.textures.addCanvas('bg_volcano_far', makeBG(512, 480, (ctx, w, h) => {
+    ctx.clearRect(0, 0, w, h);
+    // Volcano mountains — dark silhouettes
+    const volcanoes = [
+      { x: 60,  peak: 200, base: 180 },
+      { x: 220, peak: 260, base: 200 },
+      { x: 380, peak: 180, base: 160 },
+      { x: 480, peak: 220, base: 170 },
+    ];
+    ctx.fillStyle = '#1e0808';
+    for (const v of volcanoes) {
+      ctx.beginPath();
+      ctx.moveTo(v.x - v.base / 2, h);
+      ctx.lineTo(v.x, h - v.peak);
+      ctx.lineTo(v.x + v.base / 2, h);
+      ctx.closePath();
+      ctx.fill();
+    }
+    // Lava rivers on volcano slopes
+    for (const v of volcanoes) {
+      const lavaGrad = ctx.createLinearGradient(v.x, h - v.peak, v.x + 20, h);
+      lavaGrad.addColorStop(0, 'rgba(255,100,0,0.9)');
+      lavaGrad.addColorStop(1, 'rgba(200,50,0,0.5)');
+      ctx.fillStyle = lavaGrad;
+      ctx.beginPath();
+      ctx.moveTo(v.x - 3, h - v.peak + 10);
+      ctx.lineTo(v.x + 3, h - v.peak + 10);
+      ctx.lineTo(v.x + 25, h);
+      ctx.lineTo(v.x + 18, h);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }));
+
+  // Mid layer — rocky stone formations with glowing lava cracks
+  scene.textures.addCanvas('bg_volcano_mid', makeBG(512, 480, (ctx, w, h) => {
+    ctx.clearRect(0, 0, w, h);
+    // Stone formations
+    ctx.fillStyle = '#2c1010';
+    for (let x = 0; x < w; x += 70) {
+      const rh = 100 + (x % 60);
+      ctx.beginPath();
+      ctx.moveTo(x, h);
+      ctx.lineTo(x + 10, h - rh);
+      ctx.lineTo(x + 25, h - rh - 20);
+      ctx.lineTo(x + 40, h - rh);
+      ctx.lineTo(x + 70, h);
+      ctx.closePath();
+      ctx.fill();
+    }
+    // Lava cracks in stones — glowing orange lines
+    ctx.strokeStyle = 'rgba(255,110,0,0.85)';
+    ctx.lineWidth = 2;
+    for (let x = 15; x < w; x += 70) {
+      ctx.beginPath();
+      ctx.moveTo(x, h - 20);
+      ctx.lineTo(x + 5, h - 50);
+      ctx.lineTo(x + 12, h - 40);
+      ctx.lineTo(x + 8, h - 70);
+      ctx.stroke();
+    }
+    // Lava crack glow
+    ctx.strokeStyle = 'rgba(255,60,0,0.3)';
+    ctx.lineWidth = 5;
+    for (let x = 15; x < w; x += 70) {
+      ctx.beginPath();
+      ctx.moveTo(x, h - 20);
+      ctx.lineTo(x + 5, h - 50);
+      ctx.lineTo(x + 12, h - 40);
+      ctx.lineTo(x + 8, h - 70);
+      ctx.stroke();
+    }
+  }));
+
+  // Near layer — dark ash rock foreground with ember glow
+  scene.textures.addCanvas('bg_volcano_near', makeBG(512, 480, (ctx, w, h) => {
+    ctx.clearRect(0, 0, w, h);
+    // Dark rock ground strip
+    ctx.fillStyle = '#180808';
+    ctx.fillRect(0, h - 55, w, 55);
+    // Jagged rock teeth along top of ground
+    ctx.fillStyle = '#0e0404';
+    for (let x = 0; x < w; x += 22) {
+      const th = 18 + (x % 20);
+      ctx.beginPath();
+      ctx.moveTo(x, h - 50);
+      ctx.lineTo(x + 11, h - 50 - th);
+      ctx.lineTo(x + 22, h - 50);
+      ctx.fill();
+    }
+    // Lava pool surface — glowing orange strip
+    ctx.fillStyle = '#cc3300';
+    ctx.fillRect(0, h - 14, w, 14);
+    const lavaShine = ctx.createLinearGradient(0, h - 14, 0, h);
+    lavaShine.addColorStop(0, 'rgba(255,160,0,0.6)');
+    lavaShine.addColorStop(1, 'rgba(200,40,0,0.3)');
+    ctx.fillStyle = lavaShine;
+    ctx.fillRect(0, h - 14, w, 14);
+    // Ember sparks near ground
+    ctx.fillStyle = 'rgba(255,180,0,0.9)';
+    for (let x = 5; x < w; x += 38) {
+      ctx.beginPath();
+      ctx.arc(x, h - 60 - (x % 20), 1.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }));
 }

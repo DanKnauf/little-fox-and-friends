@@ -132,7 +132,7 @@ export class StartScene extends Phaser.Scene {
     });
 
     // ── Difficulty selector buttons ──────────────────────────────────────────
-    this.add.text(GAME_WIDTH / 2, 389, 'Choose Difficulty:', {
+    this.add.text(GAME_WIDTH / 2, 378, 'Choose Difficulty:', {
       fontSize: '14px', color: '#ddddff', fontFamily: 'Arial'
     }).setOrigin(0.5);
 
@@ -143,13 +143,13 @@ export class StartScene extends Phaser.Scene {
       { key: 'hard',   label: 'Hard',   x: GAME_WIDTH / 2 + 134,  color: 0xbb1c1c, hover: 0xdd2222 }
     ];
     for (const d of diffs) {
-      const btn = this._makeDiffButton(d.x, 414, d.label, d.key, d.color, d.hover);
+      const btn = this._makeDiffButton(d.x, 400, d.label, d.key, d.color, d.hover);
       this._diffButtons[d.key] = btn;
     }
     this._highlightDiff('medium');
 
     // ── START GAME button ────────────────────────────────────────────────────
-    const startBg = this._makeStartButton(GAME_WIDTH / 2, 455);
+    const startBg = this._makeStartButton(GAME_WIDTH / 2, 448);
     startBg.on('pointerdown', () => {
       AudioManager.resume();
       AudioManager.play('button_click');
@@ -241,7 +241,7 @@ export class StartScene extends Phaser.Scene {
   }
 
   _makeStartButton(x, y) {
-    const W = 224, H = 46;
+    const W = 224, H = 40;
     const g = this.add.graphics();
 
     // Shadow / glow

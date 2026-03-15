@@ -3,6 +3,8 @@ export function generateCharacterTextures(scene) {
   generateBabyBear(scene);
   generateSteggie(scene);
   generateMamaSloth(scene);
+  generateMamaSlothCompanion(scene);
+  generateFluffyBunny(scene);
   generateAmmoPickup(scene);
 }
 
@@ -350,25 +352,26 @@ function drawSteggie(ctx, cx, cy, legOff, isHurt) {
   }
 
   // ── HEAD (tiny, low-held, beak-like — characteristic of stegosaurus) ────
+  // Head is shifted 4px left vs original to prevent right-edge frame bleed
   ctx.fillStyle = green;
   ctx.beginPath();
-  ctx.ellipse(cx + 17, cy + 2, 6, 5, -0.2, 0, Math.PI * 2);
+  ctx.ellipse(cx + 13, cy + 2, 6, 5, -0.2, 0, Math.PI * 2);
   ctx.fill();
   // Flat beak / snout
   ctx.beginPath();
-  ctx.moveTo(cx + 12, cy + 0);
-  ctx.lineTo(cx + 23, cy + 1);
-  ctx.lineTo(cx + 21, cy + 6);
-  ctx.lineTo(cx + 11, cy + 5);
+  ctx.moveTo(cx + 8,  cy + 0);
+  ctx.lineTo(cx + 18, cy + 1);
+  ctx.lineTo(cx + 17, cy + 6);
+  ctx.lineTo(cx + 7,  cy + 5);
   ctx.closePath(); ctx.fill();
   // Eye
   ctx.fillStyle = '#111';
-  ctx.beginPath(); ctx.arc(cx + 19, cy + 0, 1.8, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 15, cy + 0, 1.8, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#fff';
-  ctx.beginPath(); ctx.arc(cx + 19.6, cy - 0.5, 0.7, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 15.6, cy - 0.5, 0.7, 0, Math.PI * 2); ctx.fill();
   // Nostril
   ctx.fillStyle = dark;
-  ctx.beginPath(); ctx.arc(cx + 22, cy + 3, 0.9, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 17, cy + 3, 0.9, 0, Math.PI * 2); ctx.fill();
 
   // ── LEGS (4 legs — back pair slightly taller than front) ────────────────
   ctx.fillStyle = green;
@@ -544,6 +547,239 @@ function drawMamaSloth(ctx, cx, cy, celebrate, armRaise) {
       ctx.stroke();
     }
   }
+
+  ctx.restore();
+}
+
+// ─── Mama Sloth Companion (walk + hurt sprite sheet) ────────────────────────
+function generateMamaSlothCompanion(scene) {
+  // Frames: 0-3 walk, 4 hurt
+  const W = 36, H = 40, FRAMES = 5;
+  const canvas = document.createElement('canvas');
+  canvas.width = W * FRAMES; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  for (let f = 0; f < FRAMES; f++) {
+    const ox = f * W;
+    const legOff = [0, 4, 0, -4][f % 4];
+    const isHurt = f === 4;
+    drawMamaSlothComp(ctx, ox + 18, 22, legOff, isHurt);
+  }
+
+  scene.textures.addSpriteSheet('mamasloth_comp', canvas, { frameWidth: W, frameHeight: H });
+}
+
+function drawMamaSlothComp(ctx, cx, cy, legOff, isHurt) {
+  ctx.save();
+
+  const furColor   = isHurt ? '#ccddc0' : '#9aaa88';
+  const bellyColor = '#c8d4b0';
+  const faceColor  = '#d4c8a0';
+  const clawColor  = '#5a4a2a';
+  const noseColor  = '#7a5a44';
+
+  // body
+  ctx.fillStyle = furColor;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 2, 11, 13, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // belly
+  ctx.fillStyle = bellyColor;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 4, 6, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // head
+  ctx.fillStyle = furColor;
+  ctx.beginPath();
+  ctx.arc(cx, cy - 11, 11, 0, Math.PI * 2);
+  ctx.fill();
+
+  // face mask
+  ctx.fillStyle = faceColor;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy - 10, 7, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // dark eye rings
+  ctx.fillStyle = '#6a5a40';
+  ctx.beginPath(); ctx.arc(cx - 3, cy - 13, 3.5, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 3, cy - 13, 3.5, 0, Math.PI * 2); ctx.fill();
+
+  // eyes
+  ctx.fillStyle = '#222';
+  ctx.beginPath(); ctx.arc(cx - 3, cy - 13, 2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 3, cy - 13, 2, 0, Math.PI * 2); ctx.fill();
+
+  // eye shine
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(cx - 2.2, cy - 14, 0.7, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 3.8, cy - 14, 0.7, 0, Math.PI * 2); ctx.fill();
+
+  // nose
+  ctx.fillStyle = noseColor;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy - 8, 2.5, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // arms with claws — walking animation
+  ctx.fillStyle = furColor;
+  const armAngle = 0.3;
+  ctx.beginPath();
+  ctx.ellipse(cx - 13, cy + 2 + legOff * 0.5, 4, 7, armAngle, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = clawColor; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+  for (let c = -1; c <= 1; c++) {
+    const sx = cx - 13 + c * 2; const sy = cy + 8 + legOff * 0.5;
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.quadraticCurveTo(sx - 2, sy + 5, sx + 1, sy + 7);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = furColor;
+  ctx.beginPath();
+  ctx.ellipse(cx + 13, cy + 2 - legOff * 0.5, 4, 7, -armAngle, 0, Math.PI * 2);
+  ctx.fill();
+  for (let c = -1; c <= 1; c++) {
+    const sx = cx + 13 + c * 2; const sy = cy + 8 - legOff * 0.5;
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.quadraticCurveTo(sx + 2, sy + 5, sx - 1, sy + 7);
+    ctx.stroke();
+  }
+
+  // legs
+  ctx.fillStyle = furColor;
+  ctx.beginPath(); ctx.ellipse(cx - 5, cy + 13 + legOff, 4, 5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx + 5, cy + 13 - legOff, 4, 5, 0, 0, Math.PI * 2); ctx.fill();
+
+  ctx.restore();
+}
+
+// ─── Fluffy Bunny (rescue target) ────────────────────────────────────────────
+function generateFluffyBunny(scene) {
+  // Frames: 0 idle, 1 happy (ears up), 2 celebrate
+  const W = 30, H = 38, FRAMES = 3;
+  const canvas = document.createElement('canvas');
+  canvas.width = W * FRAMES; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  for (let f = 0; f < FRAMES; f++) {
+    drawFluffyBunny(ctx, f * W + 15, 28, f);
+  }
+
+  scene.textures.addSpriteSheet('bunny', canvas, { frameWidth: W, frameHeight: H });
+}
+
+function drawFluffyBunny(ctx, cx, cy, frame) {
+  ctx.save();
+
+  const white  = '#f8f8ff';
+  const pink   = '#ffb3cc';
+  const darkPk = '#cc6688';
+  const grey   = '#dde4f0';
+
+  // Ears — long floppy bunny ears
+  const earLift = frame === 1 ? -4 : (frame === 2 ? -6 : 0);
+  // Left ear
+  ctx.fillStyle = white;
+  ctx.beginPath();
+  ctx.ellipse(cx - 7, cy - 18 + earLift, 4, 12, -0.15, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = pink;
+  ctx.beginPath();
+  ctx.ellipse(cx - 7, cy - 18 + earLift, 2, 9, -0.15, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Right ear
+  ctx.fillStyle = white;
+  ctx.beginPath();
+  ctx.ellipse(cx + 7, cy - 18 + earLift, 4, 12, 0.15, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = pink;
+  ctx.beginPath();
+  ctx.ellipse(cx + 7, cy - 18 + earLift, 2, 9, 0.15, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Body — fluffy round
+  ctx.fillStyle = white;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, 11, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Belly fluff — slightly lighter circle
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 2, 6.5, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Fluffy tail — small circle at back
+  ctx.fillStyle = white;
+  ctx.beginPath();
+  ctx.arc(cx - 10, cy + 2, 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Head
+  ctx.fillStyle = white;
+  ctx.beginPath();
+  ctx.arc(cx, cy - 12, 10, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Chubby cheeks
+  ctx.fillStyle = 'rgba(255,180,200,0.4)';
+  ctx.beginPath(); ctx.arc(cx - 5, cy - 10, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 5, cy - 10, 4, 0, Math.PI * 2); ctx.fill();
+
+  // Eyes — large, sparkling, adorable
+  ctx.fillStyle = '#1a0a2a';
+  ctx.beginPath(); ctx.arc(cx - 3.5, cy - 13, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 3.5, cy - 13, 3, 0, Math.PI * 2); ctx.fill();
+  // Large sparkle
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.arc(cx - 2, cy - 14.5, 1.4, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 5, cy - 14.5, 1.4, 0, Math.PI * 2); ctx.fill();
+  // Tiny secondary sparkle
+  ctx.beginPath(); ctx.arc(cx - 3.5, cy - 11.5, 0.6, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 3.5, cy - 11.5, 0.6, 0, Math.PI * 2); ctx.fill();
+
+  // Nose — tiny pink heart-shaped
+  ctx.fillStyle = darkPk;
+  ctx.beginPath();
+  ctx.arc(cx - 1, cy - 8.5, 1.5, Math.PI, 0);
+  ctx.arc(cx + 1, cy - 8.5, 1.5, Math.PI, 0);
+  ctx.lineTo(cx, cy - 5.5);
+  ctx.closePath();
+  ctx.fill();
+
+  // Smile — big happy smile on celebrate/happy frames
+  ctx.strokeStyle = darkPk; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+  if (frame >= 1) {
+    ctx.beginPath();
+    ctx.arc(cx, cy - 6.5, 4, 0.1, Math.PI - 0.1);
+    ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.arc(cx, cy - 7, 3, 0.2, Math.PI - 0.2);
+    ctx.stroke();
+  }
+
+  // Short little arms — up on celebrate
+  ctx.fillStyle = white;
+  if (frame === 2) {
+    // arms up
+    ctx.beginPath(); ctx.ellipse(cx - 10, cy - 5, 3, 6, -0.7, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + 10, cy - 5, 3, 6,  0.7, 0, Math.PI * 2); ctx.fill();
+  } else {
+    ctx.beginPath(); ctx.ellipse(cx - 10, cy + 2, 3, 5, 0.2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + 10, cy + 2, 3, 5, -0.2, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Tiny feet
+  ctx.fillStyle = grey;
+  ctx.beginPath(); ctx.ellipse(cx - 5, cy + 10, 4, 3, -0.2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx + 5, cy + 10, 4, 3,  0.2, 0, Math.PI * 2); ctx.fill();
 
   ctx.restore();
 }

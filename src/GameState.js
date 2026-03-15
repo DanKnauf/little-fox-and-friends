@@ -9,8 +9,9 @@ const state = {
   ammo: 40,       // Infinity for easy, 40 medium, 20 hard
   maxAmmo: 40,
   companions: {
-    babybear: { hearts: 4, maxHearts: 4 },
-    steggie:  { hearts: 4, maxHearts: 4 }
+    babybear:  { hearts: 4, maxHearts: 4 },
+    steggie:   { hearts: 4, maxHearts: 4 },
+    mamasloth: { hearts: 4, maxHearts: 4 }
   },
   score: 0,       // cumulative total score shown in HUD
   levelScore: 0   // base points earned this level (for end-of-level multiplier)
@@ -27,6 +28,8 @@ function applyDifficulty(key) {
   state.companions.babybear.maxHearts = cfg.hearts;
   state.companions.steggie.hearts = cfg.hearts;
   state.companions.steggie.maxHearts = cfg.hearts;
+  state.companions.mamasloth.hearts = cfg.hearts;
+  state.companions.mamasloth.maxHearts = cfg.hearts;
 }
 
 function reset() {
@@ -44,8 +47,10 @@ function resetForLevel() {
   state.ammo = cfg.ammo;
   state.maxAmmo = cfg.ammo;
   for (const key of state.companionsUnlocked) {
-    state.companions[key].hearts = cfg.hearts;
-    state.companions[key].maxHearts = cfg.hearts;
+    if (state.companions[key]) {
+      state.companions[key].hearts = cfg.hearts;
+      state.companions[key].maxHearts = cfg.hearts;
+    }
   }
 }
 

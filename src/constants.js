@@ -11,7 +11,7 @@ export const DIFFICULTY = {
 export const SCORE = {
   ENEMY_KILL_PLAYER:    3,
   ENEMY_KILL_COMPANION: 2,
-  BOSS: { 1: 50, 2: 60, 3: 75 },
+  BOSS: { 1: 50, 2: 60, 3: 75, 4: 100 },
   DEATH_PENALTY: 10
 };
 
@@ -30,9 +30,10 @@ export const DEPTH = {
 };
 
 export const LEVEL_CONFIG = {
-  1: { name: 'The Forest',  bgKey: 'forest', bossKey: 'PrayingMantis',   companionReward: 'babybear' },
-  2: { name: 'The Desert',  bgKey: 'desert', bossKey: 'ScorpionKing',    companionReward: 'steggie'  },
-  3: { name: 'The Ocean',   bgKey: 'ocean',  bossKey: 'Kraken',          companionReward: null       }
+  1: { name: 'The Forest',  bgKey: 'forest',   bossKey: 'PrayingMantis', companionReward: 'babybear' },
+  2: { name: 'The Desert',  bgKey: 'desert',   bossKey: 'ScorpionKing',  companionReward: 'steggie'  },
+  3: { name: 'The Ocean',   bgKey: 'ocean',    bossKey: 'Kraken',        companionReward: null       },
+  4: { name: 'The Volcano', bgKey: 'volcano',  bossKey: 'TRex',          companionReward: null, isBonus: true }
 };
 
 export const BOSS_ZONE_X = 6200;

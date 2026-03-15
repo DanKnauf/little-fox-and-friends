@@ -65,12 +65,22 @@ export class BootScene extends Phaser.Scene {
     this.anims.create({ key: 'mamasloth_idle',      frames: this.anims.generateFrameNumbers('mamasloth', { start: 0, end: 0 }), frameRate: 1,  repeat: -1 });
     this.anims.create({ key: 'mamasloth_celebrate', frames: this.anims.generateFrameNumbers('mamasloth', { start: 1, end: 2 }), frameRate: 4,  repeat: -1 });
 
-    // Enemies — spiders
-    for (const level of ['forest', 'desert', 'ocean']) {
-      this.anims.create({ key: `spider_${level}_walk`, frames: this.anims.generateFrameNumbers(`spider_${level}`, { start: 0, end: 1 }), frameRate: 6, repeat: -1 });
-      this.anims.create({ key: `bird_${level}_fly`,    frames: this.anims.generateFrameNumbers(`bird_${level}`,   { start: 0, end: 2 }), frameRate: 8, repeat: -1 });
-      this.anims.create({ key: `creeper_${level}_walk`,frames: this.anims.generateFrameNumbers(`creeper_${level}`,{ start: 0, end: 1 }), frameRate: 6, repeat: -1 });
-      this.anims.create({ key: `creeper_${level}_charge`,frames:this.anims.generateFrameNumbers(`creeper_${level}`,{ start: 2, end: 2 }), frameRate: 1, repeat: -1 });
+    // Mama Sloth Companion (walk spritesheet — separate from VictoryScene NPC)
+    this.anims.create({ key: 'mamasloth_comp_walk', frames: this.anims.generateFrameNumbers('mamasloth_comp', { start: 0, end: 3 }), frameRate: 7,  repeat: -1 });
+    this.anims.create({ key: 'mamasloth_comp_idle', frames: this.anims.generateFrameNumbers('mamasloth_comp', { start: 0, end: 0 }), frameRate: 1,  repeat: -1 });
+    this.anims.create({ key: 'mamasloth_comp_hurt', frames: this.anims.generateFrameNumbers('mamasloth_comp', { start: 4, end: 4 }), frameRate: 1,  repeat: 0 });
+
+    // Fluffy Bunny
+    this.anims.create({ key: 'bunny_idle',      frames: this.anims.generateFrameNumbers('bunny', { start: 0, end: 0 }), frameRate: 1,  repeat: -1 });
+    this.anims.create({ key: 'bunny_happy',     frames: this.anims.generateFrameNumbers('bunny', { start: 1, end: 1 }), frameRate: 1,  repeat: 0 });
+    this.anims.create({ key: 'bunny_celebrate', frames: this.anims.generateFrameNumbers('bunny', { start: 2, end: 2 }), frameRate: 1,  repeat: -1 });
+
+    // Enemies — spiders (including volcano dino skins)
+    for (const level of ['forest', 'desert', 'ocean', 'volcano']) {
+      this.anims.create({ key: `spider_${level}_walk`,    frames: this.anims.generateFrameNumbers(`spider_${level}`,  { start: 0, end: 1 }), frameRate: 6, repeat: -1 });
+      this.anims.create({ key: `bird_${level}_fly`,       frames: this.anims.generateFrameNumbers(`bird_${level}`,    { start: 0, end: 2 }), frameRate: 8, repeat: -1 });
+      this.anims.create({ key: `creeper_${level}_walk`,   frames: this.anims.generateFrameNumbers(`creeper_${level}`, { start: 0, end: 1 }), frameRate: 6, repeat: -1 });
+      this.anims.create({ key: `creeper_${level}_charge`, frames: this.anims.generateFrameNumbers(`creeper_${level}`, { start: 2, end: 2 }), frameRate: 1, repeat: -1 });
     }
 
     // Bosses
@@ -88,5 +98,11 @@ export class BootScene extends Phaser.Scene {
     this.anims.create({ key: 'boss_ocean_tentacle',  frames: this.anims.generateFrameNumbers('boss_ocean', { start: 1, end: 1 }), frameRate: 1, repeat: -1 });
     this.anims.create({ key: 'boss_ocean_ink',       frames: this.anims.generateFrameNumbers('boss_ocean', { start: 2, end: 2 }), frameRate: 1, repeat: -1 });
     this.anims.create({ key: 'boss_ocean_hurt',      frames: this.anims.generateFrameNumbers('boss_ocean', { start: 3, end: 3 }), frameRate: 1, repeat: 0 });
+
+    // T-Rex (bonus boss)
+    this.anims.create({ key: 'boss_volcano_idle',  frames: this.anims.generateFrameNumbers('boss_volcano', { start: 0, end: 0 }), frameRate: 2, repeat: -1 });
+    this.anims.create({ key: 'boss_volcano_chomp', frames: this.anims.generateFrameNumbers('boss_volcano', { start: 1, end: 1 }), frameRate: 1, repeat: -1 });
+    this.anims.create({ key: 'boss_volcano_stomp', frames: this.anims.generateFrameNumbers('boss_volcano', { start: 2, end: 2 }), frameRate: 1, repeat: -1 });
+    this.anims.create({ key: 'boss_volcano_hurt',  frames: this.anims.generateFrameNumbers('boss_volcano', { start: 3, end: 3 }), frameRate: 1, repeat: 0 });
   }
 }

@@ -25,6 +25,7 @@ import { BossScene } from './scenes/BossScene.js';
 import { LevelCompleteScene } from './scenes/LevelCompleteScene.js';
 import { GameOverScene } from './scenes/GameOverScene.js';
 import { VictoryScene } from './scenes/VictoryScene.js';
+import { BonusVictoryScene } from './scenes/BonusVictoryScene.js';
 import { PauseScene } from './scenes/PauseScene.js';
 import { GAME_WIDTH, GAME_HEIGHT } from './constants.js';
 
@@ -87,6 +88,7 @@ const config = {
     LevelCompleteScene,
     GameOverScene,
     VictoryScene,
+    BonusVictoryScene,
     PauseScene
   ]
 };

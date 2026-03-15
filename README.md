@@ -73,7 +73,12 @@ Sandy dunes, sandstone ruins, and crumbling bridges. Baby Bear fights alongside 
 ### Level 3 — The Ocean
 Coastal cliffs, coral reefs, and a sunken wreck. Both Baby Bear and Steggie join the fight.
 
-**Boss:** The Kraken (14 HP) — tentacle slams, ink spray, and a roar that pushes everyone back. The most intense battle in the game. Win to rescue Mama Sloth.
+**Boss:** The Kraken (14 HP) — tentacle slams, ink spray, and a roar that pushes everyone back. The most intense battle in the main game. Win to rescue Mama Sloth.
+
+### Bonus Level 🌋
+There is a secret bonus level hidden in the game. Can you find it?
+
+*Hint: Rescuing Mama Sloth might not be the end of the adventure...*
 
 ---
 
@@ -85,7 +90,7 @@ Choose your difficulty on the main menu before starting.
 |---|---|---|---|
 | Hearts | 5 | 4 | 3 |
 | Ammo | Unlimited | 40 + pickups | 20 + pickups |
-| Ammo pickups per level | None | 9 | 9 |
+| Ammo pickups per level | None | 10 | 10 |
 | Enemy speed | 0.7× | 1.0× | 1.3× |
 | Boss speed | 0.9× | 1.0× | 1.4× |
 | Potions per level | 4 | 3 | 2 |

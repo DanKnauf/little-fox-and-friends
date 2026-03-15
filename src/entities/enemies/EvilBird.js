@@ -3,6 +3,9 @@ import { GAME_HEIGHT } from '../../constants.js';
 
 const STATE = { FLY: 'fly', DIVE: 'dive', RECOVER: 'recover' };
 
+// Interval between poop drops (ms)
+const POOP_INTERVAL = 3500;
+
 export class EvilBird extends BaseEnemy {
   constructor(scene, x, y, levelSkin, speedMultiplier) {
     super(scene, x, y, `bird_${levelSkin}`, 2, speedMultiplier);
@@ -16,16 +19,51 @@ export class EvilBird extends BaseEnemy {
     this._flySpeed = 100 * speedMultiplier;
     this._diveSpeed = 300 * speedMultiplier;
     this._stateTimer = 0;
+    this._poopTimer = Phaser.Math.Between(1000, POOP_INTERVAL);
     this._player = null;
+    this._poopGroup = null;
   }
 
   setPlayer(player) {
     this._player = player;
   }
 
+  /** Call from GameScene after creating the poop physics group */
+  setPoopGroup(group) {
+    this._poopGroup = group;
+  }
+
+  _dropPoop() {
+    if (!this._poopGroup || !this.sprite.active) return;
+    const p = this._poopGroup.get(this.sprite.x, this.sprite.y + 10);
+    if (!p) return;
+    p.setActive(true).setVisible(true);
+    p.setTexture('bird_poop');
+    p.body.reset(this.sprite.x, this.sprite.y + 10);
+    p.body.setGravityY(0);   // physics group has its own gravity
+    p.body.setVelocity(0, 220);
+    p.body.setAllowGravity(false);
+    // auto-destroy if it falls off screen
+    this.scene.time.delayedCall(3000, () => {
+      if (p.active) { p.setActive(false).setVisible(false); }
+    });
+  }
+
   _doUpdate(time, delta) {
     this._stateTimer += delta;
+    this._poopTimer  -= delta;
     const body = this.sprite.body;
+
+    // Poop drop — only when above a target (player present, bird higher than them)
+    if (this._poopTimer <= 0) {
+      this._poopTimer = POOP_INTERVAL + Phaser.Math.Between(-500, 500);
+      if (this._player && this._player.sprite.active) {
+        const dx = Math.abs(this.sprite.x - this._player.sprite.x);
+        if (dx < 180 && this.sprite.y < this._player.sprite.y) {
+          this._dropPoop();
+        }
+      }
+    }
 
     switch (this._state) {
       case STATE.FLY:

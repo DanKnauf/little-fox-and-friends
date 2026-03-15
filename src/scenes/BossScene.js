@@ -5,11 +5,13 @@ import { BossHealthBar } from '../ui/BossHealthBar.js';
 import { PrayingMantis } from '../bosses/PrayingMantis.js';
 import { ScorpionKing } from '../bosses/ScorpionKing.js';
 import { Kraken } from '../bosses/Kraken.js';
+import { TRex } from '../bosses/TRex.js';
 
 const BOSS_CLASSES = {
   PrayingMantis,
   ScorpionKing,
-  Kraken
+  Kraken,
+  TRex
 };
 
 export class BossScene extends Phaser.Scene {

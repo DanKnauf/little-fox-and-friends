@@ -405,8 +405,66 @@ When the player dies and clicks **Try Again**, 10 points are deducted from the c
 - **Heart-shaped fireworks** burst across the screen — multiple bursts, warm colors (red, pink, gold)
 - Full warm victory fanfare plays
 - Screen fades to "You saved Mama!" text
-- "Play Again" and "Main Menu" buttons appear
-- All game variables reset on "Play Again" — fresh game state
+- "Play Again", "Main Menu", and **"🌋 Bonus!"** buttons appear
+- "Play Again" and "Main Menu" reset game state; Bonus takes the player to Level 4
+
+---
+
+### Bonus Level — The Volcano (Level 4)
+
+**Unlocked:** After completing Level 3 and rescuing Mama Sloth. A "🌋 Bonus!" button appears on the Victory screen.
+
+**Environment:** A prehistoric volcanic landscape. Active lava pits, dark obsidian rock platforms with glowing cracks, erupting volcanoes in the distant background, ember particles floating upward, an orange/black/red color palette. Darker and more dramatic than any main level.
+
+**Party:** All four characters play together — Little Fox, Baby Bear, Steggie, and **Mama Sloth** (as an AI companion). This is the largest party in the entire game.
+
+**Mission:** Rescue **Fluffy Bunny** — an impossibly cute white rabbit trapped at the end of the level. Fluffy Bunny is helpless, adorable, and very frightened.
+
+#### Bonus Level Enemies (Dinosaur Skins)
+
+| Enemy | Skin | Behavior |
+|---|---|---|
+| **Compsognathus** | Spider class | Tiny bipedal dinosaur, runs rapidly on two legs |
+| **Velociraptor** | Creeper class | Feathered, sickle claw on foot — slow patrol, lunges on proximity |
+| **Pterodactyl** | Bird class | Leather-winged flier — swoops at players AND drops poop to inflict damage |
+
+> Note: All flying enemies (EvilBird and Pterodactyl) drop poop projectiles in all three difficulty modes. Getting pooped on costs one heart.
+
+#### Bonus Level Boss — T-Rex
+
+- **HP:** 14
+- **HP bar:** Visible at top of screen as in all boss encounters
+- **Appearance:** Massive, scary, mean-looking T-Rex. Barrel chest, tiny iconic arms, enormous jaw, glowing red eye with angry brow slash, huge powerful legs with claws. 112×96px sprite with 4 frames (idle, chomp, stomp, hurt).
+- **Arena:** The rightmost section of the volcanic level
+- **Attacks:**
+  - **CHOMP** — T-Rex lunges toward the player's position, snapping its enormous jaw. A red danger zone indicator flashes on the ground before the lunge. On contact, deals 2 hearts of damage (more than normal contact). With all four companions firing, this is manageable but intense.
+  - **STOMP** — T-Rex slams its foot down, creating a glowing orange shockwave that travels along the ground in one direction. The shockwave deals 1 heart of damage to any character it hits. Camera shakes on stomp.
+  - **Passive contact damage** — being too close to the T-Rex costs 1 heart (rate-limited to once per 900ms).
+- **Difficulty scaling:** Attack speed and movement speed are scaled by the `bossSpeed` difficulty multiplier, just like all other bosses.
+- **Defeat:** T-Rex roars, flashes, then explodes in the standard boss defeat animation. Fluffy Bunny is freed.
+- **Defeat reward:** Triggers the Bonus Victory Scene.
+- **Boss points:** +100
+
+#### Bonus Victory Scene
+
+- Fluffy Bunny appears on stage (trembling with fear initially)
+- The four heroes run in together from the left
+- Fluffy Bunny sees them and leaps with joy (ears perk up, big sparkly eyes)
+- All five characters bounce together in celebration
+- Heart and star fireworks in orange/gold colors (matching the volcanic palette)
+- End screen overlay:
+  - "BONUS COMPLETE!" heading
+  - "You Saved Fluffy Bunny!" subtitle
+  - Final cumulative score display
+  - "Play Again" and "Main Menu" buttons
+
+#### Bonus Level Scoring
+
+Scoring works identically to the main game:
+- Enemy kills: +3 (player) / +2 (companion)
+- Boss kill: +100
+- End-of-level multiplier bonus applies
+- Death penalty: −10 per retry
 
 ---
 

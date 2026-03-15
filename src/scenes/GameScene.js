@@ -7,13 +7,15 @@ import { PotionPlacer } from '../level/PotionPlacer.js';
 import { ForestLayout } from '../level/ForestLayout.js';
 import { DesertLayout } from '../level/DesertLayout.js';
 import { OceanLayout } from '../level/OceanLayout.js';
+import { VolcanoLayout } from '../level/VolcanoLayout.js';
 import { LittleFox } from '../entities/LittleFox.js';
 import { BabyBear } from '../entities/BabyBear.js';
 import { Steggie } from '../entities/Steggie.js';
+import { MamaSlothCompanion } from '../entities/MamaSlothCompanion.js';
 import { HUD } from '../ui/HUD.js';
 import { getRawPad, isButtonDown } from '../input/GamepadInput.js';
 
-const LAYOUTS = { 1: ForestLayout, 2: DesertLayout, 3: OceanLayout };
+const LAYOUTS = { 1: ForestLayout, 2: DesertLayout, 3: OceanLayout, 4: VolcanoLayout };
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -112,12 +114,26 @@ export class GameScene extends Phaser.Scene {
       this.physics.add.collider(steggie.sprite, ground);
     }
 
-    // Give birds their player reference
+    if (unlocked.includes('mamasloth')) {
+      const sloth = new MamaSlothCompanion(this, layout.startX - 200, layout.startY, GameState.state.companions.mamasloth.maxHearts);
+      sloth.hearts = GameState.state.companions.mamasloth.hearts;
+      sloth.setPlayer(this._littleFox);
+      sloth.setEnemies(this._enemies);
+      this._companions['mamasloth'] = sloth;
+      this._companionList.push(sloth);
+      this.physics.add.collider(sloth.sprite, platforms);
+      this.physics.add.collider(sloth.sprite, ground);
+    }
+
+    // Bird poop physics group (shared across all EvilBird instances)
+    this._poopGroup = this.physics.add.group({ maxSize: 20, runChildUpdate: false });
     for (const e of this._enemies) {
       if (e._needsPlayer && e.setPlayer) {
         e.setPlayer(this._littleFox);
         e._needsPlayer = false;
       }
+      // Give each bird a reference to the shared poop pool
+      if (e.setPoopGroup) e.setPoopGroup(this._poopGroup);
     }
 
     // Physics colliders
@@ -199,6 +215,20 @@ export class GameScene extends Phaser.Scene {
       });
     }
 
+    // Bird poop vs player/companions
+    this.physics.add.overlap(this._littleFox.sprite, this._poopGroup, (playerSprite, poopSprite) => {
+      if (!poopSprite.active) return;
+      poopSprite.setActive(false).setVisible(false);
+      this._littleFox.takeDamage(1);
+    });
+    for (const comp of this._companionList) {
+      this.physics.add.overlap(comp.sprite, this._poopGroup, (compSprite, poopSprite) => {
+        if (!poopSprite.active) return;
+        poopSprite.setActive(false).setVisible(false);
+        comp.takeDamage(1);
+      });
+    }
+
     // Boss zone trigger
     this.physics.add.overlap(this._littleFox.sprite, bossZone, () => {
       if (!this._bossTriggered) {
@@ -213,8 +243,9 @@ export class GameScene extends Phaser.Scene {
 
     // HUD
     const companionHUDConfig = {
-      babybear: { emoji: '🐻', color: '#c8a060', maxHearts: GameState.state.companions.babybear.maxHearts },
-      steggie:  { emoji: '🦕', iconKey: 'steggie_icon', color: '#4A8C5C', maxHearts: GameState.state.companions.steggie.maxHearts }
+      babybear:  { emoji: '🐻', color: '#c8a060', maxHearts: GameState.state.companions.babybear.maxHearts },
+      steggie:   { emoji: '🦕', color: '#4A8C5C', maxHearts: GameState.state.companions.steggie.maxHearts },
+      mamasloth: { emoji: '🦥', color: '#9aaa88', maxHearts: GameState.state.companions.mamasloth.maxHearts }
     };
     this._hud = new HUD(this, this._littleFox.maxHearts, companionHUDConfig);
     this._hud.refresh();
@@ -353,5 +384,6 @@ export class GameScene extends Phaser.Scene {
     this._enemies = [];
     this._companionList = [];
     this._parallaxLayers = [];
+    this._poopGroup = null;
   }
 }

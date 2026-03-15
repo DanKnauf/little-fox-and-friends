@@ -96,7 +96,11 @@ export class LevelCompleteScene extends Phaser.Scene {
     const advanceDelay = this._companionUnlocked ? 5800 : 4600;
     this.time.delayedCall(advanceDelay, () => {
       const nextLevel = this._completedLevel + 1;
-      if (nextLevel > 3) {
+      if (this._completedLevel === 4) {
+        // Bonus level complete — go to bonus victory scene
+        this.scene.start('BonusVictoryScene');
+      } else if (nextLevel > 3) {
+        // Finished main game — go to victory scene
         this.scene.start('VictoryScene');
       } else {
         GameState.state.currentLevel = nextLevel;

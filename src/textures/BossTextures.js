@@ -2,6 +2,7 @@ export function generateBossTextures(scene) {
   generatePrayingMantis(scene);
   generateScorpionKing(scene);
   generateKraken(scene);
+  generateTRex(scene);
 }
 
 function generatePrayingMantis(scene) {
@@ -253,6 +254,192 @@ function generateKraken(scene) {
     drawKraken(ctx, f * W + 64, 48, states[f]);
   }
   scene.textures.addSpriteSheet('boss_ocean', canvas, { frameWidth: W, frameHeight: H });
+}
+
+// ─── T-Rex ────────────────────────────────────────────────────────────────────
+function generateTRex(scene) {
+  const W = 112, H = 96, FRAMES = 4;
+  const canvas = document.createElement('canvas');
+  canvas.width = W * FRAMES; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  const states = ['idle', 'chomp', 'stomp', 'hurt'];
+  for (let f = 0; f < FRAMES; f++) {
+    drawTRex(ctx, f * W + 56, 54, states[f]);
+  }
+  scene.textures.addSpriteSheet('boss_volcano', canvas, { frameWidth: W, frameHeight: H });
+}
+
+function drawTRex(ctx, cx, cy, state) {
+  ctx.save();
+  const isHurt   = state === 'hurt';
+  const isChomp  = state === 'chomp';
+  const isStomp  = state === 'stomp';
+
+  const bodyColor = isHurt ? '#88aa66' : '#3a5a28';
+  const darkColor = isHurt ? '#668855' : '#1e3314';
+  const scaleCol  = isHurt ? '#aabb88' : '#4a7234';
+  const eyeGlow   = '#ff2200';
+  const teethCol  = '#fffdf0';
+
+  // ── Tail (heavy, horizontal) ───────────────────────────────────────────
+  ctx.strokeStyle = bodyColor; ctx.lineWidth = 18; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx - 20, cy + 10);
+  ctx.quadraticCurveTo(cx - 50, cy + 8, cx - 54, cy + 2);
+  ctx.stroke();
+  ctx.strokeStyle = scaleCol; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - 24, cy + 4);
+  ctx.quadraticCurveTo(cx - 44, cy + 2, cx - 48, cy - 2);
+  ctx.stroke();
+
+  // ── Powerful legs ──────────────────────────────────────────────────────
+  const stompOff = isStomp ? 8 : 0;
+  // back leg
+  ctx.fillStyle = bodyColor;
+  ctx.beginPath();
+  ctx.ellipse(cx - 12, cy + 26, 10, 18, -0.1, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath(); // foot
+  ctx.ellipse(cx - 16, cy + 40 + stompOff, 12, 7, 0.2, 0, Math.PI * 2);
+  ctx.fill();
+  // front leg
+  ctx.beginPath();
+  ctx.ellipse(cx + 8, cy + 24 - stompOff, 10, 18, 0.15, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath(); // foot
+  ctx.ellipse(cx + 4, cy + 38 + (isStomp ? -4 : 0), 12, 7, -0.2, 0, Math.PI * 2);
+  ctx.fill();
+  // claws on feet
+  ctx.fillStyle = darkColor;
+  for (const [fx, fy] of [[cx - 16, cy + 44 + stompOff], [cx + 4, cy + 42]]) {
+    for (let c = -1; c <= 1; c++) {
+      ctx.beginPath();
+      ctx.moveTo(fx + c * 4, fy);
+      ctx.lineTo(fx + c * 4 + (c >= 0 ? 6 : -6), fy + 5);
+      ctx.lineTo(fx + c * 4 + (c >= 0 ? 3 : -3), fy + 7);
+      ctx.closePath(); ctx.fill();
+    }
+  }
+
+  // ── Body — massive, barrel-chested ────────────────────────────────────
+  ctx.fillStyle = bodyColor;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 8, 28, 26, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // belly — lighter
+  ctx.fillStyle = '#5a7a40';
+  ctx.beginPath();
+  ctx.ellipse(cx + 4, cy + 14, 16, 18, 0.1, 0, Math.PI * 2);
+  ctx.fill();
+  // scale texture on body
+  ctx.strokeStyle = darkColor; ctx.lineWidth = 1;
+  for (let row = 0; row < 4; row++) {
+    for (let col = 0; col < 5; col++) {
+      ctx.beginPath();
+      ctx.arc(cx - 20 + col * 10 + (row % 2) * 5, cy - 10 + row * 10, 3.5, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+
+  // ── Tiny arms (iconic T-Rex feature!) ─────────────────────────────────
+  ctx.fillStyle = bodyColor;
+  ctx.beginPath();
+  ctx.ellipse(cx + 22, cy - 4, 5, 8, 0.6, 0, Math.PI * 2);
+  ctx.fill();
+  // tiny clawed hand
+  ctx.fillStyle = darkColor;
+  ctx.beginPath();
+  ctx.moveTo(cx + 26, cy + 2);
+  ctx.lineTo(cx + 30, cy + 1);
+  ctx.lineTo(cx + 29, cy + 5);
+  ctx.closePath(); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(cx + 25, cy + 3);
+  ctx.lineTo(cx + 28, cy + 7);
+  ctx.lineTo(cx + 24, cy + 6);
+  ctx.closePath(); ctx.fill();
+
+  // ── Neck ──────────────────────────────────────────────────────────────
+  ctx.fillStyle = bodyColor;
+  ctx.beginPath();
+  ctx.ellipse(cx + 18, cy - 16, 14, 14, 0.3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ── Massive head ──────────────────────────────────────────────────────
+  const headX = cx + 26;
+  const headY = cy - 28;
+  ctx.fillStyle = bodyColor;
+  ctx.beginPath();
+  ctx.ellipse(headX, headY, 22, 14, isChomp ? 0.15 : 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ── Jaw — opens wide on chomp ─────────────────────────────────────────
+  const jawOpen = isChomp ? 16 : 4;
+  // upper jaw
+  ctx.fillStyle = bodyColor;
+  ctx.beginPath();
+  ctx.moveTo(headX - 14, headY + 4);
+  ctx.lineTo(headX + 20, headY);
+  ctx.lineTo(headX + 22, headY + 6);
+  ctx.lineTo(headX - 10, headY + 8);
+  ctx.closePath(); ctx.fill();
+  // lower jaw
+  ctx.fillStyle = darkColor;
+  ctx.beginPath();
+  ctx.moveTo(headX - 12, headY + 8);
+  ctx.lineTo(headX + 18, headY + 4 + jawOpen);
+  ctx.lineTo(headX + 14, headY + 8 + jawOpen);
+  ctx.lineTo(headX - 14, headY + 8 + jawOpen * 0.4);
+  ctx.closePath(); ctx.fill();
+  // teeth — upper row
+  ctx.fillStyle = teethCol;
+  for (let t = 0; t < 5; t++) {
+    ctx.beginPath();
+    ctx.moveTo(headX - 8 + t * 7, headY + 7);
+    ctx.lineTo(headX - 5 + t * 7, headY + 13);
+    ctx.lineTo(headX - 2 + t * 7, headY + 7);
+    ctx.closePath(); ctx.fill();
+  }
+  // teeth — lower row
+  if (jawOpen > 6) {
+    for (let t = 0; t < 4; t++) {
+      ctx.beginPath();
+      ctx.moveTo(headX - 5 + t * 7, headY + 6 + jawOpen);
+      ctx.lineTo(headX - 2 + t * 7, headY + jawOpen);
+      ctx.lineTo(headX + 1 + t * 7, headY + 6 + jawOpen);
+      ctx.closePath(); ctx.fill();
+    }
+  }
+
+  // ── Nostril ───────────────────────────────────────────────────────────
+  ctx.fillStyle = darkColor;
+  ctx.beginPath();
+  ctx.ellipse(headX + 17, headY - 3, 2.5, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ── Eye — glowing red, menacing ───────────────────────────────────────
+  ctx.fillStyle = '#111';
+  ctx.beginPath(); ctx.ellipse(headX + 6, headY - 8, 7, 7, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = eyeGlow;
+  ctx.beginPath(); ctx.ellipse(headX + 6, headY - 8, 5, 5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#000';
+  ctx.beginPath(); ctx.ellipse(headX + 7, headY - 8, 3, 4, 0, 0, Math.PI * 2); ctx.fill();
+  // angry brow slash
+  ctx.strokeStyle = darkColor; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(headX + 1, headY - 14);
+  ctx.lineTo(headX + 12, headY - 11);
+  ctx.stroke();
+  // eye glow
+  ctx.fillStyle = 'rgba(255,100,0,0.3)';
+  ctx.beginPath(); ctx.ellipse(headX + 6, headY - 8, 8, 8, 0, 0, Math.PI * 2); ctx.fill();
+  // highlight
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.beginPath(); ctx.arc(headX + 4, headY - 11, 1.5, 0, Math.PI * 2); ctx.fill();
+
+  ctx.restore();
 }
 
 function drawKraken(ctx, cx, cy, state) {

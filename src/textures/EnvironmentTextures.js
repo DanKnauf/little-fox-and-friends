@@ -45,6 +45,21 @@ function generatePlatformTiles(scene) {
     }
   }));
 
+  // Volcano: obsidian rock slab
+  scene.textures.addCanvas('platform_volcano', makeTile(96, 18, (ctx, w, h) => {
+    ctx.fillStyle = '#1e0e0e';
+    ctx.beginPath(); ctx.roundRect(0, 2, w, h - 2, 3); ctx.fill();
+    // Lava crack seams
+    ctx.strokeStyle = 'rgba(255,80,0,0.7)'; ctx.lineWidth = 1;
+    for (let x = 10; x < w; x += 24) {
+      ctx.beginPath(); ctx.moveTo(x, 4); ctx.lineTo(x + 4, h - 2); ctx.stroke();
+    }
+    ctx.fillStyle = '#2e1a1a';
+    for (let x = 4; x < w; x += 24) {
+      ctx.fillRect(x, 6, 18, 4);
+    }
+  }));
+
   // Ocean: coral
   scene.textures.addCanvas('platform_ocean', makeTile(96, 18, (ctx, w, h) => {
     ctx.fillStyle = '#2266aa';
@@ -94,6 +109,32 @@ function generateGroundTiles(scene) {
     }
   }));
 
+  // Volcano ground — dark obsidian/rock with lava seeping
+  scene.textures.addCanvas('ground_volcano', makeTile(64, 40, (ctx, w, h) => {
+    ctx.fillStyle = '#120606';
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#1e0c0c';
+    ctx.fillRect(0, 0, w, 8);
+    // Glowing lava cracks
+    ctx.strokeStyle = 'rgba(255,80,0,0.8)'; ctx.lineWidth = 1.5;
+    for (let x = 4; x < w; x += 14) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x + 3, 12);
+      ctx.lineTo(x - 2, 22);
+      ctx.stroke();
+    }
+    // Glow halo
+    ctx.strokeStyle = 'rgba(255,40,0,0.25)'; ctx.lineWidth = 4;
+    for (let x = 4; x < w; x += 14) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x + 3, 12);
+      ctx.lineTo(x - 2, 22);
+      ctx.stroke();
+    }
+  }));
+
   // Ocean ground
   scene.textures.addCanvas('ground_ocean', makeTile(64, 40, (ctx, w, h) => {
     ctx.fillStyle = '#336699';
@@ -123,6 +164,29 @@ function generateHazardTile(scene) {
       ctx.moveTo(x, 8);
       ctx.lineTo(x + 3, 0);
       ctx.lineTo(x + 6, 8);
+      ctx.fill();
+    }
+  }));
+
+  // Lava pit hazard
+  scene.textures.addCanvas('lava_hazard', makeTile(64, 16, (ctx, w, h) => {
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, '#ff6600');
+    grad.addColorStop(0.4, '#cc3300');
+    grad.addColorStop(1, '#880000');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+    // Lava bubbles
+    ctx.fillStyle = 'rgba(255,160,0,0.7)';
+    for (let x = 6; x < w; x += 14) {
+      ctx.beginPath();
+      ctx.arc(x, h * 0.4, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = 'rgba(255,220,0,0.5)';
+    for (let x = 12; x < w; x += 18) {
+      ctx.beginPath();
+      ctx.arc(x, h * 0.6, 2, 0, Math.PI * 2);
       ctx.fill();
     }
   }));
