@@ -51,6 +51,9 @@ const config = {
     antialias: true,
     resolution: dpr
   },
+  input: {
+    gamepad: true
+  },
   callbacks: {
     postBoot: removeLoadingScreen
   },

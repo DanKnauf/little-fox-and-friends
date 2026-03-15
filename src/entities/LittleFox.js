@@ -28,6 +28,10 @@ export class LittleFox extends Entity {
     this._shootCooldown = 0;
     this._moveSpeed = 220;
 
+    // Gamepad "just pressed" edge-detection state
+    this._padShootPrev = false;
+    this._padJumpPrev  = false;
+
     // Mouse click to shoot toward cursor
     scene.input.on('pointerdown', (pointer) => {
       if (pointer.leftButtonDown()) this._shootAt(pointer.worldX, pointer.worldY);
@@ -37,12 +41,37 @@ export class LittleFox extends Entity {
   update(time, delta) {
     if (!this._alive || !this.sprite.active) return;
 
-    const body = this.sprite.body;
-    const keys = this._keys;
+    const body    = this.sprite.body;
+    const keys    = this._keys;
     const onGround = body.blocked.down;
 
-    // Horizontal movement
-    if (keys.left.isDown) {
+    // ── Gamepad ──────────────────────────────────────────────────────────────
+    // Xbox button indices (standard Gamepad API):
+    //   0=A  1=B  2=X  3=Y  4=LB  5=RB  6=LT  7=RT
+    //   12=D↑  13=D↓  14=D←  15=D→
+    // Axes: 0=Left-X  1=Left-Y
+    const pad   = this.scene.input.gamepad?.getPad(0) ?? null;
+    const axisX = pad?.axes[0]?.getValue() ?? 0;
+    const axisY = pad?.axes[1]?.getValue() ?? 0;
+
+    const padLeft   = pad && (pad.isButtonDown(14) || axisX < -0.25);
+    const padRight  = pad && (pad.isButtonDown(15) || axisX >  0.25);
+    const padCrouch = pad && (pad.isButtonDown(13) || axisY >  0.5);
+    const padJumpNow  = !!(pad && (pad.isButtonDown(0) || pad.isButtonDown(12)));
+    const padShootNow = !!(pad && (
+      pad.isButtonDown(2) ||                           // X
+      pad.isButtonDown(5) ||                           // RB
+      (pad.buttons[7]?.value ?? 0) > 0.3              // RT (analog trigger)
+    ));
+
+    // Edge-detect "just pressed" for jump and shoot
+    const padJumpJust  = padJumpNow  && !this._padJumpPrev;
+    const padShootJust = padShootNow && !this._padShootPrev;
+    this._padJumpPrev  = padJumpNow;
+    this._padShootPrev = padShootNow;
+
+    // ── Horizontal movement ──────────────────────────────────────────────────
+    if (keys.left.isDown || padLeft) {
       body.setVelocityX(-this._moveSpeed);
       this._facingRight = false;
       this.sprite.setFlipX(true);
@@ -55,7 +84,7 @@ export class LittleFox extends Entity {
           this._lastFootstepTime = time;
         }
       }
-    } else if (keys.right.isDown) {
+    } else if (keys.right.isDown || padRight) {
       body.setVelocityX(this._moveSpeed);
       this._facingRight = true;
       this.sprite.setFlipX(false);
@@ -75,20 +104,20 @@ export class LittleFox extends Entity {
       }
     }
 
-    // Jump (W key only)
-    if (keys.up.isDown && onGround) {
+    // ── Jump: W key or gamepad A / D-pad up ─────────────────────────────────
+    if ((keys.up.isDown || padJumpJust) && onGround) {
       body.setVelocityY(-520);
       this.sprite.play('fox_jump', true);
       AudioManager.play('jump');
     }
 
-    // Spacebar = shoot forward
-    if (Phaser.Input.Keyboard.JustDown(keys.shoot)) {
+    // ── Shoot: SPACE or gamepad X / RB / RT ─────────────────────────────────
+    if (Phaser.Input.Keyboard.JustDown(keys.shoot) || padShootJust) {
       this._shootForward();
     }
 
-    // Crouch
-    if (keys.down.isDown && onGround) {
+    // ── Crouch: S key or gamepad left-stick down / D-pad down ───────────────
+    if ((keys.down.isDown || padCrouch) && onGround) {
       if (!this._isCrouching) {
         this._isCrouching = true;
         this.sprite.setScale(this._isSizeUp ? 2.0 : 0.9, this._isSizeUp ? 1.4 : 0.7);
@@ -101,14 +130,14 @@ export class LittleFox extends Entity {
       }
     }
 
-    // Fall detection
+    // ── Fall detection ───────────────────────────────────────────────────────
     if (this.sprite.y > GAME_HEIGHT + 60) {
       this.takeDamage(1);
       this.sprite.setPosition(Math.max(80, this.sprite.x - 50), GAME_HEIGHT - 120);
       body.setVelocity(0, 0);
     }
 
-    // Shoot cooldown
+    // ── Shoot cooldown ───────────────────────────────────────────────────────
     if (this._shootCooldown > 0) {
       this._shootCooldown -= delta;
     }

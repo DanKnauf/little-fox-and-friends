@@ -64,13 +64,13 @@ export class StartScene extends Phaser.Scene {
     });
 
     const controls = [
-      ['A / D',       'Move left / right'],
-      ['W',           'Jump'],
-      ['S',           'Crouch (while grounded)'],
-      ['SPACE',       'Shoot forward'],
-      ['Left Click',  'Shoot toward cursor'],
-      ['Potions',     'Giant-up! Full health restore'],
-      ['★ Crates',    'Refill your ammo (+10)'],
+      ['A / D  or  ←→',  'Move left / right'],
+      ['W  or  A btn',   'Jump'],
+      ['S  or  ↓',       'Crouch (grounded)'],
+      ['SPACE / X / RB', 'Shoot forward'],
+      ['Left Click',     'Shoot toward cursor'],
+      ['Potions',        'Giant-up! Full health'],
+      ['★ Crates',       'Refill ammo (+10)'],
     ];
 
     controls.forEach(([key, desc], i) => {
