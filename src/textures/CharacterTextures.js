@@ -258,7 +258,13 @@ function generateSteggie(scene) {
     const ox = f * W;
     const legOff = [0, 4, 0, -4][f % 4];
     const isHurt = f === 4;
+    // Clip each frame to its own rect so no drawing bleeds into adjacent frames
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(ox, 0, W, H);
+    ctx.clip();
     drawSteggie(ctx, ox + 24, 18, legOff, isHurt);
+    ctx.restore();
   }
 
   scene.textures.addSpriteSheet('steggie', canvas, { frameWidth: W, frameHeight: H });
@@ -351,31 +357,28 @@ function drawSteggie(ctx, cx, cy, legOff, isHurt) {
     ctx.closePath(); ctx.stroke();
   }
 
-  // ── HEAD (tiny, low-held, beak-like — characteristic of stegosaurus) ────
+  // ── HEAD — all-ellipse, no polygon edges that create antialiasing seams ──
   ctx.fillStyle = green;
-  // Neck — smooth oval bridges the body's right shoulder to the head ellipse
+  // Neck oval bridging body shoulder to head
   ctx.beginPath();
-  ctx.ellipse(cx + 10, cy + 3, 5, 4, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx + 10, cy + 3, 6, 5, 0, 0, Math.PI * 2);
   ctx.fill();
-  // Head ellipse
+  // Main head oval
   ctx.beginPath();
-  ctx.ellipse(cx + 13, cy + 2, 6, 5, -0.2, 0, Math.PI * 2);
+  ctx.ellipse(cx + 15, cy + 2, 5, 4, -0.1, 0, Math.PI * 2);
   ctx.fill();
-  // Flat beak / snout
+  // Snout — smaller forward ellipse (no polygon seam)
   ctx.beginPath();
-  ctx.moveTo(cx + 8,  cy + 0);
-  ctx.lineTo(cx + 18, cy + 1);
-  ctx.lineTo(cx + 17, cy + 6);
-  ctx.lineTo(cx + 7,  cy + 5);
-  ctx.closePath(); ctx.fill();
+  ctx.ellipse(cx + 19, cy + 3, 3, 2.5, 0, 0, Math.PI * 2);
+  ctx.fill();
   // Eye
   ctx.fillStyle = '#111';
-  ctx.beginPath(); ctx.arc(cx + 15, cy + 0, 1.8, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 14, cy + 0, 1.8, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#fff';
-  ctx.beginPath(); ctx.arc(cx + 15.6, cy - 0.5, 0.7, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 14.6, cy - 0.5, 0.7, 0, Math.PI * 2); ctx.fill();
   // Nostril
   ctx.fillStyle = dark;
-  ctx.beginPath(); ctx.arc(cx + 17, cy + 3, 0.9, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 20, cy + 3, 0.9, 0, Math.PI * 2); ctx.fill();
 
   // ── LEGS (4 legs — back pair slightly taller than front) ────────────────
   ctx.fillStyle = green;

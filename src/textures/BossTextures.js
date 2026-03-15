@@ -278,201 +278,182 @@ function drawTRex(ctx, cx, cy, state) {
 
   const body  = isHurt ? '#88aa66' : '#3a6028';
   const dark  = isHurt ? '#557744' : '#1a3010';
-  const belly = isHurt ? '#aabb88' : '#527840';
+  const belly = isHurt ? '#aabb88' : '#5a7840';
   const teeth = '#fffdf0';
   const eyeR  = '#ff2200';
 
-  // Frame 112×96, cx=center-x of frame, cy=54
-  // Upright bipedal: ground at cy+34, hips at cy+4, head up at cy-38
-  const gY = cy + 34;   // ground / foot base
-  const hY = cy + 4;    // hip height
-  const sO = isStomp ? 7 : 0; // stomp offset on front leg
+  // ── LAYOUT (all coordinates anchored to cx, cy) ──────────────────────────
+  // The entire creature is drawn as ONE connected silhouette path first,
+  // then details are added on top — this guarantees no floating parts.
+  const gY  = cy + 34;   // ground/foot level
+  const hipX = cx - 4;   // hip pivot x
+  const hipY = cy + 6;   // hip pivot y
+  const sO  = isStomp ? 6 : 0;
 
-  // ── THICK COUNTERBALANCE TAIL ──────────────────────────────────────────
-  // Goes from hips backward and downward (balances the heavy head forward)
-  ctx.strokeStyle = body; ctx.lineWidth = 22; ctx.lineCap = 'round';
-  ctx.beginPath();
-  ctx.moveTo(cx - 8, hY + 2);
-  ctx.bezierCurveTo(cx - 26, hY + 6, cx - 44, hY + 14, cx - 52, hY + 22);
-  ctx.stroke();
-  // Tail taper (narrower tip)
-  ctx.strokeStyle = body; ctx.lineWidth = 8;
-  ctx.beginPath();
-  ctx.moveTo(cx - 38, hY + 16);
-  ctx.quadraticCurveTo(cx - 48, hY + 20, cx - 52, hY + 24);
-  ctx.stroke();
-  // Tail ridge stripe
-  ctx.strokeStyle = dark; ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(cx - 10, hY - 4);
-  ctx.bezierCurveTo(cx - 28, hY + 2, cx - 44, hY + 12, cx - 50, hY + 20);
-  ctx.stroke();
-
-  // ── TWO THICK HIND LEGS (bipedal — no front legs) ──────────────────────
-  // Upper thigh (femur) — angled back slightly
+  // ── STEP 1: TAIL + BODY + NECK + HEAD as a single filled silhouette ──────
+  // This ensures every part is physically connected with no gaps.
   ctx.fillStyle = body;
-  // Back leg thigh
   ctx.beginPath();
-  ctx.ellipse(cx - 10, hY + 16, 11, 20, -0.15, 0, Math.PI * 2);
+
+  // Start at tail tip (far left, mid-height)
+  ctx.moveTo(cx - 50, hipY + 20);
+  // Tail upper edge — curves up to hips
+  ctx.bezierCurveTo(cx - 36, hipY + 10, cx - 22, hipY + 2, hipX, hipY - 4);
+  // Back of body — arch upward
+  ctx.bezierCurveTo(hipX + 6, hipY - 24, cx + 10, hipY - 32, cx + 16, hipY - 36);
+  // Top of neck sweeping forward
+  ctx.bezierCurveTo(cx + 20, hipY - 42, cx + 30, hipY - 48, cx + 38, hipY - 44);
+  // Skull top (right side) — wide, rounded
+  ctx.bezierCurveTo(cx + 48, hipY - 42, cx + 50, hipY - 34, cx + 48, hipY - 28);
+  // Snout upper jaw tip
+  ctx.lineTo(cx + 50, hipY - 26);
+  ctx.lineTo(cx + 46, hipY - 20);
+  // Upper jaw / snout underside curves back
+  ctx.bezierCurveTo(cx + 40, hipY - 17, cx + 28, hipY - 20, cx + 22, hipY - 22);
+  // Front of neck / chest
+  ctx.bezierCurveTo(cx + 18, hipY - 24, cx + 16, hipY - 18, cx + 14, hipY - 8);
+  // Chest / belly line forward
+  ctx.bezierCurveTo(cx + 10, hipY + 2, cx + 4, hipY + 8, hipX + 6, hipY + 10);
+  // Tail lower edge — curves back to tip
+  ctx.bezierCurveTo(cx - 8, hipY + 14, cx - 30, hipY + 18, cx - 50, hipY + 20);
+  ctx.closePath();
   ctx.fill();
-  // Back leg shin + foot
-  ctx.beginPath();
-  ctx.ellipse(cx - 14, hY + 36, 10, 8, 0, 0, Math.PI * 2); // ankle
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(cx - 18, gY + sO, 14, 7, 0.15, 0, Math.PI * 2); // foot
-  ctx.fill();
-  // Front leg thigh (slightly forward)
-  ctx.beginPath();
-  ctx.ellipse(cx + 6, hY + 14 - sO, 11, 20, 0.15, 0, Math.PI * 2);
-  ctx.fill();
-  // Front leg shin + foot
-  ctx.beginPath();
-  ctx.ellipse(cx + 2, hY + 34 - sO, 10, 8, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(cx - 2, gY + (isStomp ? -6 : 0), 14, 7, -0.15, 0, Math.PI * 2);
-  ctx.fill();
-  // Three large claws on each foot
+
+  // ── STEP 2: LOWER JAW (attached to snout, opens on chomp) ────────────────
+  const jawOpen  = isChomp ? 18 : 2;
+  const jawBaseX = cx + 22;
+  const jawBaseY = hipY - 22;
   ctx.fillStyle = dark;
-  for (const [fx, fy] of [[cx - 18, gY + sO + 4], [cx - 2, gY + (isStomp ? -6 : 0) + 4]]) {
+  ctx.beginPath();
+  ctx.moveTo(jawBaseX,      jawBaseY);
+  ctx.quadraticCurveTo(cx + 34, jawBaseY + 4 + jawOpen, cx + 46, jawBaseY + 6 + jawOpen);
+  ctx.lineTo(cx + 47,       jawBaseY + 10 + jawOpen);
+  ctx.quadraticCurveTo(cx + 30, jawBaseY + 10 + jawOpen, jawBaseX - 2, jawBaseY + 8);
+  ctx.closePath(); ctx.fill();
+
+  // Pink mouth inside (visible when chomping)
+  if (jawOpen > 6) {
+    ctx.fillStyle = '#bb2222';
+    ctx.beginPath();
+    ctx.moveTo(jawBaseX + 2,  jawBaseY);
+    ctx.quadraticCurveTo(cx + 34, jawBaseY + jawOpen * 0.5, cx + 44, jawBaseY + 4 + jawOpen * 0.6);
+    ctx.lineTo(cx + 44,       jawBaseY + 7  + jawOpen * 0.6);
+    ctx.quadraticCurveTo(cx + 30, jawBaseY + 6 + jawOpen * 0.5, jawBaseX, jawBaseY + 6);
+    ctx.closePath(); ctx.fill();
+  }
+
+  // ── STEP 3: BELLY lighter shade ──────────────────────────────────────────
+  ctx.fillStyle = belly;
+  ctx.beginPath();
+  ctx.ellipse(hipX + 6, hipY - 2, 12, 14, -0.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ── STEP 4: TWO THICK LEGS (grow directly from the hip silhouette) ────────
+  ctx.fillStyle = body;
+  // Back leg (left)
+  ctx.beginPath();
+  ctx.moveTo(hipX - 12, hipY + 6);
+  ctx.bezierCurveTo(hipX - 20, hipY + 14, hipX - 22, hipY + 26, hipX - 20, hipY + 32 + sO);
+  ctx.bezierCurveTo(hipX - 18, hipY + 36 + sO, hipX - 6, hipY + 36 + sO, hipX - 4, hipY + 32 + sO);
+  ctx.bezierCurveTo(hipX - 2, hipY + 26, hipX - 4, hipY + 12, hipX + 0, hipY + 4);
+  ctx.closePath(); ctx.fill();
+  // Back foot
+  ctx.beginPath();
+  ctx.ellipse(hipX - 14, gY + sO, 15, 6, 0.1, 0, Math.PI * 2);
+  ctx.fill();
+  // Front leg (right, slightly forward)
+  ctx.beginPath();
+  ctx.moveTo(hipX + 8, hipY + 4);
+  ctx.bezierCurveTo(hipX + 14, hipY + 14, hipX + 16, hipY + 24 - sO, hipX + 14, hipY + 30 - sO);
+  ctx.bezierCurveTo(hipX + 12, hipY + 34 - sO, hipX + 24, hipY + 34 - sO, hipX + 26, hipY + 30 - sO);
+  ctx.bezierCurveTo(hipX + 28, hipY + 22 - sO, hipX + 26, hipY + 12, hipX + 20, hipY + 2);
+  ctx.closePath(); ctx.fill();
+  // Front foot
+  ctx.beginPath();
+  ctx.ellipse(hipX + 20, gY + (isStomp ? -4 : 0), 15, 6, -0.1, 0, Math.PI * 2);
+  ctx.fill();
+  // Foot claws (3 per foot)
+  ctx.fillStyle = dark;
+  for (const [fx, fy] of [[hipX - 14, gY + sO + 4], [hipX + 20, gY + (isStomp ? -4 : 0) + 4]]) {
     for (let c = -1; c <= 1; c++) {
       ctx.beginPath();
       ctx.moveTo(fx + c * 5, fy);
-      ctx.lineTo(fx + c * 5 + (c >= 0 ? 8 : -8), fy + 7);
-      ctx.lineTo(fx + c * 5 + (c >= 0 ? 4 : -4), fy + 10);
+      ctx.lineTo(fx + c * 5 + (c >= 0 ? 9 : -9), fy + 7);
+      ctx.lineTo(fx + c * 5 + (c >= 0 ? 5 : -5), fy + 10);
       ctx.closePath(); ctx.fill();
     }
   }
 
-  // ── BARREL BODY — held near-horizontal, leaning forward ────────────────
+  // ── STEP 5: TINY ARMS (stub on the upper chest area of the silhouette) ────
   ctx.fillStyle = body;
   ctx.beginPath();
-  ctx.ellipse(cx + 2, hY - 10, 22, 18, -0.2, 0, Math.PI * 2);
-  ctx.fill();
-  // Pale belly underside
-  ctx.fillStyle = belly;
-  ctx.beginPath();
-  ctx.ellipse(cx + 6, hY - 4, 13, 12, -0.1, 0, Math.PI * 2);
-  ctx.fill();
-  // Scale row texture
+  ctx.moveTo(cx + 20, hipY - 20);
+  ctx.bezierCurveTo(cx + 26, hipY - 20, cx + 30, hipY - 16, cx + 28, hipY - 11);
+  ctx.bezierCurveTo(cx + 26, hipY - 7,  cx + 18, hipY - 8,  cx + 17, hipY - 13);
+  ctx.closePath(); ctx.fill();
+  // Claw tips
+  ctx.fillStyle = dark;
+  for (let c = 0; c < 2; c++) {
+    ctx.beginPath();
+    ctx.moveTo(cx + 26 + c * 3, hipY - 11);
+    ctx.lineTo(cx + 30 + c * 4, hipY - 8);
+    ctx.lineTo(cx + 28 + c * 3, hipY - 5);
+    ctx.closePath(); ctx.fill();
+  }
+
+  // ── STEP 6: SCALE TEXTURE on body ────────────────────────────────────────
   ctx.strokeStyle = dark; ctx.lineWidth = 1;
   for (let row = 0; row < 3; row++) {
     for (let col = 0; col < 4; col++) {
       ctx.beginPath();
-      ctx.arc(cx - 14 + col * 9 + (row % 2) * 4, hY - 22 + row * 10, 3, 0, Math.PI * 2);
+      ctx.arc(cx - 8 + col * 10 + (row % 2) * 5, hipY - 18 + row * 11, 3, 0, Math.PI * 2);
       ctx.stroke();
     }
   }
 
-  // ── FAMOUSLY TINY ARMS — held right against the chest ──────────────────
-  ctx.fillStyle = body;
-  ctx.beginPath();
-  ctx.ellipse(cx + 18, hY - 18, 4, 8, 0.55, 0, Math.PI * 2);
-  ctx.fill();
-  // Two stubby clawed fingers
-  ctx.fillStyle = dark;
-  ctx.beginPath();
-  ctx.moveTo(cx + 22, hY - 12);
-  ctx.lineTo(cx + 27, hY - 10);
-  ctx.lineTo(cx + 25, hY - 7);
-  ctx.closePath(); ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(cx + 21, hY - 10);
-  ctx.lineTo(cx + 25, hY - 7);
-  ctx.lineTo(cx + 21, hY - 6);
-  ctx.closePath(); ctx.fill();
-
-  // ── THICK FORWARD-LEANING NECK ─────────────────────────────────────────
-  ctx.fillStyle = body;
-  ctx.beginPath();
-  ctx.ellipse(cx + 16, hY - 26, 12, 14, 0.35, 0, Math.PI * 2);
-  ctx.fill();
-
-  // ── ICONIC MASSIVE HEAD (biggest feature, ~40% of total height) ─────────
-  const hx = cx + 28;   // head center x
-  const hy = hY - 42;   // head center y  (= cy - 38 ≈ y=16 in frame)
-  ctx.fillStyle = body;
-  // Skull — wide oval
-  ctx.beginPath();
-  ctx.ellipse(hx, hy, 24, 14, isChomp ? 0.1 : 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // ── LONG SNOUT / UPPER JAW ─────────────────────────────────────────────
-  ctx.fillStyle = body;
-  ctx.beginPath();
-  ctx.moveTo(hx - 20, hy + 5);
-  ctx.lineTo(hx + 22, hy + 1);
-  ctx.lineTo(hx + 24, hy + 8);
-  ctx.lineTo(hx - 16, hy + 11);
-  ctx.closePath(); ctx.fill();
-
-  // ── LOWER JAW — droops open on chomp ─────────────────────────────────
-  const jawOpen = isChomp ? 20 : 3;
-  ctx.fillStyle = dark;
-  ctx.beginPath();
-  ctx.moveTo(hx - 18, hy + 11);
-  ctx.lineTo(hx + 20, hy + 6 + jawOpen);
-  ctx.lineTo(hx + 15, hy + 12 + jawOpen);
-  ctx.lineTo(hx - 20, hy + 12 + jawOpen * 0.3);
-  ctx.closePath(); ctx.fill();
-
-  // Pink mouth interior (visible when chomping)
-  if (jawOpen > 8) {
-    ctx.fillStyle = '#cc3333';
-    ctx.beginPath();
-    ctx.moveTo(hx - 16, hy + 11);
-    ctx.lineTo(hx + 18, hy + 8 + jawOpen * 0.5);
-    ctx.lineTo(hx + 12, hy + 11 + jawOpen * 0.5);
-    ctx.lineTo(hx - 16, hy + 11 + jawOpen * 0.2);
-    ctx.closePath(); ctx.fill();
-  }
-
-  // Upper teeth (7 jagged fangs)
+  // ── STEP 7: UPPER TEETH ───────────────────────────────────────────────────
   ctx.fillStyle = teeth;
-  for (let t = 0; t < 7; t++) {
+  for (let t = 0; t < 6; t++) {
     ctx.beginPath();
-    ctx.moveTo(hx - 16 + t * 7,   hy + 10);
-    ctx.lineTo(hx - 13 + t * 7,   hy + 16);
-    ctx.lineTo(hx - 10 + t * 7,   hy + 10);
+    ctx.moveTo(cx + 24 + t * 4,   hipY - 21);
+    ctx.lineTo(cx + 26 + t * 4,   hipY - 16);
+    ctx.lineTo(cx + 28 + t * 4,   hipY - 21);
     ctx.closePath(); ctx.fill();
   }
-  // Lower teeth (chomping only)
-  if (jawOpen > 8) {
+  // Lower teeth (when chomping)
+  if (jawOpen > 6) {
     for (let t = 0; t < 5; t++) {
       ctx.beginPath();
-      ctx.moveTo(hx - 10 + t * 7,  hy + 9 + jawOpen);
-      ctx.lineTo(hx - 7  + t * 7,  hy + 3 + jawOpen);
-      ctx.lineTo(hx - 4  + t * 7,  hy + 9 + jawOpen);
+      ctx.moveTo(jawBaseX + 2 + t * 4,  jawBaseY + 4 + jawOpen * 0.5);
+      ctx.lineTo(jawBaseX + 4 + t * 4,  jawBaseY     + jawOpen * 0.5);
+      ctx.lineTo(jawBaseX + 6 + t * 4,  jawBaseY + 4 + jawOpen * 0.5);
       ctx.closePath(); ctx.fill();
     }
   }
 
-  // ── NOSTRIL (near tip of snout) ───────────────────────────────────────
+  // ── STEP 8: NOSTRIL ───────────────────────────────────────────────────────
   ctx.fillStyle = dark;
   ctx.beginPath();
-  ctx.ellipse(hx + 19, hy - 2, 3, 2.5, 0.3, 0, Math.PI * 2);
+  ctx.ellipse(cx + 44, hipY - 28, 3, 2.5, 0.3, 0, Math.PI * 2);
   ctx.fill();
 
-  // ── MENACING RED EYE ──────────────────────────────────────────────────
-  const ex = hx + 2, ey = hy - 9;
+  // ── STEP 9: MENACING RED EYE ──────────────────────────────────────────────
+  const ex = cx + 36, ey = hipY - 38;
   ctx.fillStyle = '#111';
-  ctx.beginPath(); ctx.ellipse(ex, ey, 8, 8, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(ex, ey, 7, 7, 0, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = eyeR;
-  ctx.beginPath(); ctx.ellipse(ex, ey, 6, 6, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(ex, ey, 5, 5, 0, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#000';
-  ctx.beginPath(); ctx.ellipse(ex + 1, ey, 3.5, 4, 0, 0, Math.PI * 2); ctx.fill();
-  // Eye glow halo
-  ctx.fillStyle = 'rgba(255,60,0,0.28)';
-  ctx.beginPath(); ctx.ellipse(ex, ey, 10, 10, 0, 0, Math.PI * 2); ctx.fill();
-  // Highlight
-  ctx.fillStyle = 'rgba(255,255,255,0.55)';
-  ctx.beginPath(); ctx.arc(ex - 2, ey - 3, 2, 0, Math.PI * 2); ctx.fill();
-  // Angry brow ridge above eye
+  ctx.beginPath(); ctx.ellipse(ex + 1, ey, 3, 3.5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,60,0,0.25)';
+  ctx.beginPath(); ctx.ellipse(ex, ey, 9, 9, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.beginPath(); ctx.arc(ex - 2, ey - 3, 1.8, 0, Math.PI * 2); ctx.fill();
+  // Angry brow ridge
   ctx.strokeStyle = dark; ctx.lineWidth = 3; ctx.lineCap = 'round';
   ctx.beginPath();
-  ctx.moveTo(hx - 4,  hy - 16);
-  ctx.quadraticCurveTo(hx + 2, hy - 18, hx + 12, hy - 15);
+  ctx.moveTo(ex - 5, ey - 9);
+  ctx.quadraticCurveTo(ex + 1, ey - 12, ex + 10, ey - 9);
   ctx.stroke();
 
   ctx.restore();
