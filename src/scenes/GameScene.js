@@ -1,4 +1,4 @@
-import { GAME_WIDTH, GAME_HEIGHT, LEVEL_WIDTH, LEVEL_CONFIG, DEPTH, DIFFICULTY } from '../constants.js';
+import { GAME_WIDTH, GAME_HEIGHT, LEVEL_WIDTH, LEVEL_CONFIG, DEPTH, DIFFICULTY, SCORE } from '../constants.js';
 import { GameState } from '../GameState.js';
 import { AudioManager } from '../audio/AudioManager.js';
 import { LevelBuilder } from '../level/LevelBuilder.js';
@@ -131,6 +131,10 @@ export class GameScene extends Phaser.Scene {
       if (enemy && enemy.isAlive()) {
         enemy.takeDamage(1);
         this._littleFox.getProjectileGroup().hit(proj);
+        if (!enemy.isAlive()) {
+          GameState.addScore(SCORE.ENEMY_KILL_PLAYER);
+          this.events.emit('scoreChanged', SCORE.ENEMY_KILL_PLAYER);
+        }
       }
     });
 
@@ -142,6 +146,10 @@ export class GameScene extends Phaser.Scene {
         if (enemy && enemy.isAlive()) {
           enemy.takeDamage(1);
           comp.getProjectileGroup().hit(proj);
+          if (!enemy.isAlive()) {
+            GameState.addScore(SCORE.ENEMY_KILL_COMPANION);
+            this.events.emit('scoreChanged', SCORE.ENEMY_KILL_COMPANION);
+          }
         }
       });
     }
@@ -164,6 +172,10 @@ export class GameScene extends Phaser.Scene {
       if (this._littleFox._invincible) {
         enemy._iFrames = false; // bypass i-frames so the kill always lands
         enemy.takeDamage(99); // instant kill on contact while invincible
+        if (!enemy.isAlive()) {
+          GameState.addScore(SCORE.ENEMY_KILL_PLAYER);
+          this.events.emit('scoreChanged', SCORE.ENEMY_KILL_PLAYER);
+        }
       } else if (enemy.canDamagePlayer()) {
         this._littleFox.takeDamage(1);
       }

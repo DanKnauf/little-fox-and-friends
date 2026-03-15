@@ -249,6 +249,62 @@ All difficulty settings must keep the game completable and enjoyable for childre
 
 ---
 
+## 9.5 Scoring System
+
+### 9.5.1 Overview
+
+Every new game begins at **0 points**. The score is shown in the **top-right corner of the HUD** at all times during gameplay. Points accumulate across all three levels to produce a single final score displayed on the Victory screen.
+
+### 9.5.2 Base Point Values
+
+| Event | Points |
+|---|---|
+| Little Fox kills an enemy (projectile or invincible contact) | +3 |
+| Baby Bear or Steggie kills an enemy | +2 |
+| Defeating the Level 1 boss (Praying Mantis) | +50 |
+| Defeating the Level 2 boss (Scorpion King) | +60 |
+| Defeating the Level 3 boss (Kraken) | +75 |
+| Retrying after dying (penalty applied at "Try Again") | −10 |
+
+Score cannot go below 0.
+
+### 9.5.3 End-of-Level Multiplier Bonus
+
+After each boss is defeated, the **Level Complete** screen shows a score breakdown animation:
+
+1. **Level Score** — base points earned during that level (including the boss kill)
+2. **Difficulty Multiplier** — shown as `× N.N Difficulty Bonus`
+3. **Bonus Points** — the extra points added (`Level Score × (multiplier − 1)`)
+4. **Total Score** — updated cumulative score
+
+| Difficulty | Score Multiplier |
+|---|---|
+| Easy | 1.5× |
+| Medium | 3.0× |
+| Hard | 4.5× |
+
+**Example (Medium, Level 1):**
+- Killed 8 enemies (player): 24 pts
+- Killed 3 enemies (companion): 6 pts
+- Boss kill: 50 pts
+- Level Score: 80 pts
+- Multiplier: 3.0× → Bonus: +160 pts
+- Total after level: 240 pts
+
+### 9.5.4 Score Display & Animation
+
+- **HUD score counter** (top-right): always visible during gameplay
+- **+N popup**: a small floating label appears near the score each time points are earned, then fades upward
+- **Count-up animation**: the score number smoothly increments to the new value with a brief scale pop
+- **Level Complete screen**: animated reveal of level score → multiplier → bonus → total, with a sparkle sound on the bonus line
+- **Victory screen**: final cumulative score shown prominently on "The End" overlay
+
+### 9.5.5 Death Penalty
+
+When the player dies and clicks **Try Again**, 10 points are deducted from the current score before the level restarts. The Game Over screen displays `−10 points for retrying` so the player understands the penalty. Score cannot fall below 0.
+
+---
+
 ## 10. Level Design
 
 ### General Level Design Principles

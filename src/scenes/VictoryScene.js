@@ -362,21 +362,27 @@ export class VictoryScene extends Phaser.Scene {
       this.tweens.add({ targets: overlay, alpha: 0.6, duration: 800 });
 
       this.time.delayedCall(800, () => {
-        this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40, 'The End', {
+        this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 50, 'The End', {
           fontSize: '60px', color: '#ffe066', fontFamily: 'Arial Black, Arial',
           stroke: '#885500', strokeThickness: 6
         }).setOrigin(0.5).setDepth(11);
 
-        this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 20, 'Little Fox and Friends', {
+        this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 12, 'Little Fox and Friends', {
           fontSize: '20px', color: '#ffffff', fontFamily: 'Arial'
         }).setOrigin(0.5).setDepth(11);
 
+        // Final score
+        this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 44, `Final Score: ${GameState.state.score}`, {
+          fontSize: '26px', color: '#ffdd44', fontFamily: 'Arial Black, Arial',
+          stroke: '#553300', strokeThickness: 3
+        }).setOrigin(0.5).setDepth(11);
+
         // Play Again — restart from level 1 with the same difficulty
-        this._btn0 = this._makeButton(GAME_WIDTH / 2 - 90, GAME_HEIGHT / 2 + 80, 'Play Again', 0x226644,
+        this._btn0 = this._makeButton(GAME_WIDTH / 2 - 90, GAME_HEIGHT / 2 + 90, 'Play Again', 0x226644,
           () => this._playAgain());
 
         // Main Menu — go back to the difficulty selection screen
-        this._btn1 = this._makeButton(GAME_WIDTH / 2 + 90, GAME_HEIGHT / 2 + 80, 'Main Menu', 0x334466,
+        this._btn1 = this._makeButton(GAME_WIDTH / 2 + 90, GAME_HEIGHT / 2 + 90, 'Main Menu', 0x334466,
           () => this._mainMenu());
 
         this._padFocus = 0;

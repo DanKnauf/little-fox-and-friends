@@ -11,7 +11,9 @@ const state = {
   companions: {
     babybear: { hearts: 4, maxHearts: 4 },
     steggie:  { hearts: 4, maxHearts: 4 }
-  }
+  },
+  score: 0,       // cumulative total score shown in HUD
+  levelScore: 0   // base points earned this level (for end-of-level multiplier)
 };
 
 function applyDifficulty(key) {
@@ -30,6 +32,8 @@ function applyDifficulty(key) {
 function reset() {
   state.currentLevel = 1;
   state.companionsUnlocked = [];
+  state.score = 0;
+  state.levelScore = 0;
   applyDifficulty(state.difficulty);
 }
 
@@ -56,4 +60,38 @@ function addAmmo(amount) {
   state.ammo = Math.min(state.maxAmmo, state.ammo + amount);
 }
 
-export const GameState = { state, applyDifficulty, reset, resetForLevel, unlockCompanion, addAmmo };
+// Add base points during gameplay. Caller should also emit 'scoreChanged' on the scene.
+function addScore(points) {
+  state.score += points;
+  state.levelScore += points;
+}
+
+// Called at the end of a level (after boss defeat). Applies the difficulty multiplier
+// as a bonus on top of the level's base score. Returns breakdown for UI animation.
+function applyLevelBonus() {
+  const cfg = DIFFICULTY[state.difficulty] || DIFFICULTY.medium;
+  const multiplier = cfg.scoreMultiplier || 1;
+  const earned = state.levelScore;
+  const bonus = Math.floor(earned * (multiplier - 1));
+  state.score += bonus;
+  state.levelScore = 0;
+  return { bonus, levelScore: earned, multiplier };
+}
+
+// Deduct 10 points when the player retries after dying. Cannot go below 0.
+function penalizeForDeath() {
+  state.score = Math.max(0, state.score - 10);
+  state.levelScore = 0;
+}
+
+export const GameState = {
+  state,
+  applyDifficulty,
+  reset,
+  resetForLevel,
+  unlockCompanion,
+  addAmmo,
+  addScore,
+  applyLevelBonus,
+  penalizeForDeath
+};

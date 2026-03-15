@@ -1,4 +1,4 @@
-import { GAME_WIDTH, GAME_HEIGHT, LEVEL_CONFIG, DEPTH } from '../constants.js';
+import { GAME_WIDTH, GAME_HEIGHT, LEVEL_CONFIG, DEPTH, SCORE } from '../constants.js';
 import { GameState } from '../GameState.js';
 import { AudioManager } from '../audio/AudioManager.js';
 import { BossHealthBar } from '../ui/BossHealthBar.js';
@@ -168,6 +168,11 @@ export class BossScene extends Phaser.Scene {
     this._healthBar.destroy();
     AudioManager.stopMusic();
     AudioManager.play('level_complete');
+
+    // Award boss kill points and show +N in the HUD
+    const bossPoints = SCORE.BOSS[this._level] || 50;
+    GameState.addScore(bossPoints);
+    this._gameScene?.events?.emit('scoreChanged', bossPoints);
 
     // Unlock companion
     const cfg = LEVEL_CONFIG[this._level];

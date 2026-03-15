@@ -87,10 +87,47 @@ Choose your difficulty on the main menu before starting.
 | Ammo | Unlimited | 40 + pickups | 20 + pickups |
 | Ammo pickups per level | None | 9 | 9 |
 | Enemy speed | 0.7× | 1.0× | 1.3× |
-| Boss speed | 0.6× | 1.0× | 1.4× |
+| Boss speed | 0.9× | 1.0× | 1.4× |
 | Potions per level | 4 | 3 | 2 |
+| Score multiplier | 1.5× | 3.0× | 4.5× |
 
 **Easy** is designed to be completable on a first or second attempt. **Hard** is for players who want a real challenge.
+
+---
+
+## Scoring
+
+Every game starts at **0 points**. Your score is always visible in the top-right corner of the screen.
+
+| Event | Points |
+|---|---|
+| Little Fox kills an enemy | +3 |
+| Baby Bear or Steggie kills an enemy | +2 |
+| Defeating Level 1 boss | +50 |
+| Defeating Level 2 boss | +60 |
+| Defeating Level 3 boss | +75 |
+| Retrying after dying | −10 |
+
+### End-of-Level Multiplier Bonus
+
+After each boss is defeated, the **Level Complete** screen shows your level score multiplied by your difficulty:
+
+| Difficulty | Multiplier |
+|---|---|
+| Easy | 1.5× |
+| Medium | 3.0× |
+| Hard | 4.5× |
+
+So a level score of 80 on Medium becomes **240 points** after the bonus is applied. Playing on Hard rewards nearly 3× more points than Easy — but it's much tougher!
+
+Your final cumulative score (across all three levels) appears on the **Victory screen** after rescuing Mama Sloth.
+
+### Score Tips
+
+- Kill every enemy you see — each one counts
+- Let your companions fight too — their kills score points as well
+- Avoid dying — each retry costs 10 points
+- Higher difficulty = bigger multiplier bonus at each level end
 
 ---
 

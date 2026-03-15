@@ -21,26 +21,35 @@ export class GameOverScene extends Phaser.Scene {
 
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.85);
 
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 80, '💔', {
+    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 90, '💔', {
       fontSize: '60px'
     }).setOrigin(0.5);
 
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 10, 'Oh no!', {
+    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 20, 'Oh no!', {
       fontSize: '42px', color: '#ff6666', fontFamily: 'Arial Black, Arial',
       stroke: '#660000', strokeThickness: 4
     }).setOrigin(0.5);
 
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 38, "Little Fox needs to try again!", {
+    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 28, "Little Fox needs to try again!", {
       fontSize: '18px', color: '#dddddd', fontFamily: 'Arial'
     }).setOrigin(0.5);
 
-    this._btn0 = this._makeButton(GAME_WIDTH / 2 - 90, GAME_HEIGHT / 2 + 90, 'Try Again', 0x226644, () => {
+    // Death penalty notice
+    const penaltyText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 58,
+      '-10 points for retrying', {
+        fontSize: '14px', color: '#ff9966', fontFamily: 'Arial',
+        stroke: '#440000', strokeThickness: 2
+      }).setOrigin(0.5).setAlpha(0);
+    this.tweens.add({ targets: penaltyText, alpha: 1, duration: 600, delay: 400 });
+
+    this._btn0 = this._makeButton(GAME_WIDTH / 2 - 90, GAME_HEIGHT / 2 + 98, 'Try Again', 0x226644, () => {
       AudioManager.play('button_click');
+      GameState.penalizeForDeath();
       GameState.resetForLevel();
       this.scene.start('GameScene', { level: GameState.state.currentLevel });
     });
 
-    this._btn1 = this._makeButton(GAME_WIDTH / 2 + 90, GAME_HEIGHT / 2 + 90, 'Main Menu', 0x334466, () => {
+    this._btn1 = this._makeButton(GAME_WIDTH / 2 + 90, GAME_HEIGHT / 2 + 98, 'Main Menu', 0x334466, () => {
       AudioManager.play('button_click');
       this.scene.start('StartScene');
     });
@@ -64,6 +73,7 @@ export class GameOverScene extends Phaser.Scene {
     if (aNow && !this._padAPrev) {
       if (this._padFocus === 0) {
         AudioManager.play('button_click');
+        GameState.penalizeForDeath();
         GameState.resetForLevel();
         this.scene.start('GameScene', { level: GameState.state.currentLevel });
       } else {

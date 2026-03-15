@@ -3,9 +3,16 @@ export const GAME_HEIGHT = 480;
 export const LEVEL_WIDTH = 7200;
 
 export const DIFFICULTY = {
-  easy:   { hearts: 5, enemySpeed: 0.7, bossSpeed: 0.9, telegraphMs: 900,  density: 'low',    potions: 4, ammo: Infinity, ammoPickups: 0 },
-  medium: { hearts: 4, enemySpeed: 1.0, bossSpeed: 1.0, telegraphMs: 1000, density: 'medium', potions: 3, ammo: 40,       ammoPickups: 9 },
-  hard:   { hearts: 3, enemySpeed: 1.3, bossSpeed: 1.4, telegraphMs:  600, density: 'high',   potions: 2, ammo: 20,       ammoPickups: 9 }
+  easy:   { hearts: 5, enemySpeed: 0.7, bossSpeed: 0.9, telegraphMs: 900,  density: 'low',    potions: 4, ammo: Infinity, ammoPickups: 0, scoreMultiplier: 1.5 },
+  medium: { hearts: 4, enemySpeed: 1.0, bossSpeed: 1.0, telegraphMs: 1000, density: 'medium', potions: 3, ammo: 40,       ammoPickups: 9, scoreMultiplier: 3.0 },
+  hard:   { hearts: 3, enemySpeed: 1.3, bossSpeed: 1.4, telegraphMs:  600, density: 'high',   potions: 2, ammo: 20,       ammoPickups: 9, scoreMultiplier: 4.5 }
+};
+
+export const SCORE = {
+  ENEMY_KILL_PLAYER:    3,
+  ENEMY_KILL_COMPANION: 2,
+  BOSS: { 1: 50, 2: 60, 3: 75 },
+  DEATH_PENALTY: 10
 };
 
 export const DEPTH = {
