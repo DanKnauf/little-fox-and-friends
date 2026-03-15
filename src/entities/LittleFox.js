@@ -12,6 +12,11 @@ export class LittleFox extends Entity {
     this.sprite.setScale(1.4);
     this.sprite.play('fox_idle');
 
+    // Frame is 32×40 but we want the same collision footprint as the old 32×32 frame.
+    // offsetY=4 shifts the body down so its bottom aligns with the old 32px frame bottom.
+    this.sprite.body.setSize(28, 32);
+    this.sprite.body.setOffset(2, 4);
+
     this._projectiles = new ProjectileGroup(scene, 'projectile', 20);
     this._keys = scene.input.keyboard.addKeys({
       up:    Phaser.Input.Keyboard.KeyCodes.W,

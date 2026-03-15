@@ -8,9 +8,9 @@ export function generateCharacterTextures(scene) {
 
 // ─── Little Fox ──────────────────────────────────────────────────────────────
 function generateLittleFox(scene) {
-  // Spritesheet: 8 frames × 32px = 256 wide, 32 tall
+  // Spritesheet: 8 frames × 32px wide, 40px tall (extra height gives ear clearance)
   // Frames: 0-3 walk, 4 jump, 5 hurt, 6 idle, 7 shoot
-  const W = 32, H = 32, FRAMES = 8;
+  const W = 32, H = 40, FRAMES = 8;
   const canvas = document.createElement('canvas');
   canvas.width = W * FRAMES; canvas.height = H;
   const ctx = canvas.getContext('2d');
@@ -20,9 +20,8 @@ function generateLittleFox(scene) {
     const legOffset = [0, 3, 0, -3][f % 4];
     const isJump = f === 4;
     const isHurt = f === 5;
-    drawFox(ctx, ox + 16, 16, legOffset, isJump, isHurt);
-    // Erase top 4 rows to eliminate any anti-aliasing bleed from ear tips
-    ctx.clearRect(ox, 0, W, 4);
+    // cy=20 (centre of 40px frame); ear tips land at y≈7 — clear of the top edge
+    drawFox(ctx, ox + 16, 20, legOffset, isJump, isHurt);
   }
 
   scene.textures.addSpriteSheet('fox', canvas, { frameWidth: W, frameHeight: H });
@@ -32,8 +31,9 @@ function drawFox(ctx, cx, cy, legOff, isJump, isHurt) {
   ctx.save();
   if (isHurt) ctx.globalAlpha = 0.75;
 
-  // Shift the character 5px down so ear tips clear the frame-top anti-aliasing zone
-  const oy = cy + 5;  // effective vertical centre = y 21 in the 32px frame
+  // Shift body down from frame centre so the fox sits in the lower ⅔ of the frame.
+  // With cy=20 (40px frame), oy=25: head at y=17, ear tips at y=7 — well clear of top.
+  const oy = cy + 5;  // effective vertical centre
 
   const orange = isHurt ? '#FF9966' : '#FF6600';
   const cream  = '#FFF5CC';
