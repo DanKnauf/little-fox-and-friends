@@ -13,10 +13,18 @@ export class PauseScene extends Phaser.Scene {
 
   create() {
     this._padFocus = 0;
+    // Assume buttons are held on first launch (Start was just pressed to get here)
+    this._padStartPrev = true;
+    this._padAPrev     = true;
 
-    // When woken from sleep (instead of a fresh launch), just reset focus state
+    // When woken from sleep, assume Start (and A) are still physically held
+    // so the rising-edge check in update() doesn't fire on the very first frame.
     this.events.on('wake', () => {
-      this._padFocus = 0;
+      this._padFocus     = 0;
+      this._padStartPrev = true;
+      this._padAPrev     = true;
+      this._padLeftPrev  = false;
+      this._padRightPrev = false;
       this._updateFocus();
     });
 

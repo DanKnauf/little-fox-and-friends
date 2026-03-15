@@ -223,7 +223,14 @@ export class GameScene extends Phaser.Scene {
     }
     const pad = this.input.gamepad?.getPad(0) ?? null;
     const startNow = !!(pad?.isButtonDown(9));
-    if (startNow && !this._padStartPrev) { this._triggerPause(); return; }
+    if (startNow && !this._padStartPrev) {
+      // Mark as "held" before pausing so GameScene doesn't re-trigger
+      // pause on its very first update after resuming while Start is
+      // still physically held down.
+      this._padStartPrev = true;
+      this._triggerPause();
+      return;
+    }
     this._padStartPrev = startNow;
 
     // Parallax scroll
