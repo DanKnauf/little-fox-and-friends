@@ -4,6 +4,7 @@ import { AudioManager } from '../audio/AudioManager.js';
 import { DEPTH, GAME_HEIGHT } from '../constants.js';
 import { GameState } from '../GameState.js';
 import { getRawPad, isButtonDown, getAxis } from '../input/GamepadInput.js';
+import { getTouchLeft, getTouchRight, getTouchJump, getTouchShoot, touchHitZone } from '../input/TouchInput.js';
 
 export class LittleFox extends Entity {
   constructor(scene, x, y, maxHearts) {
@@ -35,12 +36,19 @@ export class LittleFox extends Entity {
     this._moveSpeed = 220;
 
     // Gamepad "just pressed" edge-detection state
-    this._padShootPrev = false;
-    this._padJumpPrev  = false;
+    this._padShootPrev   = false;
+    this._padJumpPrev    = false;
 
-    // Mouse click to shoot toward cursor
+    // Touch "just pressed" edge-detection state
+    this._touchJumpPrev  = false;
+    this._touchShootPrev = false;
+
+    // Mouse/tap to shoot toward cursor.
+    // Suppress when the tap lands on a touch-control button zone so
+    // pressing Left/Right/Jump/Pause doesn't also fire a shot.
     scene.input.on('pointerdown', (pointer) => {
-      if (pointer.leftButtonDown()) this._shootAt(pointer.worldX, pointer.worldY);
+      const blocked = GameState.state.touchControlsEnabled && touchHitZone(pointer.x, pointer.y);
+      if (pointer.leftButtonDown() && !blocked) this._shootAt(pointer.worldX, pointer.worldY);
     });
   }
 
@@ -66,14 +74,27 @@ export class LittleFox extends Entity {
       (pad.buttons[7]?.value ?? 0) > 0.3              // RT (analog trigger)
     ));
 
-    // Edge-detect "just pressed" for jump and shoot
+    // Edge-detect "just pressed" for jump and shoot (gamepad)
     const padJumpJust  = padJumpNow  && !this._padJumpPrev;
     const padShootJust = padShootNow && !this._padShootPrev;
     this._padJumpPrev  = padJumpNow;
     this._padShootPrev = padShootNow;
 
+    // ── Touch — on-screen virtual buttons ───────────────────────────────────
+    const tcOn         = GameState.state.touchControlsEnabled;
+    const touchLeft    = tcOn && getTouchLeft();
+    const touchRight   = tcOn && getTouchRight();
+    const touchJumpNow = tcOn && getTouchJump();
+    const touchShootNow = tcOn && getTouchShoot();
+
+    // Edge-detect "just pressed" for jump and shoot (touch)
+    const touchJumpJust  = touchJumpNow  && !this._touchJumpPrev;
+    const touchShootJust = touchShootNow && !this._touchShootPrev;
+    this._touchJumpPrev  = touchJumpNow;
+    this._touchShootPrev = touchShootNow;
+
     // ── Horizontal movement ──────────────────────────────────────────────────
-    if (keys.left.isDown || padLeft) {
+    if (keys.left.isDown || padLeft || touchLeft) {
       body.setVelocityX(-this._moveSpeed);
       this._facingRight = false;
       this.sprite.setFlipX(true);
@@ -86,7 +107,7 @@ export class LittleFox extends Entity {
           this._lastFootstepTime = time;
         }
       }
-    } else if (keys.right.isDown || padRight) {
+    } else if (keys.right.isDown || padRight || touchRight) {
       body.setVelocityX(this._moveSpeed);
       this._facingRight = true;
       this.sprite.setFlipX(false);
@@ -106,15 +127,15 @@ export class LittleFox extends Entity {
       }
     }
 
-    // ── Jump: W key or gamepad A / D-pad up ─────────────────────────────────
-    if ((keys.up.isDown || padJumpJust) && onGround) {
+    // ── Jump: W key, gamepad A / D-pad up, or touch ▲ button ───────────────
+    if ((keys.up.isDown || padJumpJust || touchJumpJust) && onGround) {
       body.setVelocityY(-520);
       this.sprite.play('fox_jump', true);
       AudioManager.play('jump');
     }
 
-    // ── Shoot: SPACE or gamepad X / RB / RT ─────────────────────────────────
-    if (Phaser.Input.Keyboard.JustDown(keys.shoot) || padShootJust) {
+    // ── Shoot: SPACE, gamepad X / RB / RT, or touch ● button ───────────────
+    if (Phaser.Input.Keyboard.JustDown(keys.shoot) || padShootJust || touchShootJust) {
       this._shootForward();
     }
 

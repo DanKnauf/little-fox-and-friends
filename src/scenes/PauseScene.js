@@ -127,7 +127,7 @@ export class PauseScene extends Phaser.Scene {
   }
 
   _makeButton(x, y, label, color, callback) {
-    const bg = this.add.rectangle(x, y, 150, 40, color)
+    const bg = this.add.rectangle(x, y, 180, 48, color)
       .setInteractive({ useHandCursor: true })
       .setStrokeStyle(2, 0xffffff)
       .setScrollFactor(0);

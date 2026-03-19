@@ -148,8 +148,11 @@ export class StartScene extends Phaser.Scene {
     }
     this._highlightDiff('medium');
 
+    // ── Touch Controls toggle ────────────────────────────────────────────────
+    this._makeTouchToggle(GAME_WIDTH / 2, 418);
+
     // ── START GAME button ────────────────────────────────────────────────────
-    const startBg = this._makeStartButton(GAME_WIDTH / 2, 438);
+    const startBg = this._makeStartButton(GAME_WIDTH / 2, 454);
     startBg.on('pointerdown', () => {
       AudioManager.resume();
       AudioManager.play('button_click');
@@ -210,6 +213,28 @@ export class StartScene extends Phaser.Scene {
     g.lineStyle(1, 0x6677ee, 0.25);
     g.lineBetween(x + 1, y + 1, x + w - 1, y + 1);
     g.lineBetween(x + 1, y + 1, x + 1, y + h - 1);
+  }
+
+  _makeTouchToggle(x, y) {
+    const W = 200, H = 24;
+    const on = () => GameState.state.touchControlsEnabled;
+
+    const bg = this.add.rectangle(x, y, W, H, on() ? 0x226644 : 0x444466)
+      .setInteractive({ useHandCursor: true })
+      .setStrokeStyle(1, 0x888888);
+
+    const label = this.add.text(x, y, `Touch Controls: ${on() ? 'ON' : 'OFF'}`, {
+      fontSize: '12px', color: '#ffffff', fontFamily: 'Arial'
+    }).setOrigin(0.5);
+
+    bg.on('pointerdown', () => {
+      GameState.state.touchControlsEnabled = !GameState.state.touchControlsEnabled;
+      bg.setFillStyle(on() ? 0x226644 : 0x444466);
+      label.setText(`Touch Controls: ${on() ? 'ON' : 'OFF'}`);
+      AudioManager.play('button_click');
+    });
+    bg.on('pointerover', () => bg.setAlpha(0.75));
+    bg.on('pointerout',  () => bg.setAlpha(1));
   }
 
   _makeDiffButton(x, y, label, key, color, hoverColor) {

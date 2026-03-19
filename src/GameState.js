@@ -14,7 +14,8 @@ const state = {
     mamasloth: { hearts: 4, maxHearts: 4 }
   },
   score: 0,       // cumulative total score shown in HUD
-  levelScore: 0   // base points earned this level (for end-of-level multiplier)
+  levelScore: 0,  // base points earned this level (for end-of-level multiplier)
+  touchControlsEnabled: true  // on-screen touch buttons; defaults ON for tablet play
 };
 
 function applyDifficulty(key) {

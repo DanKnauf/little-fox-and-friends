@@ -37,6 +37,22 @@ Little Fox's Mama Sloth has been taken! Three fearsome bosses guard the way acro
 
 On the menus, use **Left/Right** on the stick or D-pad to navigate and **A** to select.
 
+### Touch Controls (iPad / Tablet)
+
+On-screen buttons appear during gameplay when Touch Controls are enabled.
+
+| Button | Location | Action |
+|---|---|---|
+| ◀ | Bottom-left | Move left |
+| ▶ | Bottom-left (right of ◀) | Move right |
+| ▲ | Above ◀ / ▶ | Jump |
+| ● | Bottom-right | Shoot forward |
+| ⏸ | Top-right | Pause / Resume |
+
+Tap anywhere else on the screen to shoot toward that point.
+
+**To toggle touch controls on or off:** use the **Touch Controls: ON/OFF** button on the main menu. Touch controls default to **ON** — desktop players who prefer a cleaner screen can turn them off.
+
 ### Tips
 
 - **Shoot enemies** before they touch you — contact costs one heart
@@ -150,7 +166,7 @@ Each enemy has an environment-appropriate skin for each level.
 
 ## Pause Menu
 
-Press **ESC** (keyboard) or **Start** (Xbox controller) at any time during gameplay to pause. The pause menu shows a full controls reference and lets you resume the game or return to the main menu.
+Press **ESC** (keyboard), **Start** (Xbox controller), or the **⏸ button** (touch) at any time during gameplay to pause. The pause menu shows a full controls reference and lets you resume the game or return to the main menu.
 
 ---
 
@@ -162,6 +178,7 @@ Press **ESC** (keyboard) or **Start** (Xbox controller) at any time during gamep
 - Background music is unique per level; boss battles trigger a darker, more urgent track
 - High-DPI rendering — sharp on retina displays and Windows 150% scaling
 - Full Xbox controller support throughout menus and gameplay
+- **Tablet / iPad friendly** — on-screen touch buttons for movement, jump, shoot, and pause; toggle on/off from the main menu
 - Deployed automatically to GitHub Pages via GitHub Actions on every push to `main`
 - Runs entirely in the browser — no server, no installs
 

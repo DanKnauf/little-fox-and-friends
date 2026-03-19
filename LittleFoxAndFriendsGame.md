@@ -66,6 +66,24 @@ Little Fox's Mama — Mama Sloth — has been taken. Little Fox must journey thr
 
 On menus, use Left/Right on the stick or D-pad to navigate options and A to confirm.
 
+### Touch / Tablet (iPad)
+
+On-screen virtual buttons rendered as semi-transparent circles during gameplay.
+
+| Button | Screen Position | Action |
+|---|---|---|
+| ◀ Left | Bottom-left, cx=52, cy=412 | Move left |
+| ▶ Right | Bottom-left, cx=128, cy=412 | Move right |
+| ▲ Jump | Above movement, cx=90, cy=340 | Jump |
+| ● Shoot | Bottom-right, cx=748, cy=412 | Shoot forward |
+| ⏸ Pause | Top-right, cx=768, cy=32 | Pause / Resume |
+
+Tapping anywhere outside a button zone shoots toward that point (existing pointer behavior).
+
+Touch controls default to **ON** and can be toggled via a **Touch Controls: ON/OFF** button on the Start Menu. Desktop players may disable them to keep the screen uncluttered. The preference persists for the duration of the browser session.
+
+Multi-touch is supported: the left thumb can hold movement while the right thumb taps shoot simultaneously.
+
 Controls are identical across all levels. No control remapping required for MVP.
 
 ---
@@ -78,6 +96,7 @@ The game opens on a **main menu screen** before any gameplay begins. The menu mu
 
 - Game title: **Little Fox and Friends** (prominent, styled)
 - Difficulty selection (Easy / Medium / Hard) — selectable before starting
+- **Touch Controls: ON/OFF** toggle — defaults ON; lets desktop players hide the on-screen button overlay
 - **START GAME** button
 - Full in-game instructions panel (always visible or accessible via an "How to Play" button on the menu)
 

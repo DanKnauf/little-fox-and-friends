@@ -13,6 +13,8 @@ import { BabyBear } from '../entities/BabyBear.js';
 import { Steggie } from '../entities/Steggie.js';
 import { MamaSlothCompanion } from '../entities/MamaSlothCompanion.js';
 import { HUD } from '../ui/HUD.js';
+import { TouchControlsOverlay } from '../ui/TouchControlsOverlay.js';
+import { getTouchPause } from '../input/TouchInput.js';
 import { getRawPad, isButtonDown } from '../input/GamepadInput.js';
 
 const LAYOUTS = { 1: ForestLayout, 2: DesertLayout, 3: OceanLayout, 4: VolcanoLayout };
@@ -254,7 +256,14 @@ export class GameScene extends Phaser.Scene {
 
     // Pause — ESC key or Xbox Start button (button 9)
     this._escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-    this._padStartPrev = false;
+    this._padStartPrev   = false;
+    this._touchPausePrev = false;
+
+    // On-screen touch controls (shown when enabled in settings)
+    this._touchOverlay = null;
+    if (GameState.state.touchControlsEnabled) {
+      this._touchOverlay = new TouchControlsOverlay(this);
+    }
 
     // Events
     this.events.once('playerDefeated', () => {
@@ -278,6 +287,15 @@ export class GameScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this._escKey)) {
       this._triggerPause(); return;
     }
+    // Touch pause button (⏸ on-screen)
+    const touchPauseNow = GameState.state.touchControlsEnabled && getTouchPause();
+    if (touchPauseNow && !this._touchPausePrev) {
+      this._touchPausePrev = true;
+      this._triggerPause();
+      return;
+    }
+    this._touchPausePrev = touchPauseNow;
+
     const pad = getRawPad();
     const startNow = isButtonDown(pad, 9);
     if (startNow && !this._padStartPrev) {
@@ -383,6 +401,9 @@ export class GameScene extends Phaser.Scene {
         comp.getProjectileGroup?.()?.destroy();
       }
     } catch (_) {}
+
+    this._touchOverlay?.destroy();
+    this._touchOverlay = null;
 
     this._enemies = [];
     this._companionList = [];
